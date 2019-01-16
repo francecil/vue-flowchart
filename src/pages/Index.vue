@@ -1,77 +1,90 @@
 <template>
-  <div class="tb-absolute-fill tb-rulechain-graph">
-    <div
-      id="tb-rulchain-canvas"
-      class="ng-isolate-scope fc-canvas"
-      style="width: 1000px; height: 653px;"
-    >
-      <svg
-        width="100%"
-        height="100%"
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <marker
-            id="arrow"
-            markerUnits="strokeWidth"
-            markerWidth="12"
-            markerHeight="12"
-            viewBox="0 0 12 12"
-            refX="6"
-            refY="6"
-            orient="auto"
-          >
-            <path
-              d="M2,2 L10,6 L2,10 L6,6 L2,2"
-              style="fill: #000000;"/>
-          </marker>
-        </defs>
-
-        <line
-          x1="0"
-          y1="0"
-          x2="200"
-          y2="50"
-          stroke="red"
-          stroke-width="2"
-          marker-end="url(#arrow)"/>
-
-        <path
-          d="M20,70 T80,100 T160,80 T200,90"
-          fill="white"
-          stroke="red"
-          stroke-width="2"
-          marker-start="url(#arrow)"
-          marker-mid="url(#arrow)"
-          marker-end="url(#arrow)"
-        />
-      </svg>
-    </div>
+  <div class="main-container">
+    <fc-canvas
+      :model="model"
+      edge-style="curved"/>
   </div>
 </template>
 
 <script>
+// import EdgedrawingService from '@/service/edgedrawing'
+// import flowchartConstants from '@/config/flowchart'
+import FcCanvas from '@/components/FcCanvas'
 export default {
   name: 'HelloWorld',
+  components: {
+    'fc-canvas': FcCanvas
+  },
   data () {
     return {
-      msg: 'test'
+      model: {
+        nodes: [{
+          id: 1,
+          name: 'node1',
+          x: 411, // x-coordinate of the node relative to the canvas.
+          y: 74,
+          connectors: [{
+            id: 11,
+            type: 'leftConnector'
+          }]
+        }, {
+          id: 2,
+          name: 'node2',
+          x: 133, // x-coordinate of the node relative to the canvas.
+          y: 254,
+          connectors: [{
+            id: 12,
+            type: 'rightConnector'
+          }]
+        }],
+        edges: [{
+          source: 12,
+          destination: 11,
+          active: false
+        }]
+      }
     }
+  },
+  mounted () {
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
+<style>
 /* eslint-disable */
-.tb-absolute-fill {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+body {
+  font-family: sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100vh;
+}
+.main-container {
+  width: 100%;
+  height: 100vh;
+}
+.fc-container {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+}
+
+.fc-left-pane {
+  flex: 0.25;
+  overflow: auto;
 }
 .fc-canvas {
+    -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  position: relative;
+  width: 100%;
+  height: 100%;
   background-size: 25px 25px;
   background-image: linear-gradient(
       90deg,
@@ -79,14 +92,304 @@ export default {
       transparent 0
     ),
     linear-gradient(180deg, rgba(0, 0, 0, 0.1) 1px, transparent 0);
-  /* background-color: transparent; */
+  background-color: transparent;
 }
-/* background-color: transparent; */
+.fc-canvas svg {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.fc-divider {
+  flex: 0.01;
+}
+
+.fc-right-pane {
+  flex: 0.74;
+  overflow: auto;
+}
+
+.button-overlay {
+  position: absolute;
+  top: 40px;
+  z-index: 10;
+}
+
+.button-overlay button {
+  display: block;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  border: none;
+  box-shadow: none;
+  color: #fff;
+  font-size: 20px;
+  background-color: #F15B26;
+}
+
+.button-overlay button:hover:not(:disabled) {
+  border: 4px solid #b03911;
+  border-radius: 5px;
+
+  margin: -4px;
+  margin-bottom: 11px;
+}
+
+.button-overlay button:disabled {
+  -webkit-filter: brightness(70%);
+  filter: brightness(70%);
+}
+
+.fc-node {
+  z-index: 1;
+}
+
+.innerNode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: 100px;
+  border-radius: 5px;
+
+  background-color: #F15B26;
+  color: #fff;
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.fc-node .fc-node-overlay {
+  position: absolute;
+  pointer-events: none;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #000;
+  opacity: 0;
+}
+
+.fc-node.fc-hover .fc-node-overlay {
+  opacity: 0.25;
+  transition: opacity .2s;
+}
+
+.fc-node.fc-selected .fc-node-overlay {
+  opacity: 0.25;
+}
+
+.fc-node.fc-dragging {
+  z-index: 10;
+}
+
+.fc-node p {
+  padding: 0 15px;
+  text-align: center;
+}
+
+.fc-leftConnectors, .fc-rightConnectors {
+  position: absolute;
+  top: 0;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+
+  z-index: -10;
+}
+
+.fc-leftConnectors {
+  left: -20px;
+}
+
+.fc-rightConnectors {
+  right: -20px;
+}
+
+.fc-magnet {
+  display: flex;
+  flex-grow: 1;
+  height: 60px;
+
+  justify-content: center;
+}
+
+.fc-leftConnectors .fc-magnet {
+  align-items: center;
+}
+
+.fc-rightConnectors .fc-magnet {
+  align-items: center;
+}
+
+.fc-connector {
+  width: 18px;
+  height: 18px;
+
+  border: 10px solid transparent;
+  -moz-background-clip: padding; /* Firefox 3.6 */
+  -webkit-background-clip: padding; /* Safari 4? Chrome 6? */
+  background-clip: padding-box;
+  border-radius: 50% 50%;
+  background-color: #F7A789;
+  color: #fff;
+  pointer-events: all;
+}
+
+.fc-connector.fc-hover {
+  background-color: #000;
+}
+
 .fc-edge {
-  outline: none;
   stroke: gray;
   stroke-width: 4;
+  transition: stroke-width .2s;
   fill: transparent;
-  transition: stroke-width 0.2s;
 }
+
+.fc-edge.fc-hover {
+  stroke: gray;
+  stroke-width: 6;
+  fill: transparent;
+}
+
+.fc-edge.fc-selected {
+  stroke: red;
+  stroke-width: 4;
+  fill: transparent;
+}
+
+.fc-arrow-marker polygon {
+  stroke: gray;
+  fill: gray;
+}
+
+.fc-arrow-marker-selected polygon {
+  stroke: red;
+  fill: red;
+}
+
+.fc-edge.fc-active {
+  animation: dash 3s linear infinite;
+  stroke-dasharray: 20;
+}
+
+.fc-edge.fc-dragging {
+  pointer-events: none;
+}
+
+.edge-endpoint {
+  fill: gray;
+}
+
+.fc-nodedelete {
+  display: none;
+  font-size: 18px;
+}
+
+.fc-nodeedit {
+  display: none;
+  font-size: 15px;
+}
+
+.fc-edit .fc-nodedelete, .fc-edit .fc-nodeedit {
+  display: block;
+  position: absolute;
+  border: solid 2px #eee;
+
+  border-radius: 50%;
+  font-weight: 600;
+  line-height: 20px;
+
+  height: 20px;
+  padding-top: 2px;
+  width: 22px;
+
+  background: #494949;
+  color: #fff;
+  text-align: center;
+  vertical-align: bottom;
+
+  cursor: pointer;
+}
+
+.fc-edit .fc-nodeedit {
+  top: -24px;
+  right: 16px;
+}
+
+.fc-edit .fc-nodedelete {
+  top: -24px;
+  right: -13px;
+}
+
+.fc-noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
+}
+
+.fc-edge-label {
+  position: absolute;
+  opacity: 0.8;
+  transition: transform .2s;
+  transform-origin: bottom left;
+  margin: 0 auto;
+}
+
+.fc-edge-label .fc-nodeedit {
+  top: -30px;
+  right: 14px;
+}
+
+.fc-edge-label .fc-nodedelete {
+  top: -30px;
+  right: -13px;
+}
+
+.fc-edge-label-text {
+  position: absolute;
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+  white-space: nowrap;
+  text-align: center;
+  font-size: 16px;
+}
+
+.fc-edge-label-text span {
+  cursor: default;
+  border: solid #ff3d00;
+  border-radius: 10px;
+  color: #ff3d00;
+  background-color: #fff;
+  padding: 3px 5px;
+}
+
+.fc-edge-label.fc-hover {
+  transform: scale(1.25);
+}
+
+.fc-edge-label.fc-selected .fc-edge-label-text span, .fc-edge-label.fc-edit .fc-edge-label-text span {
+  border: solid red;
+  color: #fff;
+  font-weight: 600;
+  background-color: red;
+}
+
+.fc-select-rectangle {
+  border: 2px dashed #5262ff;
+  position: absolute;
+  background: rgba(20,125,255,0.1);
+  z-index: 2;
+}
+
+@keyframes dash {
+  from {
+    stroke-dashoffset: 500;
+  }
+}
+
 </style>

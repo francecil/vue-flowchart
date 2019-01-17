@@ -8,8 +8,7 @@
     @drop="canvasDrop($event)"
     @mousedown="canvasMousedown($event)"
     @mousemove="canvasMousemove($event)"
-    @mouseup="canvasMouseup($event)"
-  >
+    @mouseup="canvasMouseup($event)">
     <svg>
       <defs>
         <marker
@@ -26,7 +25,7 @@
             points="-2,0 -5,5 5,0 -5,-5"
             stroke="gray"
             fill="gray"
-            stroke-width="1px"/>
+            stroke-width="1px" />
         </marker>
         <marker
           :id="arrowDefId+'-selected'"
@@ -42,7 +41,7 @@
             points="-2,0 -5,5 5,0 -5,-5"
             stroke="red"
             fill="red"
-            stroke-width="1px"/>
+            stroke-width="1px" />
         </marker>
       </defs>
       <g
@@ -53,13 +52,12 @@
           :class="(modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeClass) || flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeClass || edge.active && flowchartConstants.activeClass + ' ' + flowchartConstants.edgeClass || flowchartConstants.edgeClass"
           :d="getEdgeDAttribute(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge), edgeStyle)"
           :marker-end="'url(#'+(modelservice.edges.isSelected(edge) ? arrowDefId+'-selected' : arrowDefId)+')'"
-          @mousedown="edgeMouseDown($event, edge)"
-          @dblclick="edgeDoubleClick($event, edge)"
-          @mouseover="edgeMouseOver($event, edge)"
-          @mouseenter="edgeMouseEnter($event, edge)"
-          @mouseleave="edgeMouseLeave($event, edge)"
-          @click="edgeClick($event, edge)"
-        />
+          @mousedown="edgeMouseDown(edge)"
+          @dblclick="edgeDoubleClick(edge)"
+          @mouseover="edgeMouseOver(edge)"
+          @mouseenter="edgeMouseEnter(edge)"
+          @mouseleave="edgeMouseLeave(edge)"
+          @click="edgeClick(edge)" />
       </g>
       <!-- <g ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging">
 
@@ -94,8 +92,9 @@
       @node-dragstart="nodeDragstart"
       @node-dragend="nodeDragend"
       @node-click="nodeClick"
-      @node-Mouseover="nodeMouseover"
-      @node-MouseOut="nodeMouseOut"
+      @node-mouseover="nodeMouseover"
+      @node-mouseOut="nodeMouseOut"
+      @node-edit="nodeEdit"
     />
 
     <!-- <div
@@ -116,24 +115,23 @@
       :class="'fc-noselect ' + ((modelservice.edges.isEdit(edge) && flowchartConstants.editClass + ' ' + flowchartConstants.edgeLabelClass) || (modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeLabelClass) || flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeLabelClass || edge.active && flowchartConstants.activeClass + flowchartConstants.edgeLabelClass || flowchartConstants.edgeLabelClass)"
       :style="{ top: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).y)+'px',
                 left: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).x)+'px'}"
-      @mousedown="edgeMouseDown($event, edge)"
-      @click="edgeClick($event, edge)"
-      @mouseover="edgeMouseOver($event, edge)"
-      @mouseenter="edgeMouseEnter($event, edge)"
-      @mouseleave="edgeMouseLeave($event, edge)"
-      @dblclick="edgeDoubleClick($event, edge)"
-    >
+      @mousedown="edgeMouseDown(edge)"
+      @click="edgeClick(edge)"
+      @mouseover="edgeMouseOver(edge)"
+      @mouseenter="edgeMouseEnter(edge)"
+      @mouseleave="edgeMouseLeave(edge)"
+      @dblclick="edgeDoubleClick(edge)">
       <div class="fc-edge-label-text">
         <div
           v-if="modelservice.isEditable()"
           class="fc-noselect fc-nodeedit"
-          @click="edgeEdit($event, edge)">
+          @click="edgeEdit(edge)">
           #
         </div>
         <div
           v-if="modelservice.isEditable()"
           class="fc-noselect fc-nodedelete"
-          @click="edgeRemove($event, edge)">
+          @click="edgeRemove(edge)">
           &times;
         </div>
         <span
@@ -145,7 +143,7 @@
     <div
       id="select-rectangle"
       class="fc-select-rectangle"
-      hidden/>
+      hidden />
   </div>
 
 </template>
@@ -243,13 +241,13 @@ export default {
     }
   },
   created () {
-    ;(function (scope) {
+    ; (function (scope) {
       if (!scope.dropTargetId && scope.edgeStyle !== flowchartConstants.curvedStyle && scope.edgeStyle !== flowchartConstants.lineStyle) {
         throw new Error('edgeStyle not supported.')
       }
     })(this)
 
-    let noop = () => {}
+    let noop = () => { }
     this.modelservice = ModelFactory(this.model, this.selectedObjects, noop, noop, noop, noop, noop)
     this.canvasservice = CanvasFactory()
 
@@ -300,79 +298,82 @@ export default {
     canvasClick (event) {
       console.log(event)
     },
-    canvasDrop  (event) {
+    canvasDrop (event) {
       // this.nodedraggingervice.drop(event)
       // this.canvasservice._notifyDrop(event)
     },
 
-    canvasDragover  (event) {
+    canvasDragover (event) {
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)
       // this.canvasservice._notifyDragover(event)
     },
 
-    canvasMousedown  (event) {
+    canvasMousedown (event) {
       // this.rectangleselectservice.mousedown(event)
     },
 
-    canvasMousemove  (event) {
+    canvasMousemove (event) {
       // this.rectangleselectservice.mousemove(event)
     },
 
-    canvasMouseup  (event) {
+    canvasMouseup (event) {
       // this.rectangleselectservice.mouseup(event)
     },
 
-    edgeMouseDown  (event, edge) {
+    edgeMouseDown (edge) {
       event.stopPropagation()
     },
 
-    edgeClick  (event, edge) {
+    edgeClick (edge) {
       console.log('edgeClick')
       this.modelservice.edges.handleEdgeMouseClick(edge, event.ctrlKey)
       // Don't let the chart handle the mouse down.
       event.stopPropagation()
       event.preventDefault()
     },
-    edgeMouseOver  (event, edge) {
+    edgeMouseOver (edge) {
       console.log('edgeMouseOver')
-      this.$emit('edge-mouseover', event, edge)
+      this.$emit('edge-mouseover', edge)
     },
-    edgeMouseEnter  (event, edge) {
+    edgeMouseEnter (edge) {
       console.log('edgeMouseEnter')
-      this.$emit('edge-mouseenter', event, edge)
+      this.$emit('edge-mouseenter', edge)
     },
-    edgeMouseLeave  (event, edge) {
+    edgeMouseLeave (edge) {
       console.log('edgeMouseLeave')
-      this.$emit('edge-mouseleave', event, edge)
+      this.$emit('edge-mouseleave', edge)
     },
-    edgeDoubleClick  (event, edge) {
+    edgeDoubleClick (edge) {
       console.log('edgeDoubleClick')
-      this.$emit('edge-dblclick', event, edge)
+      this.$emit('edge-dblclick', edge)
     },
-    edgeEdit (event, edge) {
+    edgeEdit (edge) {
       console.log('edgeEdit')
-      this.$emit('edge-edit', event, edge)
+      this.$emit('edge-edit', edge)
     },
-    edgeRemove  (event, edge) {
+    edgeRemove (edge) {
       this.modelservice.edges.delete(edge)
       event.stopPropagation()
       event.preventDefault()
     },
-    nodeDragstart (event, node) {
+    nodeDragstart (node) {
 
     },
-    nodeDragend (event, node) {
+    nodeDragend (node) {
 
     },
-    nodeClick (event, node) {
+    nodeClick (node) {
 
     },
-    nodeMouseover (event, node) {
+    nodeMouseover (node) {
 
     },
-    nodeMouseOut (event, node) {
+    nodeMouseOut (node) {
 
+    },
+    nodeEdit (node) {
+      this.$emit('node-edit', node)
     },
     isValidEdge (edge) {
 
@@ -384,7 +385,7 @@ export default {
 </script>
 <style>
 .fc-canvas {
-    -webkit-touch-callout: none;
+  -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
   -moz-user-select: none;
@@ -432,7 +433,7 @@ export default {
   box-shadow: none;
   color: #fff;
   font-size: 20px;
-  background-color: #F15B26;
+  background-color: #f15b26;
 }
 
 .button-overlay button:hover:not(:disabled) {
@@ -459,7 +460,7 @@ export default {
   min-width: 100px;
   border-radius: 5px;
 
-  background-color: #F15B26;
+  background-color: #f15b26;
   color: #fff;
   font-size: 16px;
   pointer-events: none;
@@ -478,7 +479,7 @@ export default {
 
 .fc-node.fc-hover .fc-node-overlay {
   opacity: 0.25;
-  transition: opacity .2s;
+  transition: opacity 0.2s;
 }
 
 .fc-node.fc-selected .fc-node-overlay {
@@ -494,7 +495,8 @@ export default {
   text-align: center;
 }
 
-.fc-leftConnectors, .fc-rightConnectors {
+.fc-leftConnectors,
+.fc-rightConnectors {
   position: absolute;
   top: 0;
   height: 100%;
@@ -538,7 +540,7 @@ export default {
   -webkit-background-clip: padding; /* Safari 4? Chrome 6? */
   background-clip: padding-box;
   border-radius: 50% 50%;
-  background-color: #F7A789;
+  background-color: #f7a789;
   color: #fff;
   pointer-events: all;
 }
@@ -550,7 +552,7 @@ export default {
 .fc-edge {
   stroke: gray;
   stroke-width: 4;
-  transition: stroke-width .2s;
+  transition: stroke-width 0.2s;
   fill: transparent;
 }
 
@@ -599,7 +601,8 @@ export default {
   font-size: 15px;
 }
 
-.fc-edit .fc-nodedelete, .fc-edit .fc-nodeedit {
+.fc-edit .fc-nodedelete,
+.fc-edit .fc-nodeedit {
   display: block;
   position: absolute;
   border: solid 2px #eee;
@@ -643,7 +646,7 @@ export default {
 .fc-edge-label {
   position: absolute;
   opacity: 0.8;
-  transition: transform .2s;
+  transition: transform 0.2s;
   transform-origin: bottom left;
   margin: 0 auto;
 }
@@ -680,7 +683,8 @@ export default {
   transform: scale(1.25);
 }
 
-.fc-edge-label.fc-selected .fc-edge-label-text span, .fc-edge-label.fc-edit .fc-edge-label-text span {
+.fc-edge-label.fc-selected .fc-edge-label-text span,
+.fc-edge-label.fc-edit .fc-edge-label-text span {
   border: solid red;
   color: #fff;
   font-weight: 600;
@@ -690,7 +694,7 @@ export default {
 .fc-select-rectangle {
   border: 2px dashed #5262ff;
   position: absolute;
-  background: rgba(20,125,255,0.1);
+  background: rgba(20, 125, 255, 0.1);
   z-index: 2;
 }
 

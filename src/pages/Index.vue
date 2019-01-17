@@ -2,7 +2,10 @@
   <div class="main-container">
     <fc-canvas
       :model="model"
-      edge-style="curved"/>
+      edge-style="curved"
+      @edge-edit="handleEdgeEdit"
+      @node-edit="handleNodeEdit"
+    />
   </div>
 </template>
 
@@ -47,6 +50,14 @@ export default {
     }
   },
   mounted () {
+  },
+  methods: {
+    handleEdgeEdit (edge) {
+      edge.label = 'tesr'
+    },
+    handleNodeEdit (node) {
+      node.name = 'test'
+    }
   }
 }
 </script>

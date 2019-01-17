@@ -169,7 +169,7 @@ export default {
 
     },
     handleEdit () {
-
+      this.$emit('node-edit', this.node)
     },
     handleDelete () {
       this.modelservice.nodes.delete(this.node)

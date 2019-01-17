@@ -5,8 +5,8 @@
     :draggable="!node.readonly"
     :style="styleComputed"
     :class="classComputed"
-    ng-dblclick="callbacks.doubleClick($event)"
-    @mousedown.stop="mousedown"
+    @dblclick="handleDoubleClick"
+    @mousedown.stop="handleMousedown"
     v-on="listenersComputed">
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div class="innerNode">
@@ -34,20 +34,18 @@
         </fc-magnet>
       </div>
     </div>
-    <!-- <div
-      ng-if="modelservice.isEditable() && !node.readonly"
+    <div
+      v-if="modelservice.isEditable() && !node.readonly"
       class="fc-nodeedit"
-      ng-click="callbacks.nodeEdit($event, node)">
-      <i
-        class="fa fa-pencil"
-        aria-hidden="true" />
+      @click="handleEdit">
+      #
     </div>
     <div
-      ng-if="modelservice.isEditable() && !node.readonly"
+      v-if="modelservice.isEditable() && !node.readonly"
       class="fc-nodedelete"
-      ng-click="modelservice.nodes.delete(node)">
+      @click="handleDelete">
       &times;
-    </div> -->
+    </div>
   </div>
 
 </template>
@@ -146,8 +144,11 @@ export default {
     this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
   },
   methods: {
-    mousedown () {
-      console.log('mousedown')
+    handleMousedown () {
+      console.log('mousedown:', event)
+    },
+    handleDoubleClick () {
+
     },
     handleDragstart () {
       console.log('handleDragstart')
@@ -156,13 +157,22 @@ export default {
 
     },
     handleClick () {
-
+      this.modelservice.edges.handleEdgeMouseClick(this.node, event.ctrlKey)
+      // Don't let the chart handle the mouse down.
+      event.stopPropagation()
+      event.preventDefault()
     },
     handleMouseover () {
 
     },
     handleMouseout () {
 
+    },
+    handleEdit () {
+
+    },
+    handleDelete () {
+      this.modelservice.nodes.delete(this.node)
     }
   }
 }

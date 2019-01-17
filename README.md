@@ -20,7 +20,8 @@
   name: string,
   x: integer, // x-coordinate of the node relative to the canvas.
   y: integer, // y-coordinate of the node relative to the canvas.
-  connectors: [Connector]
+  connectors: [Connector],
+  readonly: boolean
 }
 ```
 

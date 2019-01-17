@@ -1,6 +1,46 @@
 # vue-flowchart
 
-> A Vue.js project
+> A flowchart base on Vue.js project
+
+## Api
+
+### The model
+
+```javascript
+{
+  nodes: [Node],
+  edges: [Edge]
+}
+```
+
+#### Node
+```javascript
+{
+  id: integer,
+  name: string,
+  x: integer, // x-coordinate of the node relative to the canvas.
+  y: integer, // y-coordinate of the node relative to the canvas.
+  connectors: [Connector]
+}
+```
+
+#### Connector
+```javascript
+{
+  id: integer,
+  type: string
+}
+```
+
+#### Edge
+```javascript
+{
+ source: Connector.id
+ destination: Connector.id
+ active: boolean
+ label:string
+}
+```
 
 ## Build Setup
 
@@ -27,4 +67,3 @@ npm run e2e
 npm test
 ```
 
-For a detailed explanation on how things work, check out the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).

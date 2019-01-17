@@ -109,37 +109,40 @@
       </div>
     </div> -->
     <!-- 连线的label -->
-    <!-- <div
+    <div
+      v-for="(edge,$index) in model.edges"
+      :key="$index"
+      :class="'fc-noselect ' + ((modelservice.edges.isEdit(edge) && flowchartConstants.editClass + ' ' + flowchartConstants.edgeLabelClass) || (modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeLabelClass) || edge == mouseOver.edge && flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeLabelClass || edge.active && flowchartConstants.activeClass + flowchartConstants.edgeLabelClass || flowchartConstants.edgeLabelClass)"
+      :style="{ top: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).y)+'px',
+                left: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).x)+'px'}"
       ng-mousedown="edgeMouseDown($event, edge)"
       ng-click="edgeClick($event, edge)"
       ng-dblclick="edgeDoubleClick($event, edge)"
       ng-mouseover="edgeMouseOver($event, edge)"
       ng-mouseenter="edgeMouseEnter($event, edge)"
+
       ng-mouseleave="edgeMouseLeave($event, edge)"
-      ng-attr-class="{{'fc-noselect ' + ((modelservice.edges.isEdit(edge) && flowchartConstants.editClass + ' ' + flowchartConstants.edgeLabelClass) || (modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeLabelClass) || edge == mouseOver.edge && flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeLabelClass || edge.active && flowchartConstants.activeClass + flowchartConstants.edgeLabelClass || flowchartConstants.edgeLabelClass)}}"
-      ng-style="{ top: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).y)+'px',
-                   left: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).x)+'px'}"
-      ng-repeat="edge in model.edges">
+    >
       <div class="fc-edge-label-text">
         <div
-          ng-if="modelservice.isEditable()"
+          v-if="modelservice.isEditable()"
           class="fc-noselect fc-nodeedit"
-          ng-click="edgeEdit($event, edge)">
+          @click="edgeEdit($event, edge)">
           <i
             class="fa fa-pencil"
             aria-hidden="true"/>
         </div>
         <div
-          ng-if="modelservice.isEditable()"
+          v-if="modelservice.isEditable()"
           class="fc-noselect fc-nodedelete"
-          ng-click="edgeRemove($event, edge)">
+          @click="edgeRemove($event, edge)">
           &times;
         </div>
         <span
-          ng-attr-id="{{'fc-edge-label-'+$index}}"
-          ng-if="edge.label">{{ edge.label }}</span>
+          v-if="edge.label"
+          :id="'fc-edge-label-'+$index">{{ edge.label }}</span>
       </div>
-    </div> -->
+    </div>
     <!-- 矩形选择区域 -->
     <div
       id="select-rectangle"

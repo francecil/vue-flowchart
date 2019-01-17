@@ -40,7 +40,8 @@ export default {
         edges: [{
           source: 12,
           destination: 11,
-          active: false
+          active: false,
+          label: 'label0'
         }]
       }
     }

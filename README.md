@@ -15,8 +15,7 @@
 
 #### Node
 ```javascript
-{
-  id: integer,
+id: {
   name: string,
   x: integer, // x-coordinate of the node relative to the canvas.
   y: integer, // y-coordinate of the node relative to the canvas.
@@ -27,9 +26,8 @@
 
 #### Connector
 ```javascript
-{
-  id: integer,
-  type: string
+id : {
+  type: string: leftConnector|rightConnector
 }
 ```
 

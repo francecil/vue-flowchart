@@ -45,7 +45,7 @@
         </marker>
       </defs>
       <g
-        v-for="(edge,index) in model.edges"
+        v-for="(edge,index) in currentModel.edges"
         :key="index">
         <path
           :id="'fc-edge-path-'+index"
@@ -83,13 +83,14 @@
     </svg>
     <!-- 连接节点 -->
     <fc-node
-      v-for="node in model.nodes"
+      v-for="node in currentModel.nodes"
       :key="node.id"
       :node="node"
       :modelservice="modelservice"
       :selected="modelservice.nodes.isSelected(node)"
       :edit="modelservice.nodes.isEdit(node)"
       @node-dragstart="nodeDragstart"
+      @node-dragging="nodeDragging"
       @node-dragend="nodeDragend"
       @node-click="nodeClick"
       @node-mouseover="nodeMouseover"
@@ -110,11 +111,13 @@
     </div> -->
     <!-- 连线的label -->
     <div
-      v-for="(edge,$index) in model.edges"
+      v-for="(edge,$index) in currentModel.edges"
       :key="$index"
       :class="'fc-noselect ' + ((modelservice.edges.isEdit(edge) && flowchartConstants.editClass + ' ' + flowchartConstants.edgeLabelClass) || (modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeLabelClass) || flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeLabelClass || edge.active && flowchartConstants.activeClass + flowchartConstants.edgeLabelClass || flowchartConstants.edgeLabelClass)"
       :style="{ top: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).y)+'px',
                 left: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).x)+'px'}"
+      :automatic-resize="automaticResize"
+      :drag-animation="dragAnimation"
       @mousedown="edgeMouseDown(edge)"
       @click="edgeClick(edge)"
       @mouseover="edgeMouseOver(edge)"
@@ -156,9 +159,8 @@ import ModelFactory from '@/service/model'
 import RectangleselectFactory from '@/service/rectangleselect'
 import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
-
+import { mapActions, mapState } from 'vuex'
 import FcNode from '@/components/FcNode'
-import $ from 'jquery'
 export default {
   components: {
     'fc-node': FcNode
@@ -213,30 +215,18 @@ export default {
       modelservice: null,
       canvasservice: null,
       edgeDragging: {},
-      nodeDragging: {},
       flowchartConstants: flowchartConstants
     }
   },
-  computed: {},
+  computed: {
+    ...mapState('flow', {
+      currentModel: 'model'
+    })
+  },
   watch: {
-    model: function (fit) {
-      if (this.model) {
-        var maxX = 0
-        var maxY = 0
-        this.model.nodes.forEach(function (node, key) {
-          maxX = Math.max(node.x + this.nodeWidth, maxX)
-          maxY = Math.max(node.y + this.nodeHeight, maxY)
-        })
-        var width, height
-        if (fit) {
-          width = maxX
-          height = maxY
-        } else {
-          width = Math.max(maxX, $('#fc-canvas').prop('offsetWidth'))
-          height = Math.max(maxY, $('#fc-canvas').prop('offsetHeight'))
-        }
-        $('#fc-canvas').css('width', width + 'px')
-        $('#fc-canvas').css('height', height + 'px')
+    model (val) {
+      if (val) {
+        this.initModel(val)
       }
     }
   },
@@ -246,9 +236,9 @@ export default {
         throw new Error('edgeStyle not supported.')
       }
     })(this)
-
+    this.initModel(this.model)
     let noop = () => { }
-    this.modelservice = ModelFactory(this.model, this.selectedObjects, noop, noop, noop, noop, noop)
+    this.modelservice = ModelFactory(this.currentModel, this.selectedObjects, noop, noop, noop, noop, noop)
     this.canvasservice = CanvasFactory()
 
     // var nodedraggingservice = NodedraggingFactory(this.modelservice, this.nodeDragging, this.$apply, this.automaticResize, this.dragAnimation)
@@ -256,38 +246,6 @@ export default {
     // var edgedraggingservice = EdgedraggingFactory(this.modelservice, this.model, this.edgeDragging, null, this.$apply, this.dragAnimation, this.edgeStyle)
 
     this.rectangleselectservice = RectangleselectFactory(this.modelservice, this.$apply)
-
-    // this.edgeDoubleClick = this.userCallbacks.edgeDoubleClick || noop
-    // this.edgeMouseOver = this.userCallbacks.edgeMouseOver || noop
-    // this.edgeEdit = this.userCallbacks.edgeEdit || noop
-
-    // this.userNodeCallbacks = this.userCallbacks.nodeCallbacks
-    /*
-    this.callbacks = {
-      nodeDragstart: nodedraggingservice.dragstart,
-      nodeDragend: nodedraggingservice.dragend,
-      edgeDragstart: edgedraggingservice.dragstart,
-      edgeDragend: edgedraggingservice.dragend,
-      edgeDrop: edgedraggingservice.drop,
-      edgeDragoverConnector: edgedraggingservice.dragoverConnector,
-      edgeDragoverMagnet: edgedraggingservice.dragoverMagnet,
-      edgeDragleaveMagnet: edgedraggingservice.dragleaveMagnet,
-      // nodeMouseOver: mouseoverservice.nodeMouseOver,
-      // nodeMouseOut: mouseoverservice.nodeMouseOut,
-      // connectorMouseEnter: mouseoverservice.connectorMouseEnter,
-      // connectorMouseLeave: mouseoverservice.connectorMouseLeave,
-      nodeClicked: function (node) {
-        return function (event) {
-          this.modelservice.nodes.handleClicked(node, event.ctrlKey)
-          this.$apply()
-
-          // Don't let the chart handle the mouse down.
-          event.stopPropagation()
-          event.preventDefault()
-        }
-      }
-    }
-    */
   },
   mounted () {
     this.canvasservice.setCanvasHtmlElement(this.$refs.canvas)
@@ -295,6 +253,10 @@ export default {
     this.modelservice.setSvgHtmlElement(this.$refs.canvas.querySelector('svg'))
   },
   methods: {
+    ...mapActions('flow', [
+      'initModel',
+      'updateEdge'
+    ]),
     canvasClick (event) {
       console.log(event)
     },
@@ -350,6 +312,15 @@ export default {
     },
     edgeEdit (edge) {
       console.log('edgeEdit')
+      let label = prompt('编辑连线label', edge.label)
+      let newEdge = Object.assign(edge, {
+        label
+      })
+      this.updateNode({
+        edge,
+        newEdge,
+        isPushState: true
+      })
       this.$emit('edge-edit', edge)
     },
     edgeRemove (edge) {
@@ -358,10 +329,13 @@ export default {
       event.preventDefault()
     },
     nodeDragstart (node) {
-
+      this.$emit('node-dragstart', this.node)
     },
-    nodeDragend (node) {
-
+    nodeDragging (node, x, y) {
+      this.$emit('node-dragging', node, x, y)
+    },
+    nodeDragend (node, event) {
+      this.$emit('node-dragend', node, event)
     },
     nodeClick (node) {
 
@@ -416,137 +390,6 @@ export default {
 .fc-right-pane {
   flex: 0.74;
   overflow: auto;
-}
-
-.button-overlay {
-  position: absolute;
-  top: 40px;
-  z-index: 10;
-}
-
-.button-overlay button {
-  display: block;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: none;
-  box-shadow: none;
-  color: #fff;
-  font-size: 20px;
-  background-color: #f15b26;
-}
-
-.button-overlay button:hover:not(:disabled) {
-  border: 4px solid #b03911;
-  border-radius: 5px;
-
-  margin: -4px;
-  margin-bottom: 11px;
-}
-
-.button-overlay button:disabled {
-  -webkit-filter: brightness(70%);
-  filter: brightness(70%);
-}
-
-.fc-node {
-  z-index: 1;
-}
-
-.innerNode {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 100px;
-  border-radius: 5px;
-
-  background-color: #f15b26;
-  color: #fff;
-  font-size: 16px;
-  pointer-events: none;
-}
-
-.fc-node .fc-node-overlay {
-  position: absolute;
-  pointer-events: none;
-  left: 0;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #000;
-  opacity: 0;
-}
-
-.fc-node.fc-hover .fc-node-overlay {
-  opacity: 0.25;
-  transition: opacity 0.2s;
-}
-
-.fc-node.fc-selected .fc-node-overlay {
-  opacity: 0.25;
-}
-
-.fc-node.fc-dragging {
-  z-index: 10;
-}
-
-.fc-node p {
-  padding: 0 15px;
-  text-align: center;
-}
-
-.fc-leftConnectors,
-.fc-rightConnectors {
-  position: absolute;
-  top: 0;
-  height: 100%;
-
-  display: flex;
-  flex-direction: column;
-
-  z-index: -10;
-}
-
-.fc-leftConnectors {
-  left: -20px;
-}
-
-.fc-rightConnectors {
-  right: -20px;
-}
-
-.fc-magnet {
-  display: flex;
-  flex-grow: 1;
-  height: 60px;
-
-  justify-content: center;
-}
-
-.fc-leftConnectors .fc-magnet {
-  align-items: center;
-}
-
-.fc-rightConnectors .fc-magnet {
-  align-items: center;
-}
-
-.fc-connector {
-  width: 18px;
-  height: 18px;
-
-  border: 10px solid transparent;
-  -moz-background-clip: padding; /* Firefox 3.6 */
-  -webkit-background-clip: padding; /* Safari 4? Chrome 6? */
-  background-clip: padding-box;
-  border-radius: 50% 50%;
-  background-color: #f7a789;
-  color: #fff;
-  pointer-events: all;
-}
-
-.fc-connector.fc-hover {
-  background-color: #000;
 }
 
 .fc-edge {

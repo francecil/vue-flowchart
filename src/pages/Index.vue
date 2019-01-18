@@ -3,8 +3,6 @@
     <fc-canvas
       :model="model"
       edge-style="curved"
-      @edge-edit="handleEdgeEdit"
-      @node-edit="handleNodeEdit"
     />
   </div>
 </template>
@@ -50,14 +48,38 @@ export default {
     }
   },
   mounted () {
+    // this.model = {
+    //   nodes: {
+    //     1: {
+    //       name: 'node1',
+    //       x: 411, // x-coordinate of the node relative to the canvas.
+    //       y: 74,
+    //       connectors: {
+    //         11: {
+    //           type: 'leftConnector'
+    //         }
+    //       }
+    //     },
+    //     2: {
+    //       name: 'node2',
+    //       x: 133, // x-coordinate of the node relative to the canvas.
+    //       y: 254,
+    //       connectors: {
+    //         12: {
+    //           type: 'rightConnector'
+    //         }
+    //       }
+    //     }
+    //   },
+    //   edges: [{
+    //     source: 12,
+    //     destination: 11,
+    //     active: false,
+    //     label: 'label0'
+    //   }]
+    // }
   },
   methods: {
-    handleEdgeEdit (edge) {
-      edge.label = 'tesr'
-    },
-    handleNodeEdit (node) {
-      node.name = 'test'
-    }
   }
 }
 </script>

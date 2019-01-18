@@ -1,4 +1,5 @@
 import jquery from 'jquery'
+import flowchartConstants from '@/config/flowchart'
 function Nodedraggingfactory (flowchartConstants) {
   var nodeDropScope = {}
   nodeDropScope.dropElement = null
@@ -255,7 +256,7 @@ function Nodedraggingfactory (flowchartConstants) {
       },
 
       dragend: function (event) {
-        applyFunction(function () {
+        (function () {
           if (nodeDropScope.dropElement) {
             nodeDropScope.dropElement.parentNode.removeChild(nodeDropScope.dropElement)
             nodeDropScope.dropElement = null
@@ -279,9 +280,9 @@ function Nodedraggingfactory (flowchartConstants) {
             draggedElements.length = 0
             dragOffsets.length = 0
           }
-        })
+        })()
       }
     }
   }
 }
-export default Nodedraggingfactory
+export default Nodedraggingfactory(flowchartConstants)

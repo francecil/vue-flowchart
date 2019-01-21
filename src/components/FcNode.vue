@@ -198,7 +198,7 @@ export default {
       // this.nodedraggingservice.dragstart(event)
       let dataTransfer = event.dataTransfer
       dataTransfer.dropEffect = 'move'
-      // dataTransfer.setData('Text', this.id)
+      dataTransfer.setData('Text', event.target.id)
       dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
 

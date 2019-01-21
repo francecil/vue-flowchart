@@ -3,12 +3,12 @@
     id="fc-canvas"
     ref="canvas"
     class="fc-canvas"
-    @click="canvasClick($event)"
-    @dragover="canvasDragover($event)"
-    @drop="canvasDrop($event)"
-    @mousedown="canvasMousedown($event)"
-    @mousemove="canvasMousemove($event)"
-    @mouseup="canvasMouseup($event)">
+    @click="canvasClick"
+    @dragover="canvasDragover"
+    @drop="canvasDrop"
+    @mousedown="canvasMousedown"
+    @mousemove="canvasMousemove"
+    @mouseup="canvasMouseup">
     <svg>
       <defs>
         <marker
@@ -245,29 +245,30 @@ export default {
       'initModel',
       'updateEdge'
     ]),
-    canvasClick (event) {
+    canvasClick () {
       console.log(event)
     },
-    canvasDrop (event) {
-      // this.nodedraggingervice.drop(event)
-      // this.canvasservice._notifyDrop(event)
+    canvasDrop () {
+      console.log('canvasDrop')
+      event.preventDefault()
     },
 
-    canvasDragover (event) {
+    canvasDragover () {
+      event.preventDefault()
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)
       // this.canvasservice._notifyDragover(event)
     },
 
-    canvasMousedown (event) {
+    canvasMousedown () {
       // this.rectangleselectservice.mousedown(event)
     },
 
-    canvasMousemove (event) {
+    canvasMousemove () {
       // this.rectangleselectservice.mousemove(event)
     },
 
-    canvasMouseup (event) {
+    canvasMouseup () {
       // this.rectangleselectservice.mouseup(event)
     },
 

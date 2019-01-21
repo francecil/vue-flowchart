@@ -207,7 +207,7 @@ function ModelFactory (Modelvalidation) {
     modelservice.edges = {
 
       sourceCoord: function (edge) {
-        return modelservice.connectors.getCenteredCoord(edge.source, edge.source)
+        return modelservice.connectors.getCenteredCoord(edge.source)
       },
 
       destCoord: function (edge) {

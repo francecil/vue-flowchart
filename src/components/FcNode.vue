@@ -13,24 +13,23 @@
       <p>{{ node.name }}</p>
 
       <div :class="flowchartConstants.leftConnectorClass">
-        <fc-magnet
-          v-for="connector in modelservice.nodes.getConnectorsByType(node, flowchartConstants.leftConnectorType)"
-          :key="connector.id"
-          fc-magnet>
+        <fc-magnet>
           <fc-connector
-            :connector="connector"
-            :modelservice="modelservice"/>
+            v-for="connector in filterConnectorType(node,flowchartConstants.leftConnectorType)"
+            ref="fcLeftConnector"
+            :modelservice="modelservice"
+            :key="connector.id"
+            :connector="connector"/>
         </fc-magnet>
       </div>
       <div :class="flowchartConstants.rightConnectorClass">
-        <fc-magnet
-          v-for="connector in modelservice.nodes.getConnectorsByType(node, flowchartConstants.rightConnectorType)"
-          :modelservice="modelservice"
-          :key="connector.id"
-        >
+        <fc-magnet>
           <fc-connector
-            :connector="connector"
-            :modelservice="modelservice"/>
+            v-for="connector in filterConnectorType(node,flowchartConstants.rightConnectorType)"
+            ref="fcRightConnector"
+            :modelservice="modelservice"
+            :key="connector.id"
+            :connector="connector"/>
         </fc-magnet>
       </div>
     </div>
@@ -157,9 +156,30 @@ export default {
   },
   mounted () {
     this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
+    this.updateConnectorPosition()
   },
   methods: {
     ...mapActions('flow', ['updateNode']),
+    filterConnectorType (node, type) {
+      if (!this.node.connectors) {
+        return []
+      }
+      return this.node.connectors.filter((item) => item.type === type)
+    },
+    updateConnectorPosition () {
+      let fcLeftConnectors = this.$refs.fcLeftConnector
+      if (fcLeftConnectors) {
+        fcLeftConnectors.forEach(fcLeftConnector => {
+          fcLeftConnector.updatePosition()
+        })
+      }
+      let fcRightConnectors = this.$refs.fcRightConnector
+      if (fcRightConnectors) {
+        fcRightConnectors.forEach(fcRightConnector => {
+          fcRightConnector.updatePosition()
+        })
+      }
+    },
     handleMousedown () {
       console.log('mousedown:', event)
     },
@@ -173,6 +193,8 @@ export default {
       dataTransfer.dropEffect = 'move'
       dataTransfer.setDragImage(this.$el, 40, 40)
       this.$emit('node-dragstart', this.node)
+
+      this.updateConnectorPosition()
     },
     handleDragging () {
       let newNode = Object.assign(this.node, {
@@ -183,6 +205,7 @@ export default {
         node: this.node,
         newNode
       })
+      this.updateConnectorPosition()
     },
     handleDragend () {
       console.log('node Dragend:', event)
@@ -196,6 +219,7 @@ export default {
         isPushState: true
       })
       this.$emit('node-dragend', event)
+      // this.updateConnectorPosition()
     },
     handleClick () {
       this.modelservice.edges.handleEdgeMouseClick(this.node, event.ctrlKey)

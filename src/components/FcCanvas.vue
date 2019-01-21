@@ -44,21 +44,22 @@
             stroke-width="1px" />
         </marker>
       </defs>
-      <g
+      <fc-edge
         v-for="(edge,index) in currentModel.edges"
-        :key="index">
-        <path
-          :id="'fc-edge-path-'+index"
-          :class="(modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeClass) || flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeClass || edge.active && flowchartConstants.activeClass + ' ' + flowchartConstants.edgeClass || flowchartConstants.edgeClass"
-          :d="getEdgeDAttribute(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge), edgeStyle)"
-          :marker-end="'url(#'+(modelservice.edges.isSelected(edge) ? arrowDefId+'-selected' : arrowDefId)+')'"
-          @mousedown="edgeMouseDown(edge)"
-          @dblclick="edgeDoubleClick(edge)"
-          @mouseover="edgeMouseOver(edge)"
-          @mouseenter="edgeMouseEnter(edge)"
-          @mouseleave="edgeMouseLeave(edge)"
-          @click="edgeClick(edge)" />
-      </g>
+        :edge="edge"
+        :modelservice="modelservice"
+        :selected="modelservice.edges.isSelected(edge)"
+        :key="index"
+        :index="index"
+        :edgeStyle="edgeStyle"
+        :arrow-def-id="arrowDefId"
+        @mousedown="edgeMouseDown"
+        @edge-dblclick="edgeDoubleClick"
+        @edge-mouseover="edgeMouseOver"
+        @edge-mouseenter="edgeMouseEnter"
+        @edge-mouseleave="edgeMouseLeave"
+        @edge-click="edgeClick"
+      />
       <!-- <g ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging">
 
         <path
@@ -110,38 +111,21 @@
       </div>
     </div> -->
     <!-- 连线的label -->
-    <div
-      v-for="(edge,$index) in currentModel.edges"
-      :key="$index"
-      :class="'fc-noselect ' + ((modelservice.edges.isEdit(edge) && flowchartConstants.editClass + ' ' + flowchartConstants.edgeLabelClass) || (modelservice.edges.isSelected(edge) && flowchartConstants.selectedClass + ' ' + flowchartConstants.edgeLabelClass) || flowchartConstants.hoverClass + ' ' + flowchartConstants.edgeLabelClass || edge.active && flowchartConstants.activeClass + flowchartConstants.edgeLabelClass || flowchartConstants.edgeLabelClass)"
-      :style="{ top: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).y)+'px',
-                left: (getEdgeCenter(modelservice.edges.sourceCoord(edge), modelservice.edges.destCoord(edge)).x)+'px'}"
-      :automatic-resize="automaticResize"
-      :drag-animation="dragAnimation"
-      @mousedown="edgeMouseDown(edge)"
-      @click="edgeClick(edge)"
-      @mouseover="edgeMouseOver(edge)"
-      @mouseenter="edgeMouseEnter(edge)"
-      @mouseleave="edgeMouseLeave(edge)"
-      @dblclick="edgeDoubleClick(edge)">
-      <div class="fc-edge-label-text">
-        <div
-          v-if="modelservice.isEditable()"
-          class="fc-noselect fc-nodeedit"
-          @click="edgeEdit(edge)">
-          #
-        </div>
-        <div
-          v-if="modelservice.isEditable()"
-          class="fc-noselect fc-nodedelete"
-          @click="edgeRemove(edge)">
-          &times;
-        </div>
-        <span
-          v-if="edge.label"
-          :id="'fc-edge-label-'+$index">{{ edge.label }}</span>
-      </div>
-    </div>
+    <fc-edge-label
+      v-for="(edge,index) in currentModel.edges"
+      :edge="edge"
+      :modelservice="modelservice"
+      :key="index"
+      :index="index"
+      @mousedown="edgeMouseDown"
+      @edge-dblclick="edgeDoubleClick"
+      @edge-mouseover="edgeMouseOver"
+      @edge-mouseenter="edgeMouseEnter"
+      @edge-mouseleave="edgeMouseLeave"
+      @edge-click="edgeClick"
+      @edge-edit="edgeEdit"
+      @edge-remove="edgeRemove"
+    />
     <!-- 矩形选择区域 -->
     <div
       id="select-rectangle"
@@ -161,9 +145,13 @@ import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
 import { mapActions, mapState } from 'vuex'
 import FcNode from '@/components/FcNode'
+import FcEdge from '@/components/FcEdge'
+import FcEdgeLabel from '@/components/FcEdgeLabel'
 export default {
   components: {
-    'fc-node': FcNode
+    'fc-node': FcNode,
+    'fc-edge': FcEdge,
+    'fc-edge-label': FcEdgeLabel
   },
   props: {
     model: {
@@ -392,25 +380,6 @@ export default {
   overflow: auto;
 }
 
-.fc-edge {
-  stroke: gray;
-  stroke-width: 4;
-  transition: stroke-width 0.2s;
-  fill: transparent;
-}
-
-.fc-edge.fc-hover {
-  stroke: gray;
-  stroke-width: 6;
-  fill: transparent;
-}
-
-.fc-edge.fc-selected {
-  stroke: red;
-  stroke-width: 4;
-  fill: transparent;
-}
-
 .fc-arrow-marker polygon {
   stroke: gray;
   fill: gray;
@@ -419,19 +388,6 @@ export default {
 .fc-arrow-marker-selected polygon {
   stroke: red;
   fill: red;
-}
-
-.fc-edge.fc-active {
-  animation: dash 3s linear infinite;
-  stroke-dasharray: 20;
-}
-
-.fc-edge.fc-dragging {
-  pointer-events: none;
-}
-
-.edge-endpoint {
-  fill: gray;
 }
 
 .fc-nodedelete {
@@ -484,54 +440,6 @@ export default {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently
                                   supported by Chrome and Opera */
-}
-
-.fc-edge-label {
-  position: absolute;
-  opacity: 0.8;
-  transition: transform 0.2s;
-  transform-origin: bottom left;
-  margin: 0 auto;
-}
-
-.fc-edge-label .fc-nodeedit {
-  top: -30px;
-  right: 14px;
-}
-
-.fc-edge-label .fc-nodedelete {
-  top: -30px;
-  right: -13px;
-}
-
-.fc-edge-label-text {
-  position: absolute;
-  -webkit-transform: translate(-50%, -50%);
-  transform: translate(-50%, -50%);
-  white-space: nowrap;
-  text-align: center;
-  font-size: 16px;
-}
-
-.fc-edge-label-text span {
-  cursor: default;
-  border: solid #ff3d00;
-  border-radius: 10px;
-  color: #ff3d00;
-  background-color: #fff;
-  padding: 3px 5px;
-}
-
-.fc-edge-label.fc-hover {
-  transform: scale(1.25);
-}
-
-.fc-edge-label.fc-selected .fc-edge-label-text span,
-.fc-edge-label.fc-edit .fc-edge-label-text span {
-  border: solid red;
-  color: #fff;
-  font-weight: 600;
-  background-color: red;
 }
 
 .fc-select-rectangle {

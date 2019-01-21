@@ -1,15 +1,19 @@
 export const INIT_MODEL = 'INIT_MODEL'
 export const UPDATE_NODE = 'UPDATE_NODE'
 export const UPDATE_EDGE = 'UPDATE_EDGE'
+export const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
 const HISTORY = 'history/'
 export const PUSH_STATE = HISTORY + 'PUSH_STATE'
 
 export const MAX_HISTORY = 100
 const state = {
-  model: []
+  model: [],
+  connectors: {}
 }
 const getters = {
-
+  getConnector: (state) => (id) => {
+    return state.connectors[id]
+  }
 }
 // actions
 const actions = {
@@ -43,6 +47,14 @@ const mutations = {
   [UPDATE_EDGE] (state, {edge, newEdge}) {
     let index = state.model.edges.indexOf(edge)
     Object.assign(state.model.edges[index], newEdge)
+  },
+  [UPDATE_CONNECTOR] (state, {connectorId, x, y}) {
+    if (state.connectors[connectorId]) {
+      state.connectors[connectorId].x = x
+      state.connectors[connectorId].y = y
+    } else {
+      this._vm.$set(state.connectors, connectorId, {x, y})
+    }
   }
 
 }

@@ -1,3 +1,4 @@
+
 <template>
   <div
     :draggable="true"
@@ -6,6 +7,7 @@
   </div>
 </template>
 <script>
+// 放置connector的容器
 import flowchartConstants from '@/config/flowchart'
 export default {
   props: {

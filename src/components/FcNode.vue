@@ -116,7 +116,11 @@ export default {
   data () {
     return {
       flowchartConstants: flowchartConstants,
-      nodedraggingservice: null
+      nodedraggingservice: null,
+      eventPointOffset: {
+        x: 0,
+        y: 0
+      }
     }
   },
   computed: {
@@ -188,18 +192,25 @@ export default {
     },
     handleDragstart () {
       console.log('node Dragstart:', event)
+      let elementBox = this.$el.getBoundingClientRect()
+      this.eventPointOffset.x = event.clientX - elementBox.left
+      this.eventPointOffset.y = event.clientY - elementBox.top
       // this.nodedraggingservice.dragstart(event)
       let dataTransfer = event.dataTransfer
       dataTransfer.dropEffect = 'move'
-      dataTransfer.setDragImage(this.$el, 40, 40)
+      // dataTransfer.setData('Text', this.id)
+      dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
 
       this.updateConnectorPosition()
     },
     handleDragging () {
+      if (!(event.clientX && event.clientY)) {
+        return
+      }
       let newNode = Object.assign(this.node, {
-        x: event.clientX,
-        y: event.clientY
+        x: event.clientX - this.eventPointOffset.x,
+        y: event.clientY - this.eventPointOffset.y
       })
       this.updateNode({
         node: this.node,
@@ -210,8 +221,8 @@ export default {
     handleDragend () {
       console.log('node Dragend:', event)
       let newNode = Object.assign(this.node, {
-        x: event.clientX,
-        y: event.clientY
+        x: event.clientX - this.eventPointOffset.x,
+        y: event.clientY - this.eventPointOffset.y
       })
       this.updateNode({
         node: this.node,

@@ -34,6 +34,8 @@ export default {
   },
   mounted () {
     this.modelservice.connectors.setHtmlElement(this.connector.id, this.$el)
+    this.offsetWidth = this.$el.offsetWidth
+    this.offsetHeight = this.$el.offsetHeight
   },
   methods: {
     ...mapMutations('flow', [
@@ -55,19 +57,13 @@ export default {
         return {x: 0, y: 0}
       }
       let connectorElementBox = element.getBoundingClientRect()
-      if (!this.offsetWidth) {
-        this.offsetWidth = element.offsetWidth
-      }
-      if (!this.offsetHeight) {
-        this.offsetHeight = element.offsetHeight
-      }
       let coords = {
         x: connectorElementBox.left,
         y: connectorElementBox.top
       }
       coords = {
-        x: Math.round(coords.x + element.offsetWidth / 2),
-        y: Math.round(coords.y + element.offsetHeight / 2)
+        x: Math.round(coords.x + this.offsetWidth / 2),
+        y: Math.round(coords.y + this.offsetHeight / 2)
       }
       return coords
     },

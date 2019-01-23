@@ -53,7 +53,8 @@ import flowchartConstants from '@/config/flowchart'
 import FcMagnet from '@/components/FcMagnet'
 import FcConnector from '@/components/FcConnector'
 import NodedraggingFactory from '@/service/nodedragging'
-import { mapActions } from 'vuex'
+import { mapActions, mapState } from 'vuex'
+// import _ from 'lodash'
 export default {
   components: {
     'fc-magnet': FcMagnet,
@@ -124,6 +125,7 @@ export default {
     }
   },
   computed: {
+    ...mapState('flow', ['canvas']),
     listenersComputed () {
       if (!this.node.readonly) {
         return {
@@ -160,7 +162,6 @@ export default {
   },
   mounted () {
     this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
-    this.updateConnectorPosition()
   },
   methods: {
     ...mapActions('flow', ['updateNode']),
@@ -201,16 +202,16 @@ export default {
       dataTransfer.setData('Text', event.target.id)
       dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
-
       this.updateConnectorPosition()
     },
-    handleDragging () {
+    handleDragging (event) {
+      console.log('handleDragging')
       if (!(event.clientX && event.clientY)) {
         return
       }
       let newNode = Object.assign(this.node, {
-        x: event.clientX - this.eventPointOffset.x,
-        y: event.clientY - this.eventPointOffset.y
+        x: event.clientX - this.canvas.left - this.eventPointOffset.x,
+        y: event.clientY - this.canvas.top - this.eventPointOffset.y
       })
       this.updateNode({
         node: this.node,
@@ -221,8 +222,8 @@ export default {
     handleDragend () {
       console.log('node Dragend:', event)
       let newNode = Object.assign(this.node, {
-        x: event.clientX - this.eventPointOffset.x,
-        y: event.clientY - this.eventPointOffset.y
+        x: event.clientX - this.canvas.left - this.eventPointOffset.x,
+        y: event.clientY - this.canvas.top - this.eventPointOffset.y
       })
       this.updateNode({
         node: this.node,

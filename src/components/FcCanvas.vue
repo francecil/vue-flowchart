@@ -85,6 +85,7 @@
     <!-- 连接节点 -->
     <fc-node
       v-for="node in currentModel.nodes"
+      ref="fcNode"
       :key="node.id"
       :node="node"
       :modelservice="modelservice"
@@ -143,7 +144,7 @@ import ModelFactory from '@/service/model'
 import RectangleselectFactory from '@/service/rectangleselect'
 import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapMutations } from 'vuex'
 import FcNode from '@/components/FcNode'
 import FcEdge from '@/components/FcEdge'
 import FcEdgeLabel from '@/components/FcEdgeLabel'
@@ -165,6 +166,10 @@ export default {
       default: function () {
         return []
       }
+    },
+    isTypeModel: {
+      type: Boolean,
+      default: false
     },
     edgeStyle: {
       type: String,
@@ -208,12 +213,15 @@ export default {
   },
   computed: {
     ...mapState('flow', {
-      currentModel: 'model'
-    })
+      storeModel: 'model'
+    }),
+    currentModel () {
+      return this.isTypeModel ? this.model : this.storeModel
+    }
   },
   watch: {
     model (val) {
-      if (val) {
+      if (val && !this.isTypeModel) {
         this.initModel(val)
       }
     }
@@ -224,7 +232,9 @@ export default {
         throw new Error('edgeStyle not supported.')
       }
     })(this)
-    this.initModel(this.model)
+    if (!this.isTypeModel) {
+      this.initModel(this.model)
+    }
     let noop = () => { }
     this.modelservice = ModelFactory(this.currentModel, this.selectedObjects, noop, noop, noop, noop, noop)
     this.canvasservice = CanvasFactory()
@@ -236,15 +246,34 @@ export default {
     this.rectangleselectservice = RectangleselectFactory(this.modelservice, this.$apply)
   },
   mounted () {
+    let canvas = this.$el.getBoundingClientRect()
+    if (!this.isTypeModel && canvas) {
+      this.UPDATE_CANVAS_OFFSET({
+        left: canvas.left,
+        top: canvas.top
+      })
+    }
+    this.updateNode()
     this.canvasservice.setCanvasHtmlElement(this.$refs.canvas)
     this.modelservice.setCanvasHtmlElement(this.$refs.canvas)
     this.modelservice.setSvgHtmlElement(this.$refs.canvas.querySelector('svg'))
   },
   methods: {
+    ...mapMutations('flow', [
+      'UPDATE_CANVAS_OFFSET'
+    ]),
     ...mapActions('flow', [
       'initModel',
       'updateEdge'
     ]),
+    updateNode () {
+      let fcNodes = this.$refs.fcNode
+      if (fcNodes) {
+        fcNodes.forEach(fcNode => {
+          fcNode.updateConnectorPosition()
+        })
+      }
+    },
     canvasClick () {
       console.log(event)
     },

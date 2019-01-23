@@ -2,13 +2,18 @@ export const INIT_MODEL = 'INIT_MODEL'
 export const UPDATE_NODE = 'UPDATE_NODE'
 export const UPDATE_EDGE = 'UPDATE_EDGE'
 export const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
+export const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
 const HISTORY = 'history/'
 export const PUSH_STATE = HISTORY + 'PUSH_STATE'
 
 export const MAX_HISTORY = 100
 const state = {
   model: [],
-  connectors: {}
+  connectors: {},
+  canvas: {
+    left: 0,
+    top: 0
+  }
 }
 const getters = {
   getConnector: (state) => (id) => {
@@ -55,6 +60,10 @@ const mutations = {
     } else {
       this._vm.$set(state.connectors, connectorId, {x, y})
     }
+  },
+  [UPDATE_CANVAS_OFFSET] (state, {left, top}) {
+    state.canvas.left = left
+    state.canvas.top = top
   }
 
 }

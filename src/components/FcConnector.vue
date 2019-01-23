@@ -9,7 +9,7 @@
 </template>
 <script>
 import flowchartConstants from '@/config/flowchart'
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
 export default {
   props: {
     connector: {
@@ -31,6 +31,9 @@ export default {
       offsetWidth: 0,
       offsetHeight: 0
     }
+  },
+  computed: {
+    ...mapState('flow', ['canvas'])
   },
   mounted () {
     this.modelservice.connectors.setHtmlElement(this.connector.id, this.$el)
@@ -58,8 +61,8 @@ export default {
       }
       let connectorElementBox = element.getBoundingClientRect()
       let coords = {
-        x: connectorElementBox.left,
-        y: connectorElementBox.top
+        x: connectorElementBox.left - this.canvas.left,
+        y: connectorElementBox.top - this.canvas.top
       }
       coords = {
         x: Math.round(coords.x + this.offsetWidth / 2),

@@ -52,6 +52,7 @@ export default {
   },
   data () {
     return {
+      underMouse: false,
       flowchartConstants: flowchartConstants
     }
   },
@@ -74,7 +75,7 @@ export default {
         classObj[flowchartConstants.editClass] = true
       } else if (this.modelservice.edges.isSelected(this.edge)) {
         classObj[flowchartConstants.selectedClass] = true
-      } else if (this.edge === this.mouseOver) {
+      } else if (this.underMouse) {
         classObj[flowchartConstants.hoverClass] = true
       } else if (this.edge.active) {
         classObj[flowchartConstants.activeClass] = true
@@ -104,12 +105,14 @@ export default {
       this.$emit('edge-mouseover', this.edge)
     },
     handleMouseEnter () {
+      this.underMouse = true
       console.log('edgeMouseEnter')
-      this.$emit('edge-mouseenter', this.edge)
+      this.$emit('edge-mouseenter', this.index, true)
     },
     handleMouseLeave () {
+      this.underMouse = false
       console.log('edgeMouseLeave')
-      this.$emit('edge-mouseleave', this.edge)
+      this.$emit('edge-mouseenter', this.index, false)
     },
     handleDoubleClick () {
       console.log('edgeDoubleClick')

@@ -29,6 +29,7 @@
             ref="fcRightConnector"
             :modelservice="modelservice"
             :key="connector.id"
+            :drop-target-id="dropTargetId"
             :connector="connector"/>
         </fc-magnet>
       </div>
@@ -52,7 +53,7 @@
 import flowchartConstants from '@/config/flowchart'
 import FcMagnet from '@/components/FcMagnet'
 import FcConnector from '@/components/FcConnector'
-import NodedraggingFactory from '@/service/nodedragging'
+// import NodedraggingFactory from '@/service/nodedragging'
 import { mapActions, mapState } from 'vuex'
 // import _ from 'lodash'
 export default {
@@ -87,22 +88,6 @@ export default {
         return {}
       }
     },
-    selected: {
-      type: Boolean,
-      default: false
-    },
-    edit: {
-      type: Boolean,
-      default: false
-    },
-    underMouse: {
-      type: Boolean,
-      default: false
-    },
-    mouseOverConnector: {
-      type: Boolean,
-      default: false
-    },
     modelservice: {
       type: Object,
       default: () => {
@@ -112,10 +97,17 @@ export default {
     draggedNode: {
       type: Boolean,
       default: false
+    },
+    dropTargetId: {
+      type: [String, Number],
+      default: null
     }
   },
   data () {
     return {
+      underMouse: false,
+      selected: false,
+      edit: false,
       flowchartConstants: flowchartConstants,
       nodedraggingservice: null,
       eventPointOffset: {
@@ -158,7 +150,7 @@ export default {
     }
   },
   created () {
-    this.nodedraggingservice = NodedraggingFactory(this.modelservice, {}, null, this.automaticResize, this.dragAnimation)
+    // this.nodedraggingservice = NodedraggingFactory(this.modelservice, {}, null, this.automaticResize, this.dragAnimation)
   },
   mounted () {
     this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
@@ -240,10 +232,10 @@ export default {
       event.preventDefault()
     },
     handleMouseover () {
-
+      this.underMouse = true
     },
     handleMouseout () {
-
+      this.underMouse = false
     },
     handleEdit () {
       let name = prompt('编辑节点名称', this.node.name)

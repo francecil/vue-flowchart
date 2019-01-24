@@ -46,6 +46,7 @@
       </defs>
       <fc-edge
         v-for="(edge,index) in currentModel.edges"
+        ref="fcEdge"
         :edge="edge"
         :modelservice="modelservice"
         :selected="modelservice.edges.isSelected(edge)"
@@ -89,8 +90,7 @@
       :key="node.id"
       :node="node"
       :modelservice="modelservice"
-      :selected="modelservice.nodes.isSelected(node)"
-      :edit="modelservice.nodes.isEdit(node)"
+      :drop-target-id="dropTargetId"
       @node-dragstart="nodeDragstart"
       @node-dragging="nodeDragging"
       @node-dragend="nodeDragend"
@@ -114,6 +114,7 @@
     <!-- 连线的label -->
     <fc-edge-label
       v-for="(edge,index) in currentModel.edges"
+      ref="fcEdgeLabel"
       :edge="edge"
       :modelservice="modelservice"
       :key="index"
@@ -167,10 +168,6 @@ export default {
         return []
       }
     },
-    isTypeModel: {
-      type: Boolean,
-      default: false
-    },
     edgeStyle: {
       type: String,
       default: ''
@@ -216,12 +213,12 @@ export default {
       storeModel: 'model'
     }),
     currentModel () {
-      return this.isTypeModel ? this.model : this.storeModel
+      return this.dropTargetId ? this.model : this.storeModel
     }
   },
   watch: {
     model (val) {
-      if (val && !this.isTypeModel) {
+      if (val && !this.dropTargetId) {
         this.initModel(val)
       }
     }
@@ -232,7 +229,7 @@ export default {
         throw new Error('edgeStyle not supported.')
       }
     })(this)
-    if (!this.isTypeModel) {
+    if (!this.dropTargetId) {
       this.initModel(this.model)
     }
     let noop = () => { }
@@ -247,7 +244,7 @@ export default {
   },
   mounted () {
     let canvas = this.$el.getBoundingClientRect()
-    if (!this.isTypeModel && canvas) {
+    if (!this.dropTargetId && canvas) {
       this.UPDATE_CANVAS_OFFSET({
         left: canvas.left,
         top: canvas.top
@@ -316,13 +313,25 @@ export default {
       console.log('edgeMouseOver')
       this.$emit('edge-mouseover', edge)
     },
-    edgeMouseEnter (edge) {
+    edgeMouseEnter (index, isHover) {
       console.log('edgeMouseEnter')
-      this.$emit('edge-mouseenter', edge)
+      if (this.$refs.fcEdge) {
+        this.$refs.fcEdge[index].underMouse = isHover
+      }
+      if (this.$refs.fcEdgeLabel) {
+        this.$refs.fcEdgeLabel[index].underMouse = isHover
+      }
+      this.$emit('edge-mouseenter')
     },
-    edgeMouseLeave (edge) {
+    edgeMouseLeave (index, isHover) {
       console.log('edgeMouseLeave')
-      this.$emit('edge-mouseleave', edge)
+      if (this.$refs.fcEdge) {
+        this.$refs.fcEdge[index].underMouse = isHover
+      }
+      if (this.$refs.fcEdgeLabel) {
+        this.$refs.fcEdgeLabel[index].underMouse = isHover
+      }
+      this.$emit('edge-mouseleave')
     },
     edgeDoubleClick (edge) {
       console.log('edgeDoubleClick')

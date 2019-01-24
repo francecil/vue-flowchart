@@ -1,10 +1,8 @@
 <template>
   <div
-    :draggable="true"
-    :class="flowchartConstants.connectorClass"
-    @dragstart="handleDragstart"
-    @drag="handleDragging"
-    @dragend="handleDragend"
+    :draggable="dropTargetId===null"
+    :class="[{[flowchartConstants.hoverClass]:underMouse},flowchartConstants.connectorClass]"
+    v-on="listenersComputed"
   />
 </template>
 <script>
@@ -23,17 +21,36 @@ export default {
       default: () => {
         return {}
       }
+    },
+
+    dropTargetId: {
+      type: [String, Number],
+      default: null
     }
   },
   data () {
     return {
+      underMouse: false,
       flowchartConstants: flowchartConstants,
       offsetWidth: 0,
       offsetHeight: 0
     }
   },
   computed: {
-    ...mapState('flow', ['canvas'])
+    ...mapState('flow', ['canvas']),
+    listenersComputed () {
+      if (!this.dropTargetId) {
+        return {
+          dragstart: this.handleDragstart,
+          drag: this.handleDragging,
+          dragend: this.handleDragend,
+          mouseenter: this.handleMouseenter,
+          mouseleave: this.handleMouseleave
+        }
+      } else {
+        return {}
+      }
+    }
   },
   mounted () {
     this.modelservice.connectors.setHtmlElement(this.connector.id, this.$el)
@@ -53,6 +70,12 @@ export default {
     handleDragend () {
       console.log('connector Dragend:', event)
       this.$emit('connector-dragend', event)
+    },
+    handleMouseenter () {
+      this.underMouse = true
+    },
+    handleMouseleave () {
+      this.underMouse = false
     },
     getCoords () {
       let element = this.$el

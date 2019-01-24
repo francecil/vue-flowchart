@@ -3,7 +3,6 @@
     <div class="fc-left-pane">
       <fc-canvas
         :model="nodeTypesModel"
-        :is-type-model="true"
         :automatic-resize="false"
         drop-target-id="fc-target-canvas"
       />

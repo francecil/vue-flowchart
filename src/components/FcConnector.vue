@@ -16,12 +16,6 @@ export default {
         return {}
       }
     },
-    modelservice: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
 
     dropTargetId: {
       type: [String, Number],
@@ -53,7 +47,6 @@ export default {
     }
   },
   mounted () {
-    this.modelservice.connectors.setHtmlElement(this.connector.id, this.$el)
     this.offsetWidth = this.$el.offsetWidth
     this.offsetHeight = this.$el.offsetHeight
   },

@@ -48,7 +48,6 @@
         v-for="(edge,index) in currentModel.edges"
         ref="fcEdge"
         :edge="edge"
-        :modelservice="modelservice"
         :key="index"
         :index="index"
         :edgeStyle="edgeStyle"
@@ -87,7 +86,6 @@
       ref="fcNode"
       :key="node.id"
       :node="node"
-      :modelservice="modelservice"
       :drop-target-id="dropTargetId"
       @node-dragstart="nodeDragstart"
       @node-dragging="nodeDragging"
@@ -114,16 +112,15 @@
       v-for="(edge,index) in currentModel.edges"
       ref="fcEdgeLabel"
       :edge="edge"
-      :modelservice="modelservice"
       :key="'fc-edge-label-'+index"
       :index="index"
+      :drop-target-id="dropTargetId"
       @mousedown="edgeMouseDown"
       @edge-dblclick="edgeDoubleClick"
       @edge-mouseenter="edgeMouseEnter"
       @edge-mouseleave="edgeMouseLeave"
       @edge-click="edgeClick"
       @edge-edit="edgeEdit"
-      @edge-remove="edgeRemove"
     />
     <!-- 矩形选择区域 -->
     <div
@@ -135,11 +132,10 @@
 </template>
 <script>
 import CanvasFactory from '@/service/canvas'
-import ModelFactory from '@/service/model'
 // import NodedraggingFactory from '@/service/nodedragging'
 // import EdgedraggingFactory from '@/service/edgedragging'
 // import MouseoverFactory from '@/service/mouseover'
-import RectangleselectFactory from '@/service/rectangleselect'
+// import RectangleselectFactory from '@/service/rectangleselect'
 import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
 import { mapActions, mapState, mapMutations } from 'vuex'
@@ -199,7 +195,6 @@ export default {
   data () {
     return {
       arrowDefId: 'arrow-' + Math.random(),
-      modelservice: null,
       canvasservice: null,
       edgeDragging: {},
       flowchartConstants: flowchartConstants
@@ -229,15 +224,7 @@ export default {
     if (!this.dropTargetId) {
       this.initModel(this.model)
     }
-    let noop = () => { }
-    this.modelservice = ModelFactory(this.currentModel, this.selectedObjects, noop, noop, noop, noop, noop)
     this.canvasservice = CanvasFactory()
-
-    // var nodedraggingservice = NodedraggingFactory(this.modelservice, this.nodeDragging, this.$apply, this.automaticResize, this.dragAnimation)
-
-    // var edgedraggingservice = EdgedraggingFactory(this.modelservice, this.model, this.edgeDragging, null, this.$apply, this.dragAnimation, this.edgeStyle)
-
-    this.rectangleselectservice = RectangleselectFactory(this.modelservice, this.$apply)
   },
   mounted () {
     let canvas = this.$el.getBoundingClientRect()
@@ -249,8 +236,6 @@ export default {
     }
     this.updateNode()
     this.canvasservice.setCanvasHtmlElement(this.$refs.canvas)
-    this.modelservice.setCanvasHtmlElement(this.$refs.canvas)
-    this.modelservice.setSvgHtmlElement(this.$refs.canvas.querySelector('svg'))
   },
   methods: {
     ...mapMutations('flow', [
@@ -301,10 +286,6 @@ export default {
 
     edgeClick (edge) {
       console.log('edgeClick')
-      this.modelservice.edges.handleEdgeMouseClick(edge, event.ctrlKey)
-      // Don't let the chart handle the mouse down.
-      event.stopPropagation()
-      event.preventDefault()
     },
     edgeMouseEnter (index, isHover) {
       console.log('edgeMouseEnter')
@@ -331,22 +312,7 @@ export default {
       this.$emit('edge-dblclick', edge)
     },
     edgeEdit (edge) {
-      console.log('edgeEdit')
-      let label = prompt('编辑连线label', edge.label)
-      let newEdge = Object.assign(edge, {
-        label
-      })
-      this.updateNode({
-        edge,
-        newEdge,
-        isPushState: true
-      })
       this.$emit('edge-edit', edge)
-    },
-    edgeRemove (edge) {
-      this.modelservice.edges.delete(edge)
-      event.stopPropagation()
-      event.preventDefault()
     },
     nodeDragstart (node) {
       this.$emit('node-dragstart', this.node)

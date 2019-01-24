@@ -74,11 +74,19 @@ const mutations = {
   },
   [UPDATE_NODE] (state, {node, newNode}) {
     let index = state.model.nodes.indexOf(node)
-    Object.assign(state.model.nodes[index], newNode)
+    if (newNode) {
+      Object.assign(state.model.nodes[index], newNode)
+    } else {
+      state.model.nodes.splice(index, 1)
+    }
   },
   [UPDATE_EDGE] (state, {edge, newEdge}) {
     let index = state.model.edges.indexOf(edge)
-    Object.assign(state.model.edges[index], newEdge)
+    if (newEdge) {
+      Object.assign(state.model.edges[index], newEdge)
+    } else {
+      state.model.edges.splice(index, 1)
+    }
   },
   [UPDATE_CONNECTOR] (state, {connectorId, x, y}) {
     if (state.connectors[connectorId]) {

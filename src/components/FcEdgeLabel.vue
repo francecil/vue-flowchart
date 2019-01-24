@@ -9,15 +9,15 @@
     @click="handleClick">
     <div class="fc-edge-label-text">
       <div
-        v-if="modelservice.isEditable()"
+        v-if="isEditable()"
         class="fc-noselect fc-nodeedit"
         @click="handleEdit">
         #
       </div>
       <div
-        v-if="modelservice.isEditable()"
+        v-if="isEditable()"
         class="fc-noselect fc-nodedelete"
-        @click="handleRemove">
+        @click="handleDelete">
         &times;
       </div>
       <span
@@ -42,11 +42,9 @@ export default {
         return {}
       }
     },
-    modelservice: {
-      type: Object,
-      default: () => {
-        return {}
-      }
+    dropTargetId: {
+      type: [String, Number],
+      default: null
     }
   },
   data () {
@@ -89,7 +87,10 @@ export default {
   mounted () {
   },
   methods: {
-    ...mapActions('flow', ['updateSelecctedObjects']),
+    ...mapActions('flow', ['updateSelecctedObjects', 'updateEdge']),
+    isEditable () {
+      return !this.dropTargetId
+    },
     handleMouseDown () {
       event.stopPropagation()
     },
@@ -119,10 +120,23 @@ export default {
       this.$emit('edge-dblclick', this.edge)
     },
     handleEdit () {
+      let label = prompt('编辑连线label', this.edge.label)
+      let newEdge = Object.assign(this.edge, {
+        label
+      })
+      this.updateNode({
+        edge: this.edge,
+        newEdge,
+        isPushState: true
+      })
       this.$emit('edge-edit', this.edge)
     },
-    handleRemove () {
-      this.$emit('edge-remove', this.edge)
+    handleDelete () {
+      this.updateEdge({
+        edge: this.edge,
+        newEdge: null,
+        isPushState: true
+      })
     }
   }
 }

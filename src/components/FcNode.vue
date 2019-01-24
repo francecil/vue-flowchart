@@ -17,7 +17,6 @@
           <fc-connector
             v-for="connector in filterConnectorType(node,flowchartConstants.leftConnectorType)"
             ref="fcLeftConnector"
-            :modelservice="modelservice"
             :key="connector.id"
             :connector="connector"/>
         </fc-magnet>
@@ -27,7 +26,6 @@
           <fc-connector
             v-for="connector in filterConnectorType(node,flowchartConstants.rightConnectorType)"
             ref="fcRightConnector"
-            :modelservice="modelservice"
             :key="connector.id"
             :drop-target-id="dropTargetId"
             :connector="connector"/>
@@ -35,13 +33,13 @@
       </div>
     </div>
     <div
-      v-if="modelservice.isEditable() && !node.readonly"
+      v-if="isEditable() && !node.readonly"
       class="fc-nodeedit"
       @click="handleEdit">
       #
     </div>
     <div
-      v-if="modelservice.isEditable() && !node.readonly"
+      v-if="isEditable() && !node.readonly"
       class="fc-nodedelete"
       @click="handleDelete">
       &times;
@@ -83,12 +81,6 @@ export default {
       }
     },
     node: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    modelservice: {
       type: Object,
       default: () => {
         return {}
@@ -155,13 +147,14 @@ export default {
     }
   },
   created () {
-    // this.nodedraggingservice = NodedraggingFactory(this.modelservice, {}, null, this.automaticResize, this.dragAnimation)
   },
   mounted () {
-    // this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
   },
   methods: {
     ...mapActions('flow', ['updateNode', 'updateSelecctedObjects']),
+    isEditable () {
+      return !this.dropTargetId
+    },
     filterConnectorType (node, type) {
       if (!this.node.connectors) {
         return []
@@ -232,7 +225,6 @@ export default {
     },
     handleClick () {
       console.log('handleClick')
-      // this.modelservice.nodes.handleClicked(this.node, event.ctrlKey)
       // Don't let the chart handle the mouse down.
       this.updateSelecctedObjects({
         object: this.node,
@@ -260,7 +252,11 @@ export default {
       this.$emit('node-edit', this.node)
     },
     handleDelete () {
-      this.modelservice.nodes.delete(this.node)
+      this.updateNode({
+        node: this.node,
+        newNode: null,
+        isPushState: true
+      })
     }
   }
 }

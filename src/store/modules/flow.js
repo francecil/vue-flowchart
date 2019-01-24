@@ -35,17 +35,34 @@ const getters = {
 // actions
 const actions = {
   async initModel ({ commit }, model) {
-    await commit(INIT_MODEL, model)
-    await commit(PUSH_STATE, model, { root: true })
+    commit(INIT_MODEL, model)
+    commit(PUSH_STATE, model, { root: true })
   },
-  async updateNode ({commit}, {node, newNode, isPushState}) {
-    await commit(UPDATE_NODE, {node, newNode})
+  async updateNode ({ commit, dispatch }, {node, newNode, isPushState}) {
+    commit(UPDATE_NODE, {node, newNode})
+    if (!newNode && node.connectors) {
+      let connectorIds = node.connectors.map(item => item.id)
+      for (let i = 0; i < state.model.edges.length; i++) {
+        let edge = state.model.edges[i]
+        if (connectorIds.indexOf(edge.source) !== -1 || connectorIds.indexOf(edge.destination) !== -1) {
+          await dispatch('updateEdge', {
+            edge,
+            newEdge: null,
+            isPushState: false
+          })
+        }
+      }
+    }
     if (isPushState) {
       commit(PUSH_STATE, state.model, { root: true })
     }
   },
   async updateEdge ({commit}, {edge, newEdge, isPushState}) {
-    await commit(UPDATE_EDGE, {edge, newEdge})
+    commit(UPDATE_EDGE, {edge, newEdge})
+    if (!newEdge) {
+      commit(UPDATE_CONNECTOR, {connectorId: edge.source, isDeleted: true})
+      commit(UPDATE_CONNECTOR, {connectorId: edge.destination, isDeleted: true})
+    }
     if (isPushState) {
       commit(PUSH_STATE, state.model, { root: true })
     }
@@ -88,7 +105,11 @@ const mutations = {
       state.model.edges.splice(index, 1)
     }
   },
-  [UPDATE_CONNECTOR] (state, {connectorId, x, y}) {
+  [UPDATE_CONNECTOR] (state, {connectorId, x, y, isDeleted}) {
+    if (isDeleted) {
+      delete state.connectors[connectorId]
+      return
+    }
     if (state.connectors[connectorId]) {
       state.connectors[connectorId].x = x
       state.connectors[connectorId].y = y

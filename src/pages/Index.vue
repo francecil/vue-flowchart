@@ -74,28 +74,46 @@ export default {
       model: {
         nodes: [{
           id: 1,
-          name: 'node1',
-          x: 411, // x-coordinate of the node relative to the canvas.
-          y: 74,
+          name: 'root',
+          x: 120, // x-coordinate of the node relative to the canvas.
+          y: 400,
+          readonly: true,
           connectors: [{
             id: 11,
-            type: 'leftConnector'
+            type: flowchartConstants.rightConnectorType
           }]
         }, {
           id: 2,
-          name: 'node2',
-          x: 133, // x-coordinate of the node relative to the canvas.
-          y: 254,
+          name: 'node1',
+          x: 411, // x-coordinate of the node relative to the canvas.
+          y: 200,
           connectors: [{
             id: 12,
-            type: 'rightConnector'
+            type: flowchartConstants.leftConnectorType
+          }, {
+            id: 13,
+            type: flowchartConstants.rightConnectorType
+          }]
+        }, {
+          id: 3,
+          name: 'node2',
+          x: 800, // x-coordinate of the node relative to the canvas.
+          y: 500,
+          connectors: [{
+            id: 14,
+            type: flowchartConstants.leftConnectorType
           }]
         }],
         edges: [{
-          source: 12,
-          destination: 11,
+          source: 11,
+          destination: 12,
           active: false,
           label: 'label0'
+        }, {
+          source: 13,
+          destination: 14,
+          active: true,
+          label: 'label1'
         }]
       }
     }

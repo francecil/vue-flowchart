@@ -1,6 +1,6 @@
 <template>
   <div
-    :draggable="dropTargetId===null"
+    :draggable="!dropTargetId"
     :class="[{[flowchartConstants.hoverClass]:underMouse},flowchartConstants.connectorClass]"
     v-on="listenersComputed"
   />

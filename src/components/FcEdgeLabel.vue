@@ -29,7 +29,7 @@
 <script>
 import flowchartConstants from '@/config/flowchart'
 import EdgedrawingService from '@/service/edgedrawing'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 export default {
   props: {
     index: {
@@ -56,7 +56,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('flow', ['getConnector']),
+    ...mapGetters('flow', ['getConnector', 'isSelectedObject', 'isEditObject']),
     styleComputed () {
       let source = this.getConnector(this.edge.source) || {x: 0, y: 0}
       let destination = this.getConnector(this.edge.destination) || {x: 0, y: 0}
@@ -66,20 +66,21 @@ export default {
         left: center.x + 'px'
       }
     },
+    selected () {
+      return this.isSelectedObject(this.edge)
+    },
+    edit () {
+      return this.isEditObject(this.edge)
+    },
     classComputed () {
-      let classObj = {}
-      classObj['fc-noselect'] = true
-      classObj[flowchartConstants.edgeLabelClass] = true
-      if (this.modelservice.edges.isEdit(this.edge)) {
-        classObj[flowchartConstants.editClass] = true
-      } else if (this.modelservice.edges.isSelected(this.edge)) {
-        classObj[flowchartConstants.selectedClass] = true
-      } else if (this.underMouse) {
-        classObj[flowchartConstants.hoverClass] = true
-      } else if (this.edge.active) {
-        classObj[flowchartConstants.activeClass] = true
+      return {
+        'fc-noselect': true,
+        [flowchartConstants.edgeLabelClass]: true,
+        [flowchartConstants.editClass]: this.edit,
+        [flowchartConstants.selectedClass]: this.selected,
+        [flowchartConstants.hoverClass]: this.underMouse,
+        [flowchartConstants.activeClass]: this.edge.active
       }
-      return classObj
     }
   },
   created () {
@@ -88,13 +89,17 @@ export default {
   mounted () {
   },
   methods: {
+    ...mapActions('flow', ['updateSelecctedObjects']),
     handleMouseDown () {
       event.stopPropagation()
     },
 
     handleClick () {
       console.log('edgeClick')
-      this.modelservice.edges.handleEdgeMouseClick(this.edge, event.ctrlKey)
+      this.updateSelecctedObjects({
+        object: this.edge,
+        ctrlKey: event.ctrlKey
+      })
       // Don't let the chart handle the mouse down.
       event.stopPropagation()
       event.preventDefault()

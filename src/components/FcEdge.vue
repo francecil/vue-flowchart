@@ -4,7 +4,7 @@
       :id="'fc-edge-path-'+index"
       :class="classComputed"
       :d="dComputed"
-      :marker-end="'url(#'+(modelservice.edges.isSelected(edge) ? arrowDefId+'-selected' : arrowDefId)+')'"
+      :marker-end="'url(#'+(selected ? arrowDefId+'-selected' : arrowDefId)+')'"
       @mousedown="handleMouseDown"
       @dblclick="handleDoubleClick"
       @mouseenter="handleMouseEnter"
@@ -15,7 +15,7 @@
 <script>
 import flowchartConstants from '@/config/flowchart'
 import EdgedrawingService from '@/service/edgedrawing'
-import { mapGetters } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 export default {
   props: {
     index: {
@@ -28,10 +28,6 @@ export default {
         return {}
       }
     },
-    selected: {
-      type: Boolean,
-      default: false
-    },
     arrowDefId: {
       type: String,
       default: ''
@@ -39,12 +35,6 @@ export default {
     edgeStyle: {
       type: String,
       default: ''
-    },
-    modelservice: {
-      type: Object,
-      default: () => {
-        return {}
-      }
     }
   },
   data () {
@@ -54,23 +44,22 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('flow', ['getConnector']),
+    ...mapGetters('flow', ['getConnector', 'isSelectedObject']),
+    selected () {
+      return this.isSelectedObject(this.edge)
+    },
     dComputed () {
       let source = this.getConnector(this.edge.source) || {x: 0, y: 0}
       let destination = this.getConnector(this.edge.destination) || {x: 0, y: 0}
       return EdgedrawingService.getEdgeDAttribute(source, destination, this.edgeStyle)
     },
     classComputed () {
-      let classObj = {}
-      classObj[flowchartConstants.edgeClass] = true
-      if (this.selected) {
-        classObj[flowchartConstants.selectedClass] = true
-      } else if (this.underMouse) {
-        classObj[flowchartConstants.hoverClass] = true
-      } else if (this.edge.active) {
-        classObj[flowchartConstants.activeClass] = true
+      return {
+        [flowchartConstants.edgeClass]: true,
+        [flowchartConstants.selectedClass]: this.selected,
+        [flowchartConstants.hoverClass]: this.underMouse,
+        [flowchartConstants.activeClass]: this.edge.active
       }
-      return classObj
     }
   },
   created () {
@@ -79,13 +68,17 @@ export default {
   mounted () {
   },
   methods: {
+    ...mapActions('flow', ['updateSelecctedObjects']),
     handleMouseDown () {
       event.stopPropagation()
     },
 
     handleClick () {
       console.log('edgeClick')
-      this.modelservice.edges.handleEdgeMouseClick(this.edge, event.ctrlKey)
+      this.updateSelecctedObjects({
+        object: this.edge,
+        ctrlKey: event.ctrlKey
+      })
       // Don't let the chart handle the mouse down.
       event.stopPropagation()
       event.preventDefault()

@@ -49,7 +49,6 @@
         ref="fcEdge"
         :edge="edge"
         :modelservice="modelservice"
-        :selected="modelservice.edges.isSelected(edge)"
         :key="index"
         :index="index"
         :edgeStyle="edgeStyle"

@@ -54,7 +54,7 @@ import flowchartConstants from '@/config/flowchart'
 import FcMagnet from '@/components/FcMagnet'
 import FcConnector from '@/components/FcConnector'
 // import NodedraggingFactory from '@/service/nodedragging'
-import { mapActions, mapState } from 'vuex'
+import { mapActions, mapState, mapGetters } from 'vuex'
 // import _ from 'lodash'
 export default {
   components: {
@@ -106,8 +106,6 @@ export default {
   data () {
     return {
       underMouse: false,
-      selected: false,
-      edit: false,
       flowchartConstants: flowchartConstants,
       nodedraggingservice: null,
       eventPointOffset: {
@@ -118,6 +116,7 @@ export default {
   },
   computed: {
     ...mapState('flow', ['canvas']),
+    ...mapGetters('flow', ['isSelectedObject', 'isEditObject']),
     listenersComputed () {
       if (!this.node.readonly) {
         return {
@@ -139,6 +138,12 @@ export default {
         left: this.node.x + 'px'
       }
     },
+    selected () {
+      return this.isSelectedObject(this.node)
+    },
+    edit () {
+      return this.isEditObject(this.node)
+    },
     classComputed () {
       let classObj = {}
       classObj[flowchartConstants.selectedClass] = this.selected
@@ -153,10 +158,10 @@ export default {
     // this.nodedraggingservice = NodedraggingFactory(this.modelservice, {}, null, this.automaticResize, this.dragAnimation)
   },
   mounted () {
-    this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
+    // this.modelservice.nodes.setHtmlElement(this.node.id, this.$refs.node)
   },
   methods: {
-    ...mapActions('flow', ['updateNode']),
+    ...mapActions('flow', ['updateNode', 'updateSelecctedObjects']),
     filterConnectorType (node, type) {
       if (!this.node.connectors) {
         return []
@@ -227,8 +232,12 @@ export default {
     },
     handleClick () {
       console.log('handleClick')
-      this.modelservice.edges.handleEdgeMouseClick(this.node, event.ctrlKey)
+      // this.modelservice.nodes.handleClicked(this.node, event.ctrlKey)
       // Don't let the chart handle the mouse down.
+      this.updateSelecctedObjects({
+        object: this.node,
+        ctrlKey: event.ctrlKey
+      })
       event.stopPropagation()
       event.preventDefault()
     },

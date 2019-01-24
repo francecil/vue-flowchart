@@ -56,7 +56,6 @@
         :arrow-def-id="arrowDefId"
         @mousedown="edgeMouseDown"
         @edge-dblclick="edgeDoubleClick"
-        @edge-mouseover="edgeMouseOver"
         @edge-mouseenter="edgeMouseEnter"
         @edge-mouseleave="edgeMouseLeave"
         @edge-click="edgeClick"
@@ -117,11 +116,10 @@
       ref="fcEdgeLabel"
       :edge="edge"
       :modelservice="modelservice"
-      :key="index"
+      :key="'fc-edge-label-'+index"
       :index="index"
       @mousedown="edgeMouseDown"
       @edge-dblclick="edgeDoubleClick"
-      @edge-mouseover="edgeMouseOver"
       @edge-mouseenter="edgeMouseEnter"
       @edge-mouseleave="edgeMouseLeave"
       @edge-click="edgeClick"
@@ -308,10 +306,6 @@ export default {
       // Don't let the chart handle the mouse down.
       event.stopPropagation()
       event.preventDefault()
-    },
-    edgeMouseOver (edge) {
-      console.log('edgeMouseOver')
-      this.$emit('edge-mouseover', edge)
     },
     edgeMouseEnter (index, isHover) {
       console.log('edgeMouseEnter')

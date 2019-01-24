@@ -226,6 +226,7 @@ export default {
       // this.updateConnectorPosition()
     },
     handleClick () {
+      console.log('handleClick')
       this.modelservice.edges.handleEdgeMouseClick(this.node, event.ctrlKey)
       // Don't let the chart handle the mouse down.
       event.stopPropagation()

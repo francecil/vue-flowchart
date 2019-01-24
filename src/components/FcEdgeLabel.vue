@@ -4,7 +4,6 @@
     :style="styleComputed"
     @mousedown="handleMouseDown"
     @dblclick="handleDoubleClick"
-    @mouseover="handleMouseOver"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
     @click="handleClick">
@@ -100,18 +99,14 @@ export default {
       event.stopPropagation()
       event.preventDefault()
     },
-    handleMouseOver () {
-      console.log('edgeMouseOver')
-      this.$emit('edge-mouseover', this.edge)
-    },
     handleMouseEnter () {
       this.underMouse = true
-      console.log('edgeMouseEnter')
+      console.log('handleMouseEnter')
       this.$emit('edge-mouseenter', this.index, true)
     },
     handleMouseLeave () {
       this.underMouse = false
-      console.log('edgeMouseLeave')
+      console.log('handleMouseLeave')
       this.$emit('edge-mouseenter', this.index, false)
     },
     handleDoubleClick () {

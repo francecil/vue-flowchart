@@ -125,7 +125,7 @@ const mutations = {
     state.selectedObjects.splice(0, state.selectedObjects.length)
   },
   [SELECT_OBJECT] (state, object) {
-    if (state.selectedObjects.indexOf(object) === -1) {
+    if (object && state.selectedObjects.indexOf(object) === -1) {
       state.selectedObjects.push(object)
     }
   },

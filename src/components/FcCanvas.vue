@@ -243,7 +243,8 @@ export default {
     ]),
     ...mapActions('flow', [
       'initModel',
-      'updateEdge'
+      'updateEdge',
+      'updateSelecctedObjects'
     ]),
     updateNode () {
       let fcNodes = this.$refs.fcNode
@@ -255,6 +256,9 @@ export default {
     },
     canvasClick () {
       console.log(event)
+      this.updateSelecctedObjects({
+        object: null
+      })
     },
     canvasDrop () {
       console.log('canvasDrop')

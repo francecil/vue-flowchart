@@ -1,7 +1,6 @@
 <template>
   <div
-    id="fc-canvas"
-    ref="canvas"
+    :style="styleComputed"
     class="fc-canvas"
     @click="canvasClick"
     @dragover="canvasDragover"
@@ -131,8 +130,7 @@
 
 </template>
 <script>
-import CanvasFactory from '@/service/canvas'
-// import NodedraggingFactory from '@/service/nodedragging'
+import NodedraggingFactory from '@/service/nodedragging'
 // import EdgedraggingFactory from '@/service/edgedragging'
 // import MouseoverFactory from '@/service/mouseover'
 // import RectangleselectFactory from '@/service/rectangleselect'
@@ -195,17 +193,28 @@ export default {
   data () {
     return {
       arrowDefId: 'arrow-' + Math.random(),
-      canvasservice: null,
       edgeDragging: {},
-      flowchartConstants: flowchartConstants
+      flowchartConstants: flowchartConstants,
+      nodedraggingService: null
     }
   },
   computed: {
     ...mapState('flow', {
-      storeModel: 'model'
+      storeModel: 'model',
+      canvas: 'canvas'
     }),
     currentModel () {
       return this.dropTargetId ? this.model : this.storeModel
+    },
+    styleComputed () {
+      if (this.canvas.width && this.canvas.height) {
+        return {
+          width: this.canvas.width + 'px',
+          height: this.canvas.height + 'px'
+        }
+      } else {
+        return ''
+      }
     }
   },
   watch: {
@@ -216,26 +225,26 @@ export default {
     }
   },
   created () {
-    ; (function (scope) {
-      if (!scope.dropTargetId && scope.edgeStyle !== flowchartConstants.curvedStyle && scope.edgeStyle !== flowchartConstants.lineStyle) {
-        throw new Error('edgeStyle not supported.')
-      }
-    })(this)
+    if (!this.dropTargetId && this.edgeStyle !== flowchartConstants.curvedStyle && this.edgeStyle !== flowchartConstants.lineStyle) {
+      throw new Error('edgeStyle not supported.')
+    }
     if (!this.dropTargetId) {
       this.initModel(this.model)
     }
-    this.canvasservice = CanvasFactory()
+
+    this.nodedraggingService = NodedraggingFactory({}, {}, {})
   },
   mounted () {
     let canvas = this.$el.getBoundingClientRect()
     if (!this.dropTargetId && canvas) {
       this.UPDATE_CANVAS_OFFSET({
         left: canvas.left,
-        top: canvas.top
+        top: canvas.top,
+        width: canvas.width,
+        height: canvas.height
       })
     }
     this.updateNode()
-    this.canvasservice.setCanvasHtmlElement(this.$refs.canvas)
   },
   methods: {
     ...mapMutations('flow', [
@@ -267,9 +276,9 @@ export default {
 
     canvasDragover () {
       event.preventDefault()
+      // 通知连线和节点更改位置
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)
-      // this.canvasservice._notifyDragover(event)
     },
 
     canvasMousedown () {

@@ -6,6 +6,7 @@ export const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
 export const DESELECT_ALL = 'DESELECT_ALL'
 export const DESELECT_OBJECT = 'DESELECT_OBJECT'
 export const SELECT_OBJECT = 'SELECT_OBJECT'
+export const PUSH_NODE_ELEMENT = 'PUSH_NODE_ELEMENT'
 
 const HISTORY = 'history/'
 export const PUSH_STATE = HISTORY + 'PUSH_STATE'
@@ -15,14 +16,20 @@ const state = {
   model: [],
   connectors: {},
   selectedObjects: [],
+  nodeElements: {},
   canvas: {
     left: 0,
-    top: 0
+    top: 0,
+    width: 0,
+    height: 0
   }
 }
 const getters = {
   getConnector: (state) => (id) => {
     return state.connectors[id]
+  },
+  getSelectedNodes (state, getters) {
+    return state.model.nodes ? state.model.nodes.filter((node) => getters.isSelectedObject(node)) : []
   },
   isSelectedObject: (state) => (object) => {
     return state.selectedObjects.indexOf(object) !== -1
@@ -95,6 +102,7 @@ const mutations = {
       Object.assign(state.model.nodes[index], newNode)
     } else {
       state.model.nodes.splice(index, 1)
+      delete state.nodeElements[node.id]
     }
   },
   [UPDATE_EDGE] (state, {edge, newEdge}) {
@@ -117,9 +125,8 @@ const mutations = {
       this._vm.$set(state.connectors, connectorId, {x, y})
     }
   },
-  [UPDATE_CANVAS_OFFSET] (state, {left, top}) {
-    state.canvas.left = left
-    state.canvas.top = top
+  [UPDATE_CANVAS_OFFSET] (state, offset) {
+    Object.assign(state.canvas, offset)
   },
   [DESELECT_ALL] (state) {
     state.selectedObjects.splice(0, state.selectedObjects.length)
@@ -135,6 +142,9 @@ const mutations = {
       throw new Error('Tried to deselect an unselected object')
     }
     state.selectedObjects.splice(index, 1)
+  },
+  [PUSH_NODE_ELEMENT] (state, {nodeId, element}) {
+    state.nodeElements[nodeId] = element
   }
 
 }

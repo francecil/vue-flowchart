@@ -1,6 +1,5 @@
 <template>
   <div
-    ref="node"
     :id="node.id"
     :draggable="!node.readonly"
     :style="styleComputed"
@@ -52,7 +51,7 @@ import flowchartConstants from '@/config/flowchart'
 import FcMagnet from '@/components/FcMagnet'
 import FcConnector from '@/components/FcConnector'
 // import NodedraggingFactory from '@/service/nodedragging'
-import { mapActions, mapState, mapGetters } from 'vuex'
+import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
 // import _ from 'lodash'
 export default {
   components: {
@@ -149,9 +148,14 @@ export default {
   created () {
   },
   mounted () {
+    this.PUSH_NODE_ELEMENT({
+      nodeId: this.node.id,
+      element: this.$el
+    })
   },
   methods: {
     ...mapActions('flow', ['updateNode', 'updateSelecctedObjects']),
+    ...mapMutations('flow', ['PUSH_NODE_ELEMENT']),
     isEditable () {
       return !this.dropTargetId
     },
@@ -224,6 +228,9 @@ export default {
       // this.updateConnectorPosition()
     },
     handleClick () {
+      if (!this.isEditable()) {
+        return
+      }
       console.log('handleClick')
       // Don't let the chart handle the mouse down.
       this.updateSelecctedObjects({

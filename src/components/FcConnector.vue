@@ -1,6 +1,6 @@
 <template>
   <div
-    :draggable="!dropTargetId"
+    :draggable="isEditable()"
     :class="[{[flowchartConstants.hoverClass]:underMouse},flowchartConstants.connectorClass]"
     v-on="listenersComputed"
   />
@@ -33,7 +33,7 @@ export default {
   computed: {
     ...mapState('flow', ['canvas']),
     listenersComputed () {
-      if (!this.dropTargetId) {
+      if (this.isEditable()) {
         return {
           dragstart: this.handleDragstart,
           drag: this.handleDragging,
@@ -54,6 +54,9 @@ export default {
     ...mapMutations('flow', [
       'UPDATE_CONNECTOR'
     ]),
+    isEditable () {
+      return !this.dropTargetId
+    },
     handleDragstart () {
       console.log('connector Dragstart:', event)
       this.$emit('connector-dragstart', this.connector)

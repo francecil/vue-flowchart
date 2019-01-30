@@ -272,10 +272,12 @@ export default {
     canvasDrop (event) {
       console.log('canvasDrop')
       event.preventDefault()
+      event.stopPropagation()
     },
 
     canvasDragover (event) {
       event.preventDefault()
+      event.stopPropagation()
       // 通知连线和节点更改位置
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)

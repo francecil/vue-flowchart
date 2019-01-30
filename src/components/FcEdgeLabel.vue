@@ -91,11 +91,11 @@ export default {
     isEditable () {
       return !this.dropTargetId
     },
-    handleMouseDown () {
+    handleMouseDown (event) {
       event.stopPropagation()
     },
 
-    handleClick () {
+    handleClick (event) {
       console.log('edgeClick')
       this.updateSelecctedObjects({
         object: this.edge,

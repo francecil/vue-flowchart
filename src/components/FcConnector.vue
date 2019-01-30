@@ -57,13 +57,13 @@ export default {
     isEditable () {
       return !this.dropTargetId
     },
-    handleDragstart () {
+    handleDragstart (event) {
       console.log('connector Dragstart:', event)
       this.$emit('connector-dragstart', this.connector)
     },
     handleDragging () {
     },
-    handleDragend () {
+    handleDragend (event) {
       console.log('connector Dragend:', event)
       this.$emit('connector-dragend', event)
     },

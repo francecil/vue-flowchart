@@ -69,11 +69,11 @@ export default {
   },
   methods: {
     ...mapActions('flow', ['updateSelecctedObjects']),
-    handleMouseDown () {
+    handleMouseDown (event) {
       event.stopPropagation()
     },
 
-    handleClick () {
+    handleClick (event) {
       console.log('edgeClick')
       this.updateSelecctedObjects({
         object: this.edge,

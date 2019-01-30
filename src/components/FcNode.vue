@@ -5,7 +5,6 @@
     :style="styleComputed"
     :class="classComputed"
     @dblclick="handleDoubleClick"
-    @mousedown.stop="handleMousedown"
     v-on="listenersComputed">
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div class="innerNode">
@@ -179,13 +178,10 @@ export default {
         })
       }
     },
-    handleMousedown () {
-      console.log('mousedown:', event)
-    },
     handleDoubleClick () {
 
     },
-    handleDragstart () {
+    handleDragstart (event) {
       console.log('node Dragstart:', event)
       let elementBox = this.$el.getBoundingClientRect()
       this.eventPointOffset.x = event.clientX - elementBox.left
@@ -199,7 +195,7 @@ export default {
       this.updateConnectorPosition()
     },
     handleDragging (event) {
-      console.log('handleDragging')
+      console.log('handleDragging', event)
       if (!(event.clientX && event.clientY)) {
         return
       }
@@ -213,7 +209,7 @@ export default {
       })
       this.updateConnectorPosition()
     },
-    handleDragend () {
+    handleDragend (event) {
       console.log('node Dragend:', event)
       let newNode = Object.assign(this.node, {
         x: event.clientX - this.canvas.left - this.eventPointOffset.x,
@@ -227,11 +223,10 @@ export default {
       this.$emit('node-dragend', event)
       // this.updateConnectorPosition()
     },
-    handleClick () {
+    handleClick (event) {
       if (!this.isEditable()) {
         return
       }
-      console.log('handleClick')
       // Don't let the chart handle the mouse down.
       this.updateSelecctedObjects({
         object: this.node,

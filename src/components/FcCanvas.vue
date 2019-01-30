@@ -263,18 +263,18 @@ export default {
         })
       }
     },
-    canvasClick () {
+    canvasClick (event) {
       console.log(event)
       this.updateSelecctedObjects({
         object: null
       })
     },
-    canvasDrop () {
+    canvasDrop (event) {
       console.log('canvasDrop')
       event.preventDefault()
     },
 
-    canvasDragover () {
+    canvasDragover (event) {
       event.preventDefault()
       // 通知连线和节点更改位置
       // this.nodedraggingservice.dragover(event)
@@ -293,11 +293,11 @@ export default {
       // this.rectangleselectservice.mouseup(event)
     },
 
-    edgeMouseDown (edge) {
+    edgeMouseDown (event) {
       event.stopPropagation()
     },
 
-    edgeClick (edge) {
+    edgeClick (event) {
       console.log('edgeClick')
     },
     edgeMouseEnter (index, isHover) {

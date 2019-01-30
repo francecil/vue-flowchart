@@ -132,7 +132,8 @@ npm test
       this.$emit('node-dragend', event)
       // this.updateConnectorPosition()
     }
-    ```
+```
+firefox 下 drag拿到的event.clientX/Y 为0
 
 ### 2. 触发容器的dropover事件
 

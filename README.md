@@ -1,47 +1,21 @@
-# vue-flowchart
+## vue-flowchart
 
-> A flowchart base on Vue.js project
+> 基于Vue.js的流程图框架
 
-## Api
+目前进度：
 
-### The model
+[x] 数据显示
+[x] 节点拖拽
+[x] 节点、连线编辑和删除
+[] 节点新增，预置节点拖拽
+[] 画板缩放
+[] 撤销删除
+[] 多节点的拖拽
+[] 节点样式自定义
+[] 节点悬浮提示
+[] 连线拖拽
 
-```javascript
-{
-  nodes: [Node],
-  edges: [Edge]
-}
-```
-
-#### Node
-```javascript
-id: {
-  name: string,
-  x: integer, // x-coordinate of the node relative to the canvas.
-  y: integer, // y-coordinate of the node relative to the canvas.
-  connectors: [Connector],
-  readonly: boolean
-}
-```
-
-#### Connector
-```javascript
-id : {
-  type: string: leftConnector|rightConnector
-}
-```
-
-#### Edge
-```javascript
-{
- source: Connector.id
- destination: Connector.id
- active: boolean
- label:string
-}
-```
-
-## Build Setup
+## 构建
 
 ``` bash
 # install dependencies
@@ -65,21 +39,82 @@ npm run e2e
 # run all tests
 npm test
 ```
+## 使用文档
+
+...
 
 ## 定义
-节点
 
-连接点：处于节点左右两侧
+### 画板 Canvas
 
-连线：连接点相连的svg图形，带箭头
+分为两种组件，一种是主界面，一种是放置模板节点的这里叫模板界面，可以有多个模板界面。
 
-标签：处于连线中心
+对于模板界面，没有连线，且仅支持节点拖拽和鼠标悬浮事件
 
-## canvas
+canvas画板由一个 model 对象控制数据，其中包含两种元素，即节点和连线
 
-分为两种组件，一种是主界面，一种是放置模板节点（带drop-target-id参数）的，这里叫模板界面，可以有多个模板界面。
+```javascript
+{
+  nodes: [Node],
+  edges: [Edge]
+}
+```
 
-对于模板界面，仅显示节点，仅支持节点拖拽和鼠标悬浮弹窗
+元素的操作，除了在各种组件上的处理外，事件还会派发到canvas上，由canvas决定是否推入历史栈
+
+一些功能按钮，在外部通过slot插槽传入canvas组件，样式让用户自定义
+
+### 节点 Node
+
+主要元素之一
+
+```js
+{
+  id: Number | String, //唯一标识符
+  name: String,//节点名称
+  x: Number, // 节点相对canvas的x坐标
+  y: Number, // 节点相对canvas的y坐标
+  connectors: [Connector],// 连接点
+  readonly: Boolean=false,// 是否只读,只读模式下仅支持鼠标悬浮事件
+  addition:Object// 支持拓展
+}
+```
+
+### 连接点 Connector
+
+一个节点含有0至多个连接点，共有左右两侧两种类型
+
+用于连线时使用
+
+```javascript
+{
+  id: Number | String, //唯一标识符
+  type: String,// 连接点类型，取值范围:leftConnector/rightConnector
+}
+```
+
+组件配置：
+
+
+### 连线 Edge
+
+主要元素之一
+
+由某节点的rightConnector连接点和另一节点的leftConnector连接点相连，带箭头
+
+```javascript
+{
+  source: Connector.id,
+  destination: Connector.id,
+  active: Boolean=false,// 应用连线流动动画
+  label:String//连线的标签
+}
+```
+
+### 标签 
+
+处于连线中心
+
 
 ## 拖拽
 
@@ -133,12 +168,13 @@ npm test
       // this.updateConnectorPosition()
     }
 ```
-firefox 下 drag拿到的event.clientX/Y 为0
+firefox 下 drag拿到的event.clientX/Y 为0,只能从容器的dragover事件的event中获取
 
-### 2. 触发容器的dropover事件
+### 2. 触发容器的dragover事件
 
 这样做的好处在于，被拖动元素将不可拖动至任意地方，仅在容器中重绘 
 
+chrome 中 dragover 不能拿到`event.dataTransfer.getData('Text')`
 
 ### 批量拖拽
 

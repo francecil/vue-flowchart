@@ -1,5 +1,6 @@
 <template>
   <div
+    :id="canvasId"
     :style="styleComputed"
     class="fc-canvas"
     @click="canvasClick"
@@ -51,6 +52,7 @@
         :index="index"
         :edgeStyle="edgeStyle"
         :arrow-def-id="arrowDefId"
+        :store="store"
         @mousedown="edgeMouseDown"
         @edge-dblclick="edgeDoubleClick"
         @edge-mouseenter="edgeMouseEnter"
@@ -85,7 +87,7 @@
       ref="fcNode"
       :key="node.id"
       :node="node"
-      :drop-target-id="dropTargetId"
+      :store="store"
       @node-dragstart="nodeDragstart"
       @node-dragging="nodeDragging"
       @node-dragend="nodeDragend"
@@ -113,7 +115,7 @@
       :edge="edge"
       :key="'fc-edge-label-'+index"
       :index="index"
-      :drop-target-id="dropTargetId"
+      :store="store"
       @mousedown="edgeMouseDown"
       @edge-dblclick="edgeDoubleClick"
       @edge-mouseenter="edgeMouseEnter"
@@ -130,16 +132,16 @@
 
 </template>
 <script>
-import NodedraggingFactory from '@/service/nodedragging'
 // import EdgedraggingFactory from '@/service/edgedragging'
 // import MouseoverFactory from '@/service/mouseover'
 // import RectangleselectFactory from '@/service/rectangleselect'
 import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
-import { mapActions, mapState, mapMutations } from 'vuex'
 import FcNode from '@/components/FcNode'
 import FcEdge from '@/components/FcEdge'
 import FcEdgeLabel from '@/components/FcEdgeLabel'
+import Store from '@/service/store'
+let canvasIdSeed = 1
 export default {
   components: {
     'fc-node': FcNode,
@@ -153,64 +155,51 @@ export default {
         return {}
       }
     },
-    selectedObjects: {
-      type: Array,
-      default: function () {
-        return []
-      }
-    },
+    // 连线样式
     edgeStyle: {
       type: String,
       default: ''
     },
+    // 是否自动拓展canvas大小
     automaticResize: {
       type: Boolean,
-      default: false
+      default: true
     },
+    // 拖拽动画
     dragAnimation: {
       type: String,
-      default: 'repaint'
-    },
-    nodeWidth: {
-      type: Number,
-      default: 200
-    },
-    nodeHeight: {
-      type: Number,
-      default: 200
+      default: flowchartConstants.dragAnimationRepaint
     },
     dropTargetId: {
       type: [String, Number],
       default: null
-    },
-    control: {
-      type: Object,
-      default: () => {
-        return {}
-      }
     }
   },
   data () {
+    const store = new Store(this, {
+      dropTargetId: this.dropTargetId
+    })
     return {
+      store,
+      canvasId: 'fc-canvas_' + canvasIdSeed++,
       arrowDefId: 'arrow-' + Math.random(),
-      edgeDragging: {},
-      flowchartConstants: flowchartConstants,
-      nodedraggingService: null
+      flowchartConstants
     }
   },
   computed: {
-    ...mapState('flow', {
-      storeModel: 'model',
-      canvas: 'canvas'
-    }),
     currentModel () {
-      return this.dropTargetId ? this.model : this.storeModel
+      return this.store.state.model
+    },
+    canvasOffset () {
+      return this.store.state.canvasOffset
     },
     styleComputed () {
-      if (this.canvas.width && this.canvas.height) {
+      let width = this.canvasOffset.width
+      let height = this.canvasOffset.height
+      if (width && height) {
         return {
-          width: this.canvas.width + 'px',
-          height: this.canvas.height + 'px'
+          width: width + 'px',
+          height: height + 'px'
         }
       } else {
         return ''
@@ -218,9 +207,10 @@ export default {
     }
   },
   watch: {
-    model (val) {
-      if (val && !this.dropTargetId) {
-        this.initModel(val)
+    model: {
+      immediate: true,
+      handler (val) {
+        this.store.commit('SET_MODEL', val)
       }
     }
   },
@@ -228,49 +218,41 @@ export default {
     if (!this.dropTargetId && this.edgeStyle !== flowchartConstants.curvedStyle && this.edgeStyle !== flowchartConstants.lineStyle) {
       throw new Error('edgeStyle not supported.')
     }
-    if (!this.dropTargetId) {
-      this.initModel(this.model)
-    }
-
-    this.nodedraggingService = NodedraggingFactory({}, {}, {})
+    // if (!this.dropTargetId) {
+    //   this.initModel(this.model)
+    // }
   },
   mounted () {
     let canvas = this.$el.getBoundingClientRect()
-    if (!this.dropTargetId && canvas) {
-      this.UPDATE_CANVAS_OFFSET({
-        left: canvas.left,
-        top: canvas.top,
-        width: canvas.width,
-        height: canvas.height
-      })
-    }
-    this.updateNode()
+    this.store.commit('UPDATE_CANVAS_OFFSET', {
+      left: canvas.left,
+      top: canvas.top,
+      width: canvas.width,
+      height: canvas.height
+    })
+
+    // this.updateNode()
   },
   methods: {
-    ...mapMutations('flow', [
-      'UPDATE_CANVAS_OFFSET'
-    ]),
-    ...mapActions('flow', [
-      'initModel',
-      'updateEdge',
-      'updateSelecctedObjects'
-    ]),
-    updateNode () {
-      let fcNodes = this.$refs.fcNode
-      if (fcNodes) {
-        fcNodes.forEach(fcNode => {
-          fcNode.updateConnectorPosition()
-        })
-      }
-    },
     canvasClick (event) {
       console.log(event)
-      this.updateSelecctedObjects({
+      this.store.updateSelecctedObjects({
         object: null
       })
     },
     canvasDrop (event) {
-      console.log('canvasDrop')
+      // 放置在目标元素时触发
+      console.log('canvasDrop', event.dataTransfer.getData('Text'))
+      let nodeId = parseInt(event.dataTransfer.getData('Text'))
+      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
+      let newNode = Object.assign(node, {
+        x: event.clientX - this.canvas.left,
+        y: event.clientY - this.canvas.top
+      })
+      this.updateNode({
+        node: this.node,
+        newNode
+      })
       event.preventDefault()
       event.stopPropagation()
     },
@@ -278,6 +260,19 @@ export default {
     canvasDragover (event) {
       event.preventDefault()
       event.stopPropagation()
+      // 在目标元素内拖动时触发
+      console.log('canvasDragover')
+      console.log(event.dataTransfer.getData('Text'))
+      let nodeId = parseInt(event.dataTransfer.getData('Text'))
+      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
+      let newNode = Object.assign(node, {
+        x: event.clientX - this.canvas.left,
+        y: event.clientY - this.canvas.top
+      })
+      this.updateNode({
+        node: this.node,
+        newNode
+      })
       // 通知连线和节点更改位置
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)

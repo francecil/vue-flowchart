@@ -15,9 +15,14 @@
 <script>
 import flowchartConstants from '@/config/flowchart'
 import EdgedrawingService from '@/service/edgedrawing'
-import { mapActions, mapGetters } from 'vuex'
 export default {
   props: {
+    store: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
     index: {
       type: Number,
       default: 0
@@ -44,13 +49,12 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('flow', ['getConnector', 'isSelectedObject']),
     selected () {
-      return this.isSelectedObject(this.edge)
+      return this.store.isSelectedObject(this.edge)
     },
     dComputed () {
-      let source = this.getConnector(this.edge.source) || {x: 0, y: 0}
-      let destination = this.getConnector(this.edge.destination) || {x: 0, y: 0}
+      let source = this.store.getConnector(this.edge.source) || {x: 0, y: 0}
+      let destination = this.store.getConnector(this.edge.destination) || {x: 0, y: 0}
       return EdgedrawingService.getEdgeDAttribute(source, destination, this.edgeStyle)
     },
     classComputed () {
@@ -68,14 +72,13 @@ export default {
   mounted () {
   },
   methods: {
-    ...mapActions('flow', ['updateSelecctedObjects']),
     handleMouseDown (event) {
       event.stopPropagation()
     },
 
     handleClick (event) {
       console.log('edgeClick')
-      this.updateSelecctedObjects({
+      this.store.updateSelecctedObjects({
         object: this.edge,
         ctrlKey: event.ctrlKey
       })

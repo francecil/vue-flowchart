@@ -1,12 +1,13 @@
-export const INIT_MODEL = 'INIT_MODEL'
-export const UPDATE_NODE = 'UPDATE_NODE'
-export const UPDATE_EDGE = 'UPDATE_EDGE'
-export const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
-export const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
-export const DESELECT_ALL = 'DESELECT_ALL'
-export const DESELECT_OBJECT = 'DESELECT_OBJECT'
-export const SELECT_OBJECT = 'SELECT_OBJECT'
-export const PUSH_NODE_ELEMENT = 'PUSH_NODE_ELEMENT'
+const INIT_MODEL = 'INIT_MODEL'
+const UPDATE_NODE = 'UPDATE_NODE'
+const UPDATE_EDGE = 'UPDATE_EDGE'
+const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
+const DELETE_CONNECTOR = 'DELETE_CONNECTOR'
+const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
+const DESELECT_ALL = 'DESELECT_ALL'
+const DESELECT_OBJECT = 'DESELECT_OBJECT'
+const SELECT_OBJECT = 'SELECT_OBJECT'
+const PUSH_NODE_ELEMENT = 'PUSH_NODE_ELEMENT'
 
 const HISTORY = 'history/'
 export const PUSH_STATE = HISTORY + 'PUSH_STATE'
@@ -15,6 +16,7 @@ export const MAX_HISTORY = 100
 const state = {
   model: [],
   connectors: {},
+  // 当前选中的元素，包括节点和连线
   selectedObjects: [],
   nodeElements: {},
   canvas: {
@@ -67,8 +69,8 @@ const actions = {
   async updateEdge ({commit}, {edge, newEdge, isPushState}) {
     commit(UPDATE_EDGE, {edge, newEdge})
     if (!newEdge) {
-      commit(UPDATE_CONNECTOR, {connectorId: edge.source, isDeleted: true})
-      commit(UPDATE_CONNECTOR, {connectorId: edge.destination, isDeleted: true})
+      commit(DELETE_CONNECTOR, edge.source)
+      commit(DELETE_CONNECTOR, edge.destination)
     }
     if (isPushState) {
       commit(PUSH_STATE, state.model, { root: true })
@@ -113,17 +115,16 @@ const mutations = {
       state.model.edges.splice(index, 1)
     }
   },
-  [UPDATE_CONNECTOR] (state, {connectorId, x, y, isDeleted}) {
-    if (isDeleted) {
-      delete state.connectors[connectorId]
-      return
-    }
+  [UPDATE_CONNECTOR] (state, {connectorId, x, y}) {
     if (state.connectors[connectorId]) {
       state.connectors[connectorId].x = x
       state.connectors[connectorId].y = y
     } else {
       this._vm.$set(state.connectors, connectorId, {x, y})
     }
+  },
+  [DELETE_CONNECTOR] (state, connectorId) {
+    delete state.connectors[connectorId]
   },
   [UPDATE_CANVAS_OFFSET] (state, offset) {
     Object.assign(state.canvas, offset)

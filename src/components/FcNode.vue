@@ -16,6 +16,7 @@
             v-for="connector in filterConnectorType(node,flowchartConstants.leftConnectorType)"
             ref="fcLeftConnector"
             :key="connector.id"
+            :store="store"
             :connector="connector"/>
         </fc-magnet>
       </div>
@@ -25,19 +26,19 @@
             v-for="connector in filterConnectorType(node,flowchartConstants.rightConnectorType)"
             ref="fcRightConnector"
             :key="connector.id"
-            :drop-target-id="dropTargetId"
+            :store="store"
             :connector="connector"/>
         </fc-magnet>
       </div>
     </div>
     <div
-      v-if="isEditable() && !node.readonly"
+      v-if="store.isEditable() && !node.readonly"
       class="fc-nodeedit"
       @click="handleEdit">
       #
     </div>
     <div
-      v-if="isEditable() && !node.readonly"
+      v-if="store.isEditable() && !node.readonly"
       class="fc-nodedelete"
       @click="handleDelete">
       &times;
@@ -50,7 +51,6 @@ import flowchartConstants from '@/config/flowchart'
 import FcMagnet from '@/components/FcMagnet'
 import FcConnector from '@/components/FcConnector'
 // import NodedraggingFactory from '@/service/nodedragging'
-import { mapActions, mapState, mapGetters, mapMutations } from 'vuex'
 // import _ from 'lodash'
 export default {
   components: {
@@ -58,21 +58,7 @@ export default {
     'fc-connector': FcConnector
   },
   props: {
-    automaticResize: {
-      type: Boolean,
-      default: false
-    },
-    dragAnimation: {
-      type: String,
-      default: 'repaint'
-    },
-    fcCallbacks: {
-      type: Object,
-      default: () => {
-        return {}
-      }
-    },
-    callbacks: {
+    store: {
       type: Object,
       default: () => {
         return {}
@@ -83,21 +69,12 @@ export default {
       default: () => {
         return {}
       }
-    },
-    draggedNode: {
-      type: Boolean,
-      default: false
-    },
-    dropTargetId: {
-      type: [String, Number],
-      default: null
     }
   },
   data () {
     return {
       underMouse: false,
       flowchartConstants: flowchartConstants,
-      nodedraggingservice: null,
       eventPointOffset: {
         x: 0,
         y: 0
@@ -105,14 +82,12 @@ export default {
     }
   },
   computed: {
-    ...mapState('flow', ['canvas']),
-    ...mapGetters('flow', ['isSelectedObject', 'isEditObject']),
     listenersComputed () {
       if (!this.node.readonly) {
         return {
           dragstart: this.handleDragstart,
-          drag: this.handleDragging,
-          dragend: this.handleDragend,
+          // drag: this.handleDragging,
+          // dragend: this.handleDragend,
           click: this.handleClick,
           mouseover: this.handleMouseover,
           mouseout: this.handleMouseout
@@ -129,10 +104,10 @@ export default {
       }
     },
     selected () {
-      return this.isSelectedObject(this.node)
+      return this.store.isSelectedObject(this.node)
     },
     edit () {
-      return this.isEditObject(this.node)
+      return this.store.isEditObject(this.node)
     },
     classComputed () {
       let classObj = {}
@@ -147,17 +122,12 @@ export default {
   created () {
   },
   mounted () {
-    this.PUSH_NODE_ELEMENT({
+    this.store.commit('PUSH_NODE_ELEMENT', {
       nodeId: this.node.id,
       element: this.$el
     })
   },
   methods: {
-    ...mapActions('flow', ['updateNode', 'updateSelecctedObjects']),
-    ...mapMutations('flow', ['PUSH_NODE_ELEMENT']),
-    isEditable () {
-      return !this.dropTargetId
-    },
     filterConnectorType (node, type) {
       if (!this.node.connectors) {
         return []
@@ -189,46 +159,34 @@ export default {
       // this.nodedraggingservice.dragstart(event)
       let dataTransfer = event.dataTransfer
       dataTransfer.dropEffect = 'move'
-      dataTransfer.setData('Text', event.target.id)
+      dataTransfer.setData('Text', this.node.id)
       dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
       this.updateConnectorPosition()
     },
-    handleDragging (event) {
-      console.log('handleDragging', event)
-      if (!(event.clientX && event.clientY)) {
-        return
-      }
-      let newNode = Object.assign(this.node, {
-        x: event.clientX - this.canvas.left - this.eventPointOffset.x,
-        y: event.clientY - this.canvas.top - this.eventPointOffset.y
-      })
-      this.updateNode({
-        node: this.node,
-        newNode
-      })
-      this.updateConnectorPosition()
-    },
-    handleDragend (event) {
-      console.log('node Dragend:', event)
-      let newNode = Object.assign(this.node, {
-        x: event.clientX - this.canvas.left - this.eventPointOffset.x,
-        y: event.clientY - this.canvas.top - this.eventPointOffset.y
-      })
-      this.updateNode({
-        node: this.node,
-        newNode,
-        isPushState: true
-      })
-      this.$emit('node-dragend', event)
-      // this.updateConnectorPosition()
-    },
+    // handleDragging (event) {
+
+    // },
+    // handleDragend (event) {
+    //   console.log('node Dragend:', event)
+    //   let newNode = Object.assign(this.node, {
+    //     x: event.clientX - this.canvas.left - this.eventPointOffset.x,
+    //     y: event.clientY - this.canvas.top - this.eventPointOffset.y
+    //   })
+    //   this.store.updateNode({
+    //     node: this.node,
+    //     newNode,
+    //     isPushState: true
+    //   })
+    //   this.$emit('node-dragend', event)
+    //   // this.updateConnectorPosition()
+    // },
     handleClick (event) {
-      if (!this.isEditable()) {
+      if (!this.store.isEditable()) {
         return
       }
       // Don't let the chart handle the mouse down.
-      this.updateSelecctedObjects({
+      this.store.updateSelecctedObjects({
         object: this.node,
         ctrlKey: event.ctrlKey
       })
@@ -246,7 +204,7 @@ export default {
       let newNode = Object.assign(this.node, {
         name
       })
-      this.updateNode({
+      this.store.updateNode({
         node: this.node,
         newNode,
         isPushState: true
@@ -254,7 +212,7 @@ export default {
       this.$emit('node-edit', this.node)
     },
     handleDelete () {
-      this.updateNode({
+      this.store.updateNode({
         node: this.node,
         newNode: null,
         isPushState: true

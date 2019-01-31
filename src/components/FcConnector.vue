@@ -1,13 +1,12 @@
 <template>
   <div
-    :draggable="isEditable()"
+    :draggable="store.isEditable()"
     :class="[{[flowchartConstants.hoverClass]:underMouse},flowchartConstants.connectorClass]"
     v-on="listenersComputed"
   />
 </template>
 <script>
 import flowchartConstants from '@/config/flowchart'
-import { mapMutations, mapState } from 'vuex'
 export default {
   props: {
     connector: {
@@ -16,10 +15,11 @@ export default {
         return {}
       }
     },
-
-    dropTargetId: {
-      type: [String, Number],
-      default: null
+    store: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
   data () {
@@ -31,9 +31,8 @@ export default {
     }
   },
   computed: {
-    ...mapState('flow', ['canvas']),
     listenersComputed () {
-      if (this.isEditable()) {
+      if (this.store.isEditable()) {
         return {
           dragstart: this.handleDragstart,
           drag: this.handleDragging,
@@ -51,12 +50,6 @@ export default {
     this.offsetHeight = this.$el.offsetHeight
   },
   methods: {
-    ...mapMutations('flow', [
-      'UPDATE_CONNECTOR'
-    ]),
-    isEditable () {
-      return !this.dropTargetId
-    },
     handleDragstart (event) {
       console.log('connector Dragstart:', event)
       this.$emit('connector-dragstart', this.connector)
@@ -80,8 +73,8 @@ export default {
       }
       let connectorElementBox = element.getBoundingClientRect()
       let coords = {
-        x: connectorElementBox.left - this.canvas.left,
-        y: connectorElementBox.top - this.canvas.top
+        x: connectorElementBox.left - this.store.canvasOffset.left,
+        y: connectorElementBox.top - this.store.canvasOffset.top
       }
       coords = {
         x: Math.round(coords.x + this.offsetWidth / 2),
@@ -91,7 +84,7 @@ export default {
     },
     updatePosition () {
       let coords = this.getCoords()
-      this.UPDATE_CONNECTOR({
+      this.store.commit('UPDATE_CONNECTOR', {
         'connectorId': this.connector.id,
         'x': coords.x,
         'y': coords.y

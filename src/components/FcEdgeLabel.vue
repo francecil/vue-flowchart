@@ -29,7 +29,6 @@
 <script>
 import flowchartConstants from '@/config/flowchart'
 import EdgedrawingService from '@/service/edgedrawing'
-import { mapGetters, mapActions } from 'vuex'
 export default {
   props: {
     index: {
@@ -42,9 +41,11 @@ export default {
         return {}
       }
     },
-    dropTargetId: {
-      type: [String, Number],
-      default: null
+    store: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
   data () {
@@ -54,10 +55,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('flow', ['getConnector', 'isSelectedObject', 'isEditObject']),
     styleComputed () {
-      let source = this.getConnector(this.edge.source) || {x: 0, y: 0}
-      let destination = this.getConnector(this.edge.destination) || {x: 0, y: 0}
+      let source = this.store.getConnector(this.edge.source) || {x: 0, y: 0}
+      let destination = this.store.getConnector(this.edge.destination) || {x: 0, y: 0}
       let center = EdgedrawingService.getEdgeCenter(source, destination)
       return {
         top: center.y + 'px',
@@ -65,10 +65,10 @@ export default {
       }
     },
     selected () {
-      return this.isSelectedObject(this.edge)
+      return this.store.isSelectedObject(this.edge)
     },
     edit () {
-      return this.isEditObject(this.edge)
+      return this.store.isEditObject(this.edge)
     },
     classComputed () {
       return {
@@ -87,7 +87,6 @@ export default {
   mounted () {
   },
   methods: {
-    ...mapActions('flow', ['updateSelecctedObjects', 'updateEdge']),
     isEditable () {
       return !this.dropTargetId
     },
@@ -97,7 +96,7 @@ export default {
 
     handleClick (event) {
       console.log('edgeClick')
-      this.updateSelecctedObjects({
+      this.store.updateSelecctedObjects({
         object: this.edge,
         ctrlKey: event.ctrlKey
       })
@@ -132,7 +131,7 @@ export default {
       this.$emit('edge-edit', this.edge)
     },
     handleDelete () {
-      this.updateEdge({
+      this.store.updateEdge({
         edge: this.edge,
         newEdge: null,
         isPushState: true

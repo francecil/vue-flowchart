@@ -2,7 +2,7 @@
   <div class="fc-container">
     <div class="fc-left-pane">
       <fc-canvas
-        :model="nodeTypesModel"
+        :model="dropSourceModel"
         :automatic-resize="false"
         drop-target-id="fc-target-canvas"
       />
@@ -46,7 +46,7 @@ export default {
     'fc-canvas': FcCanvas
   },
   data () {
-    let nodeTypesModel = {
+    let dropSourceModel = {
       nodes: [],
       edges: []
     }
@@ -67,11 +67,17 @@ export default {
           }
         ]
       }
-      nodeTypesModel.nodes.push(node)
+      dropSourceModel.nodes.push(node)
     }
     return {
-      nodeTypesModel: nodeTypesModel,
-      model: {
+      dropSourceModel: dropSourceModel,
+      model: null
+    }
+  },
+  mounted () {
+    // 模拟数据获取
+    setTimeout(() => {
+      this.model = {
         nodes: [{
           id: 1,
           name: 'root',
@@ -116,39 +122,7 @@ export default {
           label: 'label1'
         }]
       }
-    }
-  },
-  mounted () {
-    // this.model = {
-    //   nodes: {
-    //     1: {
-    //       name: 'node1',
-    //       x: 411, // x-coordinate of the node relative to the canvas.
-    //       y: 74,
-    //       connectors: {
-    //         11: {
-    //           type: 'leftConnector'
-    //         }
-    //       }
-    //     },
-    //     2: {
-    //       name: 'node2',
-    //       x: 133, // x-coordinate of the node relative to the canvas.
-    //       y: 254,
-    //       connectors: {
-    //         12: {
-    //           type: 'rightConnector'
-    //         }
-    //       }
-    //     }
-    //   },
-    //   edges: [{
-    //     source: 12,
-    //     destination: 11,
-    //     active: false,
-    //     label: 'label0'
-    //   }]
-    // }
+    }, 2000)
   },
   methods: {
   }

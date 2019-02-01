@@ -86,8 +86,7 @@ export default {
       if (!this.node.readonly) {
         return {
           dragstart: this.handleDragstart,
-          drag: this.handleDragging,
-          dragend: this.handleDragend,
+          // dragend: this.handleDragend,
           click: this.handleClick,
           mouseover: this.handleMouseover,
           mouseout: this.handleMouseout
@@ -163,9 +162,6 @@ export default {
       dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
       // this.updateConnectorPosition()
-    },
-    handleDragging (event) {
-
     },
     handleDragend (event) {
       console.log('node Dragend:', event)

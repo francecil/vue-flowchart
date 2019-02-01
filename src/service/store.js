@@ -164,8 +164,4 @@ CanvasStore.prototype.toggleSelectedObject = function (object) {
     this.commit(SELECT_OBJECT, object)
   }
 }
-// 事件传递相关
-CanvasStore.prototype.showEdges = function () {
-
-}
 export default CanvasStore

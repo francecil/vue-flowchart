@@ -230,13 +230,8 @@ export default {
       width: canvas.width,
       height: canvas.height
     })
-
-    this.doLayout()
   },
   methods: {
-    doLayout () {
-      this.store.showEdges()
-    },
     canvasClick (event) {
       console.log(event)
       this.store.updateSelecctedObjects({
@@ -246,16 +241,17 @@ export default {
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event.dataTransfer.getData('Text'))
-      // let nodeId = parseInt(event.dataTransfer.getData('Text'))
-      // let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
-      // let newNode = Object.assign(node, {
-      //   x: event.clientX - this.store.state.canvasOffset.left,
-      //   y: event.clientY - this.store.state.canvasOffset.top
-      // })
-      // this.store.updateNode({
-      //   node: this.node,
-      //   newNode
-      // })
+      let nodeId = parseInt(event.dataTransfer.getData('Text'))
+      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
+      let newNode = Object.assign(node, {
+        x: event.clientX - this.store.state.canvasOffset.left,
+        y: event.clientY - this.store.state.canvasOffset.top
+      })
+      this.store.updateNode({
+        node: node,
+        newNode,
+        isPushState: true
+      })
       event.preventDefault()
       event.stopPropagation()
     },

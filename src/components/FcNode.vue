@@ -13,21 +13,21 @@
       <div :class="flowchartConstants.leftConnectorClass">
         <fc-magnet>
           <fc-connector
-            v-for="connector in filterConnectorType(node,flowchartConstants.leftConnectorType)"
+            v-if="filterConnectorType(node,flowchartConstants.leftConnectorType).length>0"
             ref="fcLeftConnector"
-            :key="connector.id"
-            :store="store"
-            :connector="connector"/>
+            :connectors="filterConnectorType(node,flowchartConstants.leftConnectorType)"
+            :node="node"
+            :store="store"/>
         </fc-magnet>
       </div>
       <div :class="flowchartConstants.rightConnectorClass">
         <fc-magnet>
           <fc-connector
-            v-for="connector in filterConnectorType(node,flowchartConstants.rightConnectorType)"
+            v-if="filterConnectorType(node,flowchartConstants.rightConnectorType).length>0"
             ref="fcRightConnector"
-            :key="connector.id"
-            :store="store"
-            :connector="connector"/>
+            :connectors="filterConnectorType(node,flowchartConstants.rightConnectorType)"
+            :node="node"
+            :store="store"/>
         </fc-magnet>
       </div>
     </div>
@@ -86,8 +86,8 @@ export default {
       if (!this.node.readonly) {
         return {
           dragstart: this.handleDragstart,
-          // drag: this.handleDragging,
-          // dragend: this.handleDragend,
+          drag: this.handleDragging,
+          dragend: this.handleDragend,
           click: this.handleClick,
           mouseover: this.handleMouseover,
           mouseout: this.handleMouseout
@@ -162,25 +162,25 @@ export default {
       dataTransfer.setData('Text', this.node.id)
       dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
       this.$emit('node-dragstart', this.node)
-      this.updateConnectorPosition()
+      // this.updateConnectorPosition()
     },
-    // handleDragging (event) {
+    handleDragging (event) {
 
-    // },
-    // handleDragend (event) {
-    //   console.log('node Dragend:', event)
-    //   let newNode = Object.assign(this.node, {
-    //     x: event.clientX - this.canvas.left - this.eventPointOffset.x,
-    //     y: event.clientY - this.canvas.top - this.eventPointOffset.y
-    //   })
-    //   this.store.updateNode({
-    //     node: this.node,
-    //     newNode,
-    //     isPushState: true
-    //   })
-    //   this.$emit('node-dragend', event)
-    //   // this.updateConnectorPosition()
-    // },
+    },
+    handleDragend (event) {
+      console.log('node Dragend:', event)
+      let newNode = Object.assign(this.node, {
+        x: event.clientX - this.store.state.canvasOffset.left - this.eventPointOffset.x,
+        y: event.clientY - this.store.state.canvasOffset.top - this.eventPointOffset.y
+      })
+      this.store.updateNode({
+        node: this.node,
+        newNode,
+        isPushState: true
+      })
+      this.$emit('node-dragend', event)
+      // this.updateConnectorPosition()
+    },
     handleClick (event) {
       if (!this.store.isEditable()) {
         return

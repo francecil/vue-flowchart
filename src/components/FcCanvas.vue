@@ -246,16 +246,16 @@ export default {
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event.dataTransfer.getData('Text'))
-      let nodeId = parseInt(event.dataTransfer.getData('Text'))
-      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
-      let newNode = Object.assign(node, {
-        x: event.clientX - this.canvas.left,
-        y: event.clientY - this.canvas.top
-      })
-      this.updateNode({
-        node: this.node,
-        newNode
-      })
+      // let nodeId = parseInt(event.dataTransfer.getData('Text'))
+      // let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
+      // let newNode = Object.assign(node, {
+      //   x: event.clientX - this.store.state.canvasOffset.left,
+      //   y: event.clientY - this.store.state.canvasOffset.top
+      // })
+      // this.store.updateNode({
+      //   node: this.node,
+      //   newNode
+      // })
       event.preventDefault()
       event.stopPropagation()
     },
@@ -264,18 +264,18 @@ export default {
       event.preventDefault()
       event.stopPropagation()
       // 在目标元素内拖动时触发
-      console.log('canvasDragover')
-      console.log(event.dataTransfer.getData('Text'))
-      let nodeId = parseInt(event.dataTransfer.getData('Text'))
-      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
-      let newNode = Object.assign(node, {
-        x: event.clientX - this.canvas.left,
-        y: event.clientY - this.canvas.top
-      })
-      this.updateNode({
-        node: this.node,
-        newNode
-      })
+      // console.log('canvasDragover')
+      // console.log(event.dataTransfer.getData('Text'))
+      // let nodeId = parseInt(event.dataTransfer.getData('Text'))
+      // let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
+      // let newNode = Object.assign(node, {
+      //   x: event.clientX - this.canvas.left,
+      //   y: event.clientY - this.canvas.top
+      // })
+      // this.updateNode({
+      //   node: this.node,
+      //   newNode
+      // })
       // 通知连线和节点更改位置
       // this.nodedraggingservice.dragover(event)
       // this.edgedraggingservice.dragover(event)

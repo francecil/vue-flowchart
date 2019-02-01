@@ -9,10 +9,16 @@
 import flowchartConstants from '@/config/flowchart'
 export default {
   props: {
-    connector: {
+    node: {
       type: Object,
       default: () => {
         return {}
+      }
+    },
+    connectors: {
+      type: Array,
+      default: () => {
+        return []
       }
     },
     store: {
@@ -43,12 +49,41 @@ export default {
       } else {
         return {}
       }
+    },
+    nodeOffset () {
+      return {
+        x: this.node.x,
+        y: this.node.y
+      }
+    },
+    canvasOffset () {
+      return this.store.state.canvasOffset
+    }
+  },
+  watch: {
+    nodeOffset: {
+      deep: true,
+      handler (val) {
+        if (this.store.isEditable()) {
+          this.updatePosition()
+        }
+      }
+    },
+    canvasOffset: {
+      deep: true,
+      handler (val) {
+        if (this.store.isEditable()) {
+          this.updatePosition()
+        }
+      }
     }
   },
   mounted () {
     this.offsetWidth = this.$el.offsetWidth
     this.offsetHeight = this.$el.offsetHeight
-    this.updatePosition()
+    if (this.store.isEditable()) {
+      this.updatePosition()
+    }
   },
   methods: {
     handleDragstart (event) {
@@ -85,11 +120,13 @@ export default {
     },
     updatePosition () {
       let coords = this.getCoords()
-      this.store.commit('UPDATE_CONNECTOR', {
-        'connectorId': this.connector.id,
-        'x': coords.x,
-        'y': coords.y
-      })
+      for (let connector of this.connectors) {
+        this.store.commit('UPDATE_CONNECTOR', {
+          'connectorId': connector.id,
+          'x': coords.x,
+          'y': coords.y
+        })
+      }
     }
   }
 }

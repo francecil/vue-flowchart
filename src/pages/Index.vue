@@ -71,13 +71,7 @@ export default {
     }
     return {
       dropSourceModel: dropSourceModel,
-      model: null
-    }
-  },
-  mounted () {
-    // 模拟数据获取
-    setTimeout(() => {
-      this.model = {
+      model: {
         nodes: [{
           id: 1,
           name: 'root',
@@ -122,7 +116,57 @@ export default {
           label: 'label1'
         }]
       }
-    }, 2000)
+    }
+  },
+  mounted () {
+    // 模拟数据获取
+    // setTimeout(() => {
+    //   this.model = {
+    //     nodes: [{
+    //       id: 1,
+    //       name: 'root',
+    //       x: 120, // x-coordinate of the node relative to the canvas.
+    //       y: 400,
+    //       readonly: true,
+    //       connectors: [{
+    //         id: 11,
+    //         type: flowchartConstants.rightConnectorType
+    //       }]
+    //     }, {
+    //       id: 2,
+    //       name: 'node1',
+    //       x: 411, // x-coordinate of the node relative to the canvas.
+    //       y: 200,
+    //       connectors: [{
+    //         id: 12,
+    //         type: flowchartConstants.leftConnectorType
+    //       }, {
+    //         id: 13,
+    //         type: flowchartConstants.rightConnectorType
+    //       }]
+    //     }, {
+    //       id: 3,
+    //       name: 'node2',
+    //       x: 800, // x-coordinate of the node relative to the canvas.
+    //       y: 500,
+    //       connectors: [{
+    //         id: 14,
+    //         type: flowchartConstants.leftConnectorType
+    //       }]
+    //     }],
+    //     edges: [{
+    //       source: 11,
+    //       destination: 12,
+    //       active: false,
+    //       label: 'label0'
+    //     }, {
+    //       source: 13,
+    //       destination: 14,
+    //       active: true,
+    //       label: 'label1'
+    //     }]
+    //   }
+    // }, 2000)
   },
   methods: {
   }

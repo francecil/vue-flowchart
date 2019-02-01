@@ -122,7 +122,7 @@ export default {
   created () {
   },
   mounted () {
-    this.store.commit('PUSH_NODE_ELEMENT', {
+    this.store.commit('SET_NODE_ELEMENT', {
       nodeId: this.node.id,
       element: this.$el
     })

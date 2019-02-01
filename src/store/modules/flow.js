@@ -7,7 +7,7 @@ const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
 const DESELECT_ALL = 'DESELECT_ALL'
 const DESELECT_OBJECT = 'DESELECT_OBJECT'
 const SELECT_OBJECT = 'SELECT_OBJECT'
-const PUSH_NODE_ELEMENT = 'PUSH_NODE_ELEMENT'
+const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 
 const HISTORY = 'history/'
 export const PUSH_STATE = HISTORY + 'PUSH_STATE'
@@ -144,7 +144,7 @@ const mutations = {
     }
     state.selectedObjects.splice(index, 1)
   },
-  [PUSH_NODE_ELEMENT] (state, {nodeId, element}) {
+  [SET_NODE_ELEMENT] (state, {nodeId, element}) {
     state.nodeElements[nodeId] = element
   }
 

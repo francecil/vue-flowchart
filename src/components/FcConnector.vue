@@ -48,6 +48,7 @@ export default {
   mounted () {
     this.offsetWidth = this.$el.offsetWidth
     this.offsetHeight = this.$el.offsetHeight
+    this.updatePosition()
   },
   methods: {
     handleDragstart (event) {
@@ -73,8 +74,8 @@ export default {
       }
       let connectorElementBox = element.getBoundingClientRect()
       let coords = {
-        x: connectorElementBox.left - this.store.canvasOffset.left,
-        y: connectorElementBox.top - this.store.canvasOffset.top
+        x: connectorElementBox.left - this.store.state.canvasOffset.left,
+        y: connectorElementBox.top - this.store.state.canvasOffset.top
       }
       coords = {
         x: Math.round(coords.x + this.offsetWidth / 2),

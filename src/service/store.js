@@ -7,7 +7,7 @@ const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
 const DESELECT_ALL = 'DESELECT_ALL'
 const DESELECT_OBJECT = 'DESELECT_OBJECT'
 const SELECT_OBJECT = 'SELECT_OBJECT'
-const PUSH_NODE_ELEMENT = 'PUSH_NODE_ELEMENT'
+const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -64,7 +64,7 @@ CanvasStore.prototype.mutations = {
       state.connectors[connectorId].x = x
       state.connectors[connectorId].y = y
     } else {
-      this._vm.$set(state.connectors, connectorId, {x, y})
+      this.canvas.$set(state.connectors, connectorId, {x, y})
     }
   },
   [DELETE_CONNECTOR] (state, connectorId) {
@@ -85,7 +85,7 @@ CanvasStore.prototype.mutations = {
     }
     state.selectedObjects.splice(index, 1)
   },
-  [PUSH_NODE_ELEMENT] (state, {nodeId, element}) {
+  [SET_NODE_ELEMENT] (state, {nodeId, element}) {
     state.nodeElements[nodeId] = element
   }
 }
@@ -110,6 +110,12 @@ CanvasStore.prototype.isSelectedObject = function (object) {
 CanvasStore.prototype.isEditObject = function (object) {
   return this.state.selectedObjects.length === 1 &&
   this.state.selectedObjects.indexOf(object) !== -1
+}
+CanvasStore.prototype.getConnector = function (id) {
+  return this.state.connectors[id]
+}
+CanvasStore.prototype.getSelectedNodes = function () {
+  return this.state.model.nodes ? this.state.model.nodes.filter((node) => this.isSelectedObject(node)) : []
 }
 // actions
 CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
@@ -155,5 +161,9 @@ CanvasStore.prototype.toggleSelectedObject = function (object) {
   } else {
     this.commit(SELECT_OBJECT, object)
   }
+}
+// 事件传递相关
+CanvasStore.prototype.showEdges = function () {
+
 }
 export default CanvasStore

@@ -231,9 +231,12 @@ export default {
       height: canvas.height
     })
 
-    // this.updateNode()
+    this.doLayout()
   },
   methods: {
+    doLayout () {
+      this.store.showEdges()
+    },
     canvasClick (event) {
       console.log(event)
       this.store.updateSelecctedObjects({

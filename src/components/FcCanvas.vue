@@ -4,8 +4,8 @@
     :style="styleComputed"
     class="fc-canvas"
     @click="canvasClick"
-    @dragover="canvasDragover"
-    @drop="canvasDrop"
+    @dragover.prevent.stop="canvasDragover"
+    @drop.prevent.stop="canvasDrop"
     @mousedown="canvasMousedown"
     @mousemove="canvasMousemove"
     @mouseup="canvasMouseup">
@@ -88,6 +88,7 @@
       :key="node.id"
       :node="node"
       :store="store"
+      :node-dragging-service="nodeDraggingService"
       @node-dragstart="nodeDragstart"
       @node-dragging="nodeDragging"
       @node-dragend="nodeDragend"
@@ -141,6 +142,7 @@ import FcNode from '@/components/FcNode'
 import FcEdge from '@/components/FcEdge'
 import FcEdgeLabel from '@/components/FcEdgeLabel'
 import Store from '@/service/store'
+import NodeDraggingFactory from '@/service/nodedragging'
 let canvasIdSeed = 1
 export default {
   components: {
@@ -183,7 +185,8 @@ export default {
       store,
       canvasId: 'fc-canvas_' + canvasIdSeed++,
       arrowDefId: 'arrow-' + Math.random(),
-      flowchartConstants
+      flowchartConstants,
+      nodeDraggingService: null
     }
   },
   computed: {
@@ -218,6 +221,7 @@ export default {
     if (!this.dropTargetId && this.edgeStyle !== flowchartConstants.curvedStyle && this.edgeStyle !== flowchartConstants.lineStyle) {
       throw new Error('edgeStyle not supported.')
     }
+    this.nodeDraggingService = new NodeDraggingFactory(this.store)
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }
@@ -241,24 +245,10 @@ export default {
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event.dataTransfer.getData('Text'))
-      let nodeId = parseInt(event.dataTransfer.getData('Text'))
-      let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
-      let newNode = Object.assign(node, {
-        x: event.clientX - this.store.state.canvasOffset.left,
-        y: event.clientY - this.store.state.canvasOffset.top
-      })
-      this.store.updateNode({
-        node: node,
-        newNode,
-        isPushState: true
-      })
-      event.preventDefault()
-      event.stopPropagation()
+      this.nodeDraggingService.drop(event)
     },
 
     canvasDragover (event) {
-      event.preventDefault()
-      event.stopPropagation()
       // 在目标元素内拖动时触发
       // console.log('canvasDragover')
       // console.log(event.dataTransfer.getData('Text'))

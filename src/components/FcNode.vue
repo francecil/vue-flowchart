@@ -69,16 +69,18 @@ export default {
       default: () => {
         return {}
       }
+    },
+    nodeDraggingService: {
+      type: Object,
+      default: () => {
+        return {}
+      }
     }
   },
   data () {
     return {
       underMouse: false,
-      flowchartConstants: flowchartConstants,
-      eventPointOffset: {
-        x: 0,
-        y: 0
-      }
+      flowchartConstants: flowchartConstants
     }
   },
   computed: {
@@ -153,28 +155,12 @@ export default {
     handleDragstart (event) {
       console.log('node Dragstart:', event)
       let elementBox = this.$el.getBoundingClientRect()
-      this.eventPointOffset.x = event.clientX - elementBox.left
-      this.eventPointOffset.y = event.clientY - elementBox.top
-      // this.nodedraggingservice.dragstart(event)
-      let dataTransfer = event.dataTransfer
-      dataTransfer.dropEffect = 'move'
-      dataTransfer.setData('Text', this.node.id)
-      dataTransfer.setDragImage(this.$el, this.eventPointOffset.x, this.eventPointOffset.y)
+      let eventPointOffset = {
+        x: event.clientX - elementBox.left,
+        y: event.clientY - elementBox.top
+      }
+      this.nodeDraggingService.dragstart(event, this.node, eventPointOffset)
       this.$emit('node-dragstart', this.node)
-      // this.updateConnectorPosition()
-    },
-    handleDragend (event) {
-      console.log('node Dragend:', event)
-      let newNode = Object.assign(this.node, {
-        x: event.clientX - this.store.state.canvasOffset.left - this.eventPointOffset.x,
-        y: event.clientY - this.store.state.canvasOffset.top - this.eventPointOffset.y
-      })
-      this.store.updateNode({
-        node: this.node,
-        newNode,
-        isPushState: true
-      })
-      this.$emit('node-dragend', event)
       // this.updateConnectorPosition()
     },
     handleClick (event) {

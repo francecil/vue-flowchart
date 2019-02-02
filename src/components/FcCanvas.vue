@@ -175,6 +175,10 @@ export default {
     dropTargetId: {
       type: [String, Number],
       default: null
+    },
+    dragThreshold: {
+      type: Number,
+      default: 0
     }
   },
   data () {
@@ -221,7 +225,9 @@ export default {
     if (!this.dropTargetId && this.edgeStyle !== flowchartConstants.curvedStyle && this.edgeStyle !== flowchartConstants.lineStyle) {
       throw new Error('edgeStyle not supported.')
     }
-    this.nodeDraggingService = new NodeDraggingFactory(this.store)
+    this.nodeDraggingService = new NodeDraggingFactory(this.store, {
+      dragThreshold: this.dragThreshold
+    })
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }
@@ -244,11 +250,12 @@ export default {
     },
     canvasDrop (event) {
       // 放置在目标元素时触发
-      console.log('canvasDrop', event.dataTransfer.getData('Text'))
+      console.log('canvasDrop', event)
       this.nodeDraggingService.drop(event)
     },
 
     canvasDragover (event) {
+      this.nodeDraggingService.dragover(event)
       // 在目标元素内拖动时触发
       // console.log('canvasDragover')
       // console.log(event.dataTransfer.getData('Text'))

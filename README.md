@@ -12,6 +12,7 @@
 [] 撤销删除
 [x] 多节点的拖拽
 [] 节点样式自定义
+[] 节点svg化
 [] 节点悬浮提示
 [] 连线拖拽
 
@@ -168,9 +169,11 @@ canvas画板由一个 model 对象控制数据，其中包含两种元素，即�
       // this.updateConnectorPosition()
     }
 ```
-firefox 下 drag,dragend拿到的event.clientX/Y 为0,只能从容器的dragover和drop事件的event中获取
+firefox 下 drag,dragend拿到的event.clientX/Y 为0,只能从容器的 dragover 和drop事件的event中获取
 
-firefox 必须使用`dataTransfer.setData('text', xxx)` ie11上会报错且getData拿不到数据
+firefox 必须使用`dataTransfer.setData('text', xxx)` ie11上会报错且getData拿不到数据?
+
+dragover时拿不到`dataTransfer.getData`
 
 ### 2. 触发容器的dragover事件
 

@@ -28,6 +28,7 @@
       <div class="main-container">
         <fc-canvas
           :model="model"
+          :node-add-callback="nodeAddCallback"
           edge-style="curved"
         />
       </div>
@@ -177,6 +178,9 @@ export default {
     // }, 2000)
   },
   methods: {
+    nodeAddCallback (name) {
+      return prompt('新增节点', name)
+    }
   }
 }
 </script>

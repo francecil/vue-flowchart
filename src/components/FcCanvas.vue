@@ -179,6 +179,12 @@ export default {
     dragThreshold: {
       type: Number,
       default: 0
+    },
+    nodeAddCallback: {
+      type: Function,
+      default: () => {
+        return () => {}
+      }
     }
   },
   data () {
@@ -226,7 +232,8 @@ export default {
       throw new Error('edgeStyle not supported.')
     }
     this.nodeDraggingService = new NodeDraggingFactory(this.store, {
-      dragThreshold: this.dragThreshold
+      dragThreshold: this.dragThreshold,
+      nodeAddCallback: this.nodeAddCallback
     })
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)

@@ -1,5 +1,6 @@
 const SET_MODEL = 'SET_MODEL'
 const UPDATE_NODE = 'UPDATE_NODE'
+const ADD_NODE = 'ADD_NODE'
 const UPDATE_EDGE = 'UPDATE_EDGE'
 const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
 const DELETE_CONNECTOR = 'DELETE_CONNECTOR'
@@ -88,6 +89,9 @@ CanvasStore.prototype.mutations = {
   },
   [SET_NODE_ELEMENT] (state, {nodeId, element}) {
     state.nodeElements[nodeId] = element
+  },
+  [ADD_NODE] (state, node) {
+    state.model.nodes.push(node)
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {

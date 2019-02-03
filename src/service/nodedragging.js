@@ -4,6 +4,7 @@ require('../utils/setDragImage.polyfill.js')
 function NodeDraggingFactory (store, initialState = {}) {
   // 待拖拽点相关信息,dragover时使用
   this.dropNodeInfo = null
+  this.nodeAddCallback = () => {}
   // 所有待拖拽点
   this.draggedNodes = []
   this.store = store
@@ -105,7 +106,13 @@ NodeDraggingFactory.prototype.drop = function (event) {
     let dropNodeInfo = JSON.parse(dropNodeInfoStr)
     // 原节点属于类型节点
     if (dropNodeInfo.isDropSource) {
-
+      let name = this.nodeAddCallback(dropNodeInfo.node.name)
+      let newNode = Object.assign(dropNodeInfo.node, {
+        name: name,
+        x: event.clientX - dropNodeInfo.eventPointOffset.x - this.store.state.canvasOffset.left,
+        y: event.clientY - dropNodeInfo.eventPointOffset.y - this.store.state.canvasOffset.top
+      })
+      this.store.commit('ADD_NODE', newNode)
     } else {
       // 节点属于目标画板节点，直接应用
       let offset = getDragOffset(event, this.dropNodeInfo, this.store.state.canvasOffset)

@@ -14,5 +14,6 @@
       "presets": ["env", "stage-2"],
       "plugins": ["transform-vue-jsx", "istanbul"]
     }
-  }
+  },
+  "ignore":["/src/utils"]
 }

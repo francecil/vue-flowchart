@@ -1,4 +1,5 @@
 import flowchartConstants from '@/config/flowchart'
+require('../utils/setDragImage.polyfill.js')
 
 function NodeDraggingFactory (store, initialState = {}) {
   // 待拖拽点相关信息,dragover时使用
@@ -90,18 +91,6 @@ NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffse
   }
   if (event.dataTransfer.setDragImage) {
     event.dataTransfer.setDragImage(getDragImage(), 0, 0)
-  } else {
-    // 兼容ie
-    // for (let i = 0; i < draggedElements.length; i++) {
-    //   destinationHtmlElements.push(draggedElements[i])
-    //   oldDisplayStyles.push(destinationHtmlElements[i].style.display)
-    //   destinationHtmlElements[i].style.display = 'none' // Internetexplorer does not support setDragImage, but it takes an screenshot, from the draggedelement and uses it as dragimage.
-    // }
-    // // Since angular redraws the element in the next dragover call, display: none never gets visible to the user.
-    // if (dragAnimation === flowchartConstants.dragAnimationShadow) {
-    //   // IE Drag Fix
-    //   nodeDraggingScope.shadowDragStarted = true
-    // }
   }
 }
 

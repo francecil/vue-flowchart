@@ -177,7 +177,9 @@ export default {
   },
   methods: {
     nodeAddCallback (name) {
-      return prompt('新增节点', name)
+      let newName = prompt('新增节点', name)
+      if (newName === null) throw new Error('cancel add')
+      return newName
     }
   }
 }

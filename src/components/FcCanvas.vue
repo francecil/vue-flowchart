@@ -1,64 +1,66 @@
 <template>
-  <div
-    :id="canvasId"
-    :style="styleComputed"
-    class="fc-canvas"
-    @click="canvasClick"
-    @dragover.prevent.stop="canvasDragover"
-    @drop.prevent.stop="canvasDrop"
-    @mousedown="canvasMousedown"
-    @mousemove="canvasMousemove"
-    @mouseup="canvasMouseup">
-    <svg>
-      <defs>
-        <marker
-          :id="arrowDefId"
-          class="fc-arrow-marker"
-          markerWidth="5"
-          markerHeight="5"
-          viewBox="-6 -6 12 12"
-          refX="10"
-          refY="0"
-          markerUnits="strokeWidth"
-          orient="auto">
-          <polygon
-            points="-2,0 -5,5 5,0 -5,-5"
-            stroke="gray"
-            fill="gray"
-            stroke-width="1px" />
-        </marker>
-        <marker
-          :id="arrowDefId+'-selected'"
-          class="fc-arrow-marker-selected"
-          markerWidth="5"
-          markerHeight="5"
-          viewBox="-6 -6 12 12"
-          refX="10"
-          refY="0"
-          markerUnits="strokeWidth"
-          orient="auto">
-          <polygon
-            points="-2,0 -5,5 5,0 -5,-5"
-            stroke="red"
-            fill="red"
-            stroke-width="1px" />
-        </marker>
-      </defs>
-      <fc-edge
-        v-for="(edge,index) in currentModel.edges"
-        ref="fcEdge"
-        :edge="edge"
-        :key="index"
-        :index="index"
-        :edgeStyle="edgeStyle"
-        :arrow-def-id="arrowDefId"
-        :store="store"
-        @mousedown="edgeMouseDown"
-        @edge-dblclick="edgeDoubleClick"
-        @edge-mouseenter="edgeMouseEnter"
-        @edge-mouseleave="edgeMouseLeave"
-        @edge-click="edgeClick"
-      />
+  <div class="main-container">
+    <div
+      ref="fc-canvas"
+      :id="canvasId"
+      :style="styleComputed"
+      class="fc-canvas"
+      @click="canvasClick"
+      @dragover.prevent.stop="canvasDragover"
+      @drop.prevent.stop="canvasDrop"
+      @mousedown="canvasMousedown"
+      @mousemove="canvasMousemove"
+      @mouseup="canvasMouseup">
+      <svg>
+        <defs>
+          <marker
+            :id="arrowDefId"
+            class="fc-arrow-marker"
+            markerWidth="5"
+            markerHeight="5"
+            viewBox="-6 -6 12 12"
+            refX="10"
+            refY="0"
+            markerUnits="strokeWidth"
+            orient="auto">
+            <polygon
+              points="-2,0 -5,5 5,0 -5,-5"
+              stroke="gray"
+              fill="gray"
+              stroke-width="1px" />
+          </marker>
+          <marker
+            :id="arrowDefId+'-selected'"
+            class="fc-arrow-marker-selected"
+            markerWidth="5"
+            markerHeight="5"
+            viewBox="-6 -6 12 12"
+            refX="10"
+            refY="0"
+            markerUnits="strokeWidth"
+            orient="auto">
+            <polygon
+              points="-2,0 -5,5 5,0 -5,-5"
+              stroke="red"
+              fill="red"
+              stroke-width="1px" />
+          </marker>
+        </defs>
+        <fc-edge
+          v-for="(edge,index) in currentModel.edges"
+          ref="fcEdge"
+          :edge="edge"
+          :key="index"
+          :index="index"
+          :edgeStyle="edgeStyle"
+          :arrow-def-id="arrowDefId"
+          :store="store"
+          @mousedown="edgeMouseDown"
+          @edge-dblclick="edgeDoubleClick"
+          @edge-mouseenter="edgeMouseEnter"
+          @edge-mouseleave="edgeMouseLeave"
+          @edge-click="edgeClick"
+        />
       <!-- <g ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging">
 
         <path
@@ -80,25 +82,25 @@
           class="edge-endpoint"
           r="4"/>
       </g> -->
-    </svg>
-    <!-- 连接节点 -->
-    <fc-node
-      v-for="node in currentModel.nodes"
-      ref="fcNode"
-      :key="node.id"
-      :node="node"
-      :store="store"
-      :node-dragging-service="nodeDraggingService"
-      @node-dragstart="nodeDragstart"
-      @node-dragging="nodeDragging"
-      @node-dragend="nodeDragend"
-      @node-click="nodeClick"
-      @node-mouseover="nodeMouseover"
-      @node-mouseOut="nodeMouseOut"
-      @node-edit="nodeEdit"
-    />
+      </svg>
+      <!-- 连接节点 -->
+      <fc-node
+        v-for="node in currentModel.nodes"
+        ref="fcNode"
+        :key="node.id"
+        :node="node"
+        :store="store"
+        :node-dragging-service="nodeDraggingService"
+        @node-dragstart="nodeDragstart"
+        @node-dragging="nodeDragging"
+        @node-dragend="nodeDragend"
+        @node-click="nodeClick"
+        @node-mouseover="nodeMouseover"
+        @node-mouseOut="nodeMouseOut"
+        @node-edit="nodeEdit"
+      />
 
-    <!-- <div
+      <!-- <div
       ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging"
       ng-attr-class="{{'fc-noselect ' + flowchartConstants.edgeLabelClass}}"
       ng-style="{ top: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).y)+'px',
@@ -109,28 +111,28 @@
           ng-if="edgeDragging.dragLabel">{{ edgeDragging.dragLabel }}</span>
       </div>
     </div> -->
-    <!-- 连线的label -->
-    <fc-edge-label
-      v-for="(edge,index) in currentModel.edges"
-      ref="fcEdgeLabel"
-      :edge="edge"
-      :key="'fc-edge-label-'+index"
-      :index="index"
-      :store="store"
-      @mousedown="edgeMouseDown"
-      @edge-dblclick="edgeDoubleClick"
-      @edge-mouseenter="edgeMouseEnter"
-      @edge-mouseleave="edgeMouseLeave"
-      @edge-click="edgeClick"
-      @edge-edit="edgeEdit"
-    />
-    <!-- 矩形选择区域 -->
-    <div
-      id="select-rectangle"
-      class="fc-select-rectangle"
-      hidden />
+      <!-- 连线的label -->
+      <fc-edge-label
+        v-for="(edge,index) in currentModel.edges"
+        ref="fcEdgeLabel"
+        :edge="edge"
+        :key="'fc-edge-label-'+index"
+        :index="index"
+        :store="store"
+        @mousedown="edgeMouseDown"
+        @edge-dblclick="edgeDoubleClick"
+        @edge-mouseenter="edgeMouseEnter"
+        @edge-mouseleave="edgeMouseLeave"
+        @edge-click="edgeClick"
+        @edge-edit="edgeEdit"
+      />
+      <!-- 矩形选择区域 -->
+      <div
+        id="select-rectangle"
+        class="fc-select-rectangle"
+        hidden />
+    </div>
   </div>
-
 </template>
 <script>
 // import EdgedraggingFactory from '@/service/edgedragging'
@@ -240,13 +242,12 @@ export default {
     // }
   },
   mounted () {
-    let canvas = this.$el.getBoundingClientRect()
+    let canvas = this.$refs['fc-canvas'].getBoundingClientRect()
     this.store.commit('UPDATE_CANVAS_OFFSET', {
-      left: canvas.left,
-      top: canvas.top,
       width: canvas.width,
       height: canvas.height
     })
+    this.store.commit('SET_CANVAS_CONTAINER', this.$refs['fc-canvas'])
   },
   methods: {
     canvasClick (event) {
@@ -357,6 +358,13 @@ export default {
 }
 </script>
 <style>
+
+.main-container {
+  width: 100%;
+  height: 100vh;
+  z-index: 0;
+  overflow: auto;
+}
 .fc-canvas {
   -webkit-touch-callout: none;
   -webkit-user-select: none;

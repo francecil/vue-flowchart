@@ -109,8 +109,8 @@ export default {
       }
       let connectorElementBox = element.getBoundingClientRect()
       let coords = {
-        x: connectorElementBox.left - this.store.state.canvasOffset.left,
-        y: connectorElementBox.top - this.store.state.canvasOffset.top
+        x: connectorElementBox.left - this.store.getCanvasOffsetRelativeLeft(),
+        y: connectorElementBox.top - this.store.getCanvasOffsetRelativeTop()
       }
       coords = {
         x: Math.round(coords.x + this.offsetWidth / 2),

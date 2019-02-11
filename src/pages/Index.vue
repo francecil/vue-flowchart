@@ -25,13 +25,11 @@
           Activate Workflow
         </button>
       </div>
-      <div class="main-container">
-        <fc-canvas
-          :model="model"
-          :node-add-callback="nodeAddCallback"
-          edge-style="curved"
-        />
-      </div>
+      <fc-canvas
+        :model="model"
+        :node-add-callback="nodeAddCallback"
+        edge-style="curved"
+      />
     </div>
   </div>
 
@@ -196,12 +194,6 @@ body {
   flex: 1;
   height: 100vh;
 }
-.main-container {
-  width: 100%;
-  height: 100vh;
-  z-index: 0;
-  overflow: auto;
-}
 .fc-container {
   display: flex;
   flex: 1;
@@ -210,7 +202,6 @@ body {
 
 .fc-left-pane {
   flex: 0.25;
-  overflow: auto;
 }
 
 </style>

@@ -117,8 +117,8 @@ NodeDraggingFactory.prototype.drop = function (event) {
       let newNode = Object.assign(dropNodeInfo.node, {
         id: UUIDjs.create('node'),
         name: name,
-        x: event.clientX - dropNodeInfo.eventPointOffset.x - this.store.state.canvasOffset.left,
-        y: event.clientY - dropNodeInfo.eventPointOffset.y - this.store.state.canvasOffset.top
+        x: event.clientX - dropNodeInfo.eventPointOffset.x - this.store.getCanvasOffsetRelativeLeft(),
+        y: event.clientY - dropNodeInfo.eventPointOffset.y - this.store.getCanvasOffsetRelativeTop()
       })
       newNode.connectors.forEach(connector => {
         connector.id = UUIDjs.create('connector')
@@ -126,7 +126,10 @@ NodeDraggingFactory.prototype.drop = function (event) {
       this.store.commit('ADD_NODE', newNode)
     } else {
       // 节点属于目标画板节点，直接应用
-      let offset = getDragOffset(event, this.dropNodeInfo, this.store.state.canvasOffset)
+      let offset = getDragOffset(event, this.dropNodeInfo, {
+        left: this.store.getCanvasOffsetRelativeLeft(),
+        top: this.store.getCanvasOffsetRelativeTop()
+      })
       for (let node of this.draggedNodes) {
         let newNode = Object.assign(node, {
           x: node.x + offset.x,
@@ -149,7 +152,10 @@ NodeDraggingFactory.prototype.dragover = function (event) {
   if (this.store.isDropSource() || !this.dropNodeInfo) {
     return
   }
-  let offset = getDragOffset(event, this.dropNodeInfo, this.store.state.canvasOffset)
+  let offset = getDragOffset(event, this.dropNodeInfo, {
+    left: this.store.getCanvasOffsetRelativeLeft(),
+    top: this.store.getCanvasOffsetRelativeTop()
+  })
   if (offset.x < this.dragThreshold && offset.y < this.dragThreshold) {
     return
   }

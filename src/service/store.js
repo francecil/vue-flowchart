@@ -9,6 +9,7 @@ const DESELECT_ALL = 'DESELECT_ALL'
 const DESELECT_OBJECT = 'DESELECT_OBJECT'
 const SELECT_OBJECT = 'SELECT_OBJECT'
 const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
+const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -27,7 +28,8 @@ const CanvasStore = function (canvas, initialState = {}) {
     connectors: {},
     // 当前选中的元素，包括节点和连线
     selectedObjects: [],
-    nodeElements: {}
+    nodeElements: {},
+    canvasContainer: null
   }
 
   for (let prop in initialState) {
@@ -92,6 +94,9 @@ CanvasStore.prototype.mutations = {
   },
   [ADD_NODE] (state, node) {
     state.model.nodes.push(node)
+  },
+  [SET_CANVAS_CONTAINER] (state, element) {
+    state.canvasContainer = element
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
@@ -122,6 +127,20 @@ CanvasStore.prototype.getConnector = function (id) {
 }
 CanvasStore.prototype.getSelectedNodes = function () {
   return this.state.model.nodes ? this.state.model.nodes.filter((node) => this.isSelectedObject(node)) : []
+}
+// canvas的绝对位置,left，top值不受滚动条影响
+CanvasStore.prototype.getCanvasOffsetLeft = function () {
+  return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().left + this.state.canvasContainer.parentElement.scrollLeft : 0
+}
+CanvasStore.prototype.getCanvasOffsetTop = function () {
+  return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top + this.state.canvasContainer.parentElement.scrollTop : 0
+}
+// canvas的相对位置
+CanvasStore.prototype.getCanvasOffsetRelativeLeft = function () {
+  return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().left : 0
+}
+CanvasStore.prototype.getCanvasOffsetRelativeTop = function () {
+  return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top : 0
 }
 // actions
 CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {

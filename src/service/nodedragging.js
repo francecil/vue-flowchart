@@ -1,5 +1,6 @@
 import flowchartConstants from '@/config/flowchart'
-require('../utils/setDragImage.polyfill.js')
+import UUIDjs from '@/utils/uuid'
+// require('../utils/setDragImage.polyfill.js')
 
 function NodeDraggingFactory (store, initialState = {}) {
   // 待拖拽点相关信息,dragover时使用
@@ -108,9 +109,13 @@ NodeDraggingFactory.prototype.drop = function (event) {
     if (dropNodeInfo.isDropSource) {
       let name = this.nodeAddCallback(dropNodeInfo.node.name)
       let newNode = Object.assign(dropNodeInfo.node, {
+        id: UUIDjs.create('node'),
         name: name,
         x: event.clientX - dropNodeInfo.eventPointOffset.x - this.store.state.canvasOffset.left,
         y: event.clientY - dropNodeInfo.eventPointOffset.y - this.store.state.canvasOffset.top
+      })
+      newNode.connectors.forEach(connector => {
+        connector.id = UUIDjs.create('connector')
       })
       this.store.commit('ADD_NODE', newNode)
     } else {

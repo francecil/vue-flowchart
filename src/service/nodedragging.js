@@ -102,7 +102,7 @@ NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffse
   }
 }
 
-NodeDraggingFactory.prototype.drop = function (event) {
+NodeDraggingFactory.prototype.drop = async function (event) {
   let dropNodeInfoStr = event.dataTransfer.getData('text')
   console.log('dropNodeInfoStr:', dropNodeInfoStr)
   // 画板属于dropsource 或 dropNodeInfo信息不存在
@@ -113,7 +113,7 @@ NodeDraggingFactory.prototype.drop = function (event) {
     let dropNodeInfo = JSON.parse(dropNodeInfoStr)
     // 原节点属于类型节点
     if (dropNodeInfo.isDropSource) {
-      let name = this.nodeAddCallback(dropNodeInfo.node.name)
+      let name = await this.nodeAddCallback(dropNodeInfo.node.name)
       let newNode = Object.assign(dropNodeInfo.node, {
         id: UUIDjs.create('node'),
         name: name,

@@ -177,9 +177,14 @@ export default {
   },
   methods: {
     nodeAddCallback (name) {
-      let newName = prompt('新增节点', name)
-      if (newName === null) throw new Error('cancel add')
-      return newName
+      return new Promise((resolve, reject) => {
+        let newName = prompt('新增节点', name)
+        if (newName === null) {
+          reject(new Error('cancel'))
+        } else {
+          resolve(newName)
+        }
+      })
     }
   }
 }

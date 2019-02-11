@@ -29,23 +29,29 @@ function NodeDraggingFactory (store, initialState = {}) {
 // function getYCoordinate (y) {
 //   return getCoordinate(y, store.state.canvasOffset.height)
 // }
-// const resizeCanvas = function (draggedNode, nodeElement) {
-//   // 调整canvas画板，仅会不断变大
-//   if (automaticResize && !store.isDropSource()) {
-//     let canvasOffset = store.state.canvasOffset
-//     let newOffset = {
-//       width: canvasOffset.width,
-//       height: canvasOffset.height
-//     }
-//     if (canvasOffset.width < draggedNode.x + nodeElement.offsetWidth + flowchartConstants.canvasResizeThreshold) {
-//       newOffset.width = canvasOffset.width + flowchartConstants.canvasResizeStep + 'px'
-//     }
-//     if (canvasOffset.height < draggedNode.y + nodeElement.offsetHeight + flowchartConstants.canvasResizeThreshold) {
-//       newOffset.height = canvasOffset.height + flowchartConstants.canvasResizeStep + 'px'
-//     }
-//     store.commit('UPDATE_CANVAS_OFFSET', newOffset)
-//   }
-// }
+const resizeCanvas = function (node, automaticResize, store) {
+  // 调整canvas画板，仅会不断变大
+  if (automaticResize && !store.isDropSource()) {
+    let canvasOffset = store.state.canvasOffset
+    let newOffset = {
+      width: canvasOffset.width,
+      height: canvasOffset.height
+    }
+    let hasChange = false
+    console.log(canvasOffset, node.x + flowchartConstants.canvasResizeThreshold)
+    if (canvasOffset.width < node.x + flowchartConstants.canvasResizeThreshold) {
+      hasChange = true
+      newOffset.width = canvasOffset.width + flowchartConstants.canvasResizeStep
+    }
+    if (canvasOffset.height < node.y + flowchartConstants.canvasResizeThreshold) {
+      hasChange = true
+      newOffset.height = canvasOffset.height + flowchartConstants.canvasResizeStep
+    }
+    if (hasChange) {
+      store.commit('UPDATE_CANVAS_OFFSET', newOffset)
+    }
+  }
+}
 let dragImage = null
 // 一个透明图像
 const getDragImage = function () {
@@ -156,6 +162,7 @@ NodeDraggingFactory.prototype.dragover = function (event) {
       node: node,
       newNode
     })
+    resizeCanvas(newNode, this.automaticResize, this.store)
   }
 }
 export default NodeDraggingFactory

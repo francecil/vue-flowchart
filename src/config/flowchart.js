@@ -22,6 +22,6 @@ constants.nodeClass = constants.htmlPrefix + '-node'
 constants.nodeOverlayClass = constants.htmlPrefix + '-node-overlay'
 constants.leftConnectorClass = constants.htmlPrefix + '-' + constants.leftConnectorType + 's'
 constants.rightConnectorClass = constants.htmlPrefix + '-' + constants.rightConnectorType + 's'
-constants.canvasResizeThreshold = 200
+constants.canvasResizeThreshold = 300
 constants.canvasResizeStep = 200
 export default constants

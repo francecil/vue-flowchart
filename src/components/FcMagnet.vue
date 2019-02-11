@@ -1,7 +1,6 @@
 
 <template>
   <div
-    :draggable="true"
     :class="flowchartConstants.magnetClass">
     <slot/>
   </div>

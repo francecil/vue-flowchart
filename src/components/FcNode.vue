@@ -13,9 +13,9 @@
       <div :class="flowchartConstants.leftConnectorClass">
         <fc-magnet>
           <fc-connector
-            v-if="filterConnectorType(node,flowchartConstants.leftConnectorType).length>0"
-            ref="fcLeftConnector"
-            :connectors="filterConnectorType(node,flowchartConstants.leftConnectorType)"
+            v-if="node.connectors[flowchartConstants.leftConnectorType]"
+            :connector="node.connectors[flowchartConstants.leftConnectorType]"
+            :type="flowchartConstants.leftConnectorType"
             :node="node"
             :edge-dragging-service="edgeDraggingService"
             :store="store"/>
@@ -24,9 +24,9 @@
       <div :class="flowchartConstants.rightConnectorClass">
         <fc-magnet>
           <fc-connector
-            v-if="filterConnectorType(node,flowchartConstants.rightConnectorType).length>0"
-            ref="fcRightConnector"
-            :connectors="filterConnectorType(node,flowchartConstants.rightConnectorType)"
+            v-if="node.connectors[flowchartConstants.rightConnectorType]"
+            :connector="node.connectors[flowchartConstants.rightConnectorType]"
+            :type="flowchartConstants.leftConnectorType"
             :node="node"
             :edge-dragging-service="edgeDraggingService"
             :store="store"/>
@@ -137,26 +137,6 @@ export default {
     })
   },
   methods: {
-    filterConnectorType (node, type) {
-      if (!this.node.connectors) {
-        return []
-      }
-      return this.node.connectors.filter((item) => item.type === type)
-    },
-    updateConnectorPosition () {
-      let fcLeftConnectors = this.$refs.fcLeftConnector
-      if (fcLeftConnectors) {
-        fcLeftConnectors.forEach(fcLeftConnector => {
-          fcLeftConnector.updatePosition()
-        })
-      }
-      let fcRightConnectors = this.$refs.fcRightConnector
-      if (fcRightConnectors) {
-        fcRightConnectors.forEach(fcRightConnector => {
-          fcRightConnector.updatePosition()
-        })
-      }
-    },
     handleDoubleClick () {
 
     },
@@ -169,7 +149,6 @@ export default {
       }
       this.nodeDraggingService.dragstart(event, this.node, eventPointOffset)
       this.$emit('node-dragstart', this.node)
-      // this.updateConnectorPosition()
     },
     handleClick (event) {
       if (!this.store.isEditable()) {

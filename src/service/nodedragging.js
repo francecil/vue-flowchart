@@ -120,9 +120,9 @@ NodeDraggingFactory.prototype.drop = async function (event) {
         x: event.clientX - dropNodeInfo.eventPointOffset.x - this.store.getCanvasOffsetRelativeLeft(),
         y: event.clientY - dropNodeInfo.eventPointOffset.y - this.store.getCanvasOffsetRelativeTop()
       })
-      newNode.connectors.forEach(connector => {
-        connector.id = UUIDjs.create('connector')
-      })
+      for (let type in newNode.connectors) {
+        newNode.connectors[type].id = UUIDjs.create('connector')
+      }
       this.store.commit('ADD_NODE', newNode)
     } else {
       // 节点属于目标画板节点，直接应用

@@ -15,11 +15,15 @@ export default {
         return {}
       }
     },
-    connectors: {
-      type: Array,
+    connector: {
+      type: Object,
       default: () => {
-        return []
+        return {}
       }
+    },
+    type: {
+      type: String,
+      default: ''
     },
     store: {
       type: Object,
@@ -120,13 +124,11 @@ export default {
     },
     updatePosition () {
       let coords = this.getCoords()
-      for (let connector of this.connectors) {
-        this.store.commit('UPDATE_CONNECTOR', {
-          'connectorId': connector.id,
-          'x': coords.x,
-          'y': coords.y
-        })
-      }
+      this.store.commit('UPDATE_CONNECTOR', {
+        'connectorId': this.connector.id,
+        'x': coords.x,
+        'y': coords.y
+      })
     }
   }
 }

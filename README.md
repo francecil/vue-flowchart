@@ -83,14 +83,16 @@ canvas画板由一个 model 对象控制数据，其中包含两种元素，即�
 
 ### 连接点 Connector
 
-一个节点含有0至多个连接点，共有左右两侧两种类型
+一个node最多仅有两个connector(左右两侧两种类型)
 
 用于连线时使用
 
 ```javascript
 {
-  id: Number | String, //唯一标识符
-  type: String,// 连接点类型，取值范围:leftConnector/rightConnector
+  // 连接点类型，取值范围:leftConnector/rightConnector
+  [type: String]: {
+    id: Number | String, //唯一标识符
+  }
 }
 ```
 

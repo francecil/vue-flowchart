@@ -47,7 +47,7 @@ const CanvasStore = function (canvas, initialState = {}) {
     }
   }
 }
-
+/** *************** mutations *****************/
 CanvasStore.prototype.mutations = {
   [SET_MODEL] (state, model) {
     state.model = model || {}
@@ -120,7 +120,7 @@ CanvasStore.prototype.commit = function (name, ...args) {
     throw new Error(`Action not found: ${name}`)
   }
 }
-// getters
+/** *************** getters *****************/
 CanvasStore.prototype.isDropSource = function () {
   return !!this.state.dropTargetId
 }
@@ -136,15 +136,6 @@ CanvasStore.prototype.isEditObject = function (object) {
 }
 CanvasStore.prototype.getConnector = function (id) {
   return this.state.connectors[id]
-}
-CanvasStore.prototype.getModelConnector = function (id) {
-  for (let node of this.state.model.nodes) {
-    for (let connector of node.connectors) {
-      if (connector.id === id) {
-        return connector
-      }
-    }
-  }
 }
 CanvasStore.prototype.getSelectedNodes = function () {
   return this.state.model.nodes ? this.state.model.nodes.filter((node) => this.isSelectedObject(node)) : []
@@ -163,12 +154,18 @@ CanvasStore.prototype.getCanvasOffsetRelativeLeft = function () {
 CanvasStore.prototype.getCanvasOffsetRelativeTop = function () {
   return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top : 0
 }
-// actions
+/** *************** actions *****************/
+// 删除节点 同时删除连接点和相关连线
 CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
   this.commit(UPDATE_NODE, {node, newNode})
   if (!newNode && node.connectors) {
-    let connectorIds = node.connectors.map(item => item.id)
-    for (let i = 0; i < this.state.model.edges.length; i++) {
+    let connectorIds = []
+    for (let type in node.connectors) {
+      let connector = node.connectors[type]
+      this.commit(DELETE_CONNECTOR, connector.id)
+      connectorIds.push(connector.id)
+    }
+    for (let i = 0; i < this.state.model.edges.length;) {
       let edge = this.state.model.edges[i]
       if (connectorIds.indexOf(edge.source) !== -1 || connectorIds.indexOf(edge.destination) !== -1) {
         this.updateEdge({
@@ -176,6 +173,8 @@ CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
           newEdge: null,
           isPushState: false
         })
+      } else {
+        i++
       }
     }
   }

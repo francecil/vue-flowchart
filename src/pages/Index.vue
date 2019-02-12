@@ -55,16 +55,14 @@ export default {
         id: (i + 1) + 10000,
         x: 50,
         y: 100 * (i + 1),
-        connectors: [
-          {
-            type: flowchartConstants.leftConnectorType,
+        connectors: {
+          [flowchartConstants.leftConnectorType]: {
             id: i * 2 + 1 + 10000
           },
-          {
-            type: flowchartConstants.rightConnectorType,
-            id: i * 2 + 2 + 10000
+          [flowchartConstants.rightConnectorType]: {
+            id: i * 2 + 1 + 10000
           }
-        ]
+        }
       }
       dropSourceModel.nodes.push(node)
     }
@@ -77,31 +75,34 @@ export default {
           x: 120, // x-coordinate of the node relative to the canvas.
           y: 400,
           readonly: true,
-          connectors: [{
-            id: 11,
-            type: flowchartConstants.rightConnectorType
-          }]
+          connectors: {
+            [flowchartConstants.rightConnectorType]: {
+              id: 11
+            }
+          }
         }, {
           id: 2,
           name: 'node1',
           x: 411, // x-coordinate of the node relative to the canvas.
           y: 200,
-          connectors: [{
-            id: 12,
-            type: flowchartConstants.leftConnectorType
-          }, {
-            id: 13,
-            type: flowchartConstants.rightConnectorType
-          }]
+          connectors: {
+            [flowchartConstants.leftConnectorType]: {
+              id: 12
+            },
+            [flowchartConstants.rightConnectorType]: {
+              id: 13
+            }
+          }
         }, {
           id: 3,
           name: 'node2',
           x: 800, // x-coordinate of the node relative to the canvas.
           y: 500,
-          connectors: [{
-            id: 14,
-            type: flowchartConstants.leftConnectorType
-          }]
+          connectors: {
+            [flowchartConstants.leftConnectorType]: {
+              id: 14
+            }
+          }
         }],
         edges: [{
           source: 11,

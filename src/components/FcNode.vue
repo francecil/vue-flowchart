@@ -11,9 +11,12 @@
       <p>{{ node.name }}</p>
 
       <div :class="flowchartConstants.leftConnectorClass">
-        <fc-magnet>
+        <fc-magnet
+          v-if="node.connectors[flowchartConstants.leftConnectorType]"
+          :connector="node.connectors[flowchartConstants.leftConnectorType]"
+          :store="store"
+          :edge-dragging-service="edgeDraggingService">
           <fc-connector
-            v-if="node.connectors[flowchartConstants.leftConnectorType]"
             :connector="node.connectors[flowchartConstants.leftConnectorType]"
             :type="flowchartConstants.leftConnectorType"
             :node="node"
@@ -22,11 +25,15 @@
         </fc-magnet>
       </div>
       <div :class="flowchartConstants.rightConnectorClass">
-        <fc-magnet>
+        <fc-magnet
+
+          v-if="node.connectors[flowchartConstants.rightConnectorType]"
+          :connector="node.connectors[flowchartConstants.rightConnectorType]"
+          :store="store"
+          :edge-dragging-service="edgeDraggingService">
           <fc-connector
-            v-if="node.connectors[flowchartConstants.rightConnectorType]"
-            :connector="node.connectors[flowchartConstants.rightConnectorType]"
             :type="flowchartConstants.leftConnectorType"
+            :connector="node.connectors[flowchartConstants.rightConnectorType]"
             :node="node"
             :edge-dragging-service="edgeDraggingService"
             :store="store"/>

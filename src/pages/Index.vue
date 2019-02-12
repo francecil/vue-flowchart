@@ -28,6 +28,7 @@
       <fc-canvas
         :model="model"
         :node-add-callback="nodeAddCallback"
+        :edge-add-callback="edgeAddCallback"
         edge-style="curved"
       />
     </div>
@@ -114,11 +115,6 @@ export default {
           destination: 14,
           active: true,
           label: 'label1'
-        }, {
-          source: 11,
-          destination: 14,
-          active: true,
-          label: 'label3'
         }]
       }
     }
@@ -177,6 +173,16 @@ export default {
     nodeAddCallback (name) {
       return new Promise((resolve, reject) => {
         let newName = prompt('新增节点', name)
+        if (newName === null) {
+          reject(new Error('cancel'))
+        } else {
+          resolve(newName)
+        }
+      })
+    },
+    edgeAddCallback () {
+      return new Promise((resolve, reject) => {
+        let newName = prompt('新增连线', '')
         if (newName === null) {
           reject(new Error('cancel'))
         } else {

@@ -4,6 +4,7 @@ function EdgeDraggingFactory (store, initialState = {}) {
   this.isValidEdgeCallback = () => {
     return true
   }
+  this.edgeAddCallback = () => {}
   this.store = store
   this.draggedEdgeSource = null
   for (let prop in initialState) {
@@ -82,7 +83,18 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
   this.store.commit('UPDATE_EDGE_DRAGGING', edgeDragging)
 }
 
-EdgeDraggingFactory.prototype.drop = function (event) {
+EdgeDraggingFactory.prototype.drop = async function (connector) {
+  try {
+    let label = await this.edgeAddCallback()
+    let edge = {
+      label,
+      source: this.draggedEdgeSource.id,
+      destination: connector.id
+    }
+    this.store.commit('ADD_EDGE', edge)
+  } catch (error) {
+
+  }
   this.init()
 }
 EdgeDraggingFactory.prototype.dragend = function (event) {

@@ -189,6 +189,12 @@ export default {
       default: () => {
         return () => {}
       }
+    },
+    edgeAddCallback: {
+      type: Function,
+      default: () => {
+        return () => {}
+      }
     }
   },
   data () {
@@ -243,7 +249,9 @@ export default {
       dragThreshold: this.dragThreshold,
       nodeAddCallback: this.nodeAddCallback
     })
-    this.edgeDraggingService = new EdgeDraggingFactory(this.store)
+    this.edgeDraggingService = new EdgeDraggingFactory(this.store, {
+      edgeAddCallback: this.edgeAddCallback
+    })
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }

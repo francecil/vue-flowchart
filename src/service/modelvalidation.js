@@ -68,16 +68,14 @@ function Modelvalidation () {
     edges.forEach((edge) => {
       this._validateEdge(edge, nodes)
     })
-    // 验证重复边，算法可优化
-    edges.forEach(function (edge1, index1) {
-      edges.forEach(function (edge2, index2) {
-        if (index1 !== index2) {
-          if ((edge1.source === edge2.source && edge1.destination === edge2.destination) || (edge1.source === edge2.destination && edge1.destination === edge2.source)) {
-            throw new ModelvalidationError('Duplicated edge.')
-          }
+    // 验证重复边
+    for (let i = 0; i < edges.length; i++) {
+      for (let j = i + 1; j < edges.length; j++) {
+        if ((edges[i].source === edges[j].source && edges[i].destination === edges[j].destination) || (edges[i].source === edges[j].destination && edges[i].destination === edges[j].source)) {
+          throw new ModelvalidationError('Duplicated edge.')
         }
-      })
-    })
+      }
+    }
 
     if (!checkGraph({nodes: nodes, edges: edges})) {
       throw new ModelvalidationError('Graph has a circle.')

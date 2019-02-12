@@ -83,6 +83,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
   let edgeDragging = this.store.state.edgeDragging
   try {
     if (edgeDragging.isDragging) {
+      let invalid = false
       // 验证起始连线是否合法
       try {
         Modelvalidation.validateEdges(this.store.state.model.edges.concat([{
@@ -91,14 +92,23 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
         }]), this.store.state.model.nodes)
       } catch (error) {
         console.warn(error)
-        throw error
+        if (error instanceof Modelvalidation.ModelvalidationError && edgeDragging.prevEdge) {
+          invalid = true
+        } else {
+          throw error
+        }
       }
       let edge = {
         source: this.draggedEdgeSource.id,
         destination: connector.id
       }
       if (edgeDragging.prevEdge) {
-        edge = Object.assign(edgeDragging.prevEdge, edge)
+        // 连线失败时，恢复原来连线
+        if (invalid) {
+          edge = edgeDragging.prevEdge
+        } else {
+          edge = Object.assign(edgeDragging.prevEdge, edge)
+        }
       } else {
         try {
           edge.label = await this.edgeAddCallback()

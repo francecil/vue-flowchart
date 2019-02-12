@@ -22,15 +22,28 @@ const getDragImage = function () {
   }
   return dragImage
 }
+EdgeDraggingFactory.prototype.init = function () {
+  let edgeDragging = {
+    isDragging: false,
+    dragPoint1: null,
+    dragPoint2: null,
+    dragLabel: '',
+    prevEdge: null
+  }
+  this.store.commit('UPDATE_EDGE_DRAGGING', edgeDragging)
+}
 EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
   let swapConnector = null
   let dragLabel = ''
   let prevEdge = null
+  let edgeDragging = {}
+  edgeDragging.isDragging = true
   // 拖拽点为左类型，则删去原来连线并记录
   if (connector.type === flowchartConstants.leftConnectorType) {
     for (let edge of this.store.state.model.edges) {
       if (edge.destination === connector.id) {
-        swapConnector = this.store.state.getModelConnector(edge.source)
+        swapConnector = this.store.getModelConnector(edge.source)
+        edgeDragging.dragPoint1 = this.store.getConnector(swapConnector.id)
         dragLabel = edge.label
         prevEdge = edge
         this.store.updateEdge({
@@ -41,12 +54,9 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
       }
     }
   }
-  let edgeDragging = {}
-  edgeDragging.isDragging = true
 
   if (swapConnector) {
     this.draggedEdgeSource = swapConnector
-    edgeDragging.dragPoint1 = this.store.getConnector(swapConnector.id)
     edgeDragging.dragLabel = dragLabel
     edgeDragging.prevEdge = prevEdge
   } else {
@@ -70,6 +80,7 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
 }
 
 EdgeDraggingFactory.prototype.drop = function (event) {
+  this.init()
 }
 EdgeDraggingFactory.prototype.dragover = function (event) {
   let edgeDragging = this.store.state.edgeDragging

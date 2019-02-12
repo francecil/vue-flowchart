@@ -101,9 +101,6 @@ export default {
           connectors: [{
             id: 14,
             type: flowchartConstants.leftConnectorType
-          }, {
-            id: 15,
-            type: flowchartConstants.leftConnectorType
           }]
         }],
         edges: [{
@@ -118,7 +115,7 @@ export default {
           label: 'label1'
         }, {
           source: 11,
-          destination: 15,
+          destination: 14,
           active: true,
           label: 'label3'
         }]

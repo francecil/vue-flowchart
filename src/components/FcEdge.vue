@@ -88,12 +88,12 @@ export default {
     },
     handleMouseEnter () {
       this.underMouse = true
-      console.log('handleMouseEnter')
+      // console.log('handleMouseEnter')
       this.$emit('edge-mouseenter', this.index, true)
     },
     handleMouseLeave () {
       this.underMouse = false
-      console.log('handleMouseLeave')
+      // console.log('handleMouseLeave')
       this.$emit('edge-mouseleave', this.index, false)
     },
     handleDoubleClick () {

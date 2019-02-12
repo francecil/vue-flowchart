@@ -193,10 +193,10 @@ CanvasStore.prototype.updateSelecctedObjects = function ({object, ctrlKey}) {
 }
 CanvasStore.prototype.updateEdge = function ({edge, newEdge, isPushState}) {
   this.commit(UPDATE_EDGE, {edge, newEdge})
-  if (!newEdge) {
-    this.commit(DELETE_CONNECTOR, edge.source)
-    this.commit(DELETE_CONNECTOR, edge.destination)
-  }
+  // if (!newEdge) {
+  //   this.commit(DELETE_CONNECTOR, edge.source)
+  //   this.commit(DELETE_CONNECTOR, edge.destination)
+  // }
   // if (isPushState) {
   //   this.commit(PUSH_STATE, state.model, { root: true })
   // }

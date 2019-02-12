@@ -17,6 +17,7 @@
             ref="fcLeftConnector"
             :connectors="filterConnectorType(node,flowchartConstants.leftConnectorType)"
             :node="node"
+            :edge-dragging-service="edgeDraggingService"
             :store="store"/>
         </fc-magnet>
       </div>

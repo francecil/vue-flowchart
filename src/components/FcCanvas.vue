@@ -267,31 +267,19 @@ export default {
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event)
-      this.nodeDraggingService.drop(event)
+      if (this.store.state.edgeDragging.isDragging) {
+        this.edgeDraggingService.drop(event)
+      } else {
+        this.nodeDraggingService.drop(event)
+      }
     },
 
     canvasDragover (event) {
-      if (this.store.edgeDragging.isDragging) {
+      if (this.store.state.edgeDragging.isDragging) {
         this.edgeDraggingService.dragover(event)
       } else {
         this.nodeDraggingService.dragover(event)
       }
-      // 在目标元素内拖动时触发
-      // console.log('canvasDragover')
-      // console.log(event.dataTransfer.getData('Text'))
-      // let nodeId = parseInt(event.dataTransfer.getData('Text'))
-      // let node = this.currentModel.nodes.filter(v => v.id === nodeId)[0]
-      // let newNode = Object.assign(node, {
-      //   x: event.clientX - this.canvas.left,
-      //   y: event.clientY - this.canvas.top
-      // })
-      // this.updateNode({
-      //   node: this.node,
-      //   newNode
-      // })
-      // 通知连线和节点更改位置
-      // this.nodedraggingservice.dragover(event)
-      // this.edgedraggingservice.dragover(event)
     },
 
     canvasMousedown () {
@@ -314,7 +302,7 @@ export default {
       console.log('edgeClick')
     },
     edgeMouseEnter (index, isHover) {
-      console.log('edgeMouseEnter')
+      // console.log('edgeMouseEnter')
       if (this.$refs.fcEdge) {
         this.$refs.fcEdge[index].underMouse = isHover
       }
@@ -324,7 +312,7 @@ export default {
       this.$emit('edge-mouseenter')
     },
     edgeMouseLeave (index, isHover) {
-      console.log('edgeMouseLeave')
+      // console.log('edgeMouseLeave')
       if (this.$refs.fcEdge) {
         this.$refs.fcEdge[index].underMouse = isHover
       }

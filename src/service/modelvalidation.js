@@ -1,4 +1,4 @@
-// import flowchartConstants from '@/config/flowchart'
+import flowchartConstants from '@/config/flowchart'
 // import Topsortservice from '@/service/topsort'
 function Modelvalidation () {
   function ModelvalidationError (message) {
@@ -55,6 +55,9 @@ function Modelvalidation () {
       throw new ModelvalidationError('Connectors not valid.')
     }
     for (let type in node.connectors) {
+      if (type !== flowchartConstants.leftConnectorType && type !== flowchartConstants.rightConnectorType) {
+        throw new ModelvalidationError('Connectors not valid.')
+      }
       this.validateConnector(node.connectors[type])
     }
     return node
@@ -99,23 +102,13 @@ function Modelvalidation () {
       throw new ModelvalidationError('Edge with same source and destination connectors.')
     }
     let sourceNode = nodes.filter(function (node) {
-      for (let type in node.connectors) {
-        if (node.connectors[type].id === edge.source) {
-          return true
-        }
-      }
-      return false
+      return node.connectors && node.connectors[flowchartConstants.rightConnectorType] && node.connectors[flowchartConstants.rightConnectorType].id === edge.source
     })[0]
     if (!sourceNode) {
       throw new ModelvalidationError('Source not valid.')
     }
     let destinationNode = nodes.filter(function (node) {
-      for (let type in node.connectors) {
-        if (node.connectors[type].id === edge.destination) {
-          return true
-        }
-      }
-      return false
+      return node.connectors && node.connectors[flowchartConstants.leftConnectorType] && node.connectors[flowchartConstants.leftConnectorType].id === edge.destination
     })[0]
     if (!destinationNode) {
       throw new ModelvalidationError('Destination not valid.')

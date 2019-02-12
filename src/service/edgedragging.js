@@ -90,6 +90,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
           destination: connector.id
         }]), this.store.state.model.nodes)
       } catch (error) {
+        console.warn(error)
         throw error
       }
       let edge = {

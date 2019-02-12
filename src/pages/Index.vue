@@ -53,12 +53,12 @@ export default {
     for (let i = 0; i < 10; i++) {
       let node = {
         name: 'type' + i,
-        id: (i + 1) + 10000,
+        id: 10000 + i,
         x: 50,
         y: 100 * (i + 1),
         connectors: {
           [flowchartConstants.leftConnectorType]: {
-            id: i * 2 + 1 + 10000
+            id: i * 2 + 10000
           },
           [flowchartConstants.rightConnectorType]: {
             id: i * 2 + 1 + 10000

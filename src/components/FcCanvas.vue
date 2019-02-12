@@ -147,6 +147,7 @@ import FcEdgeLabel from '@/components/FcEdgeLabel'
 import Store from '@/service/store'
 import NodeDraggingFactory from '@/service/nodedragging'
 import EdgeDraggingFactory from '@/service/edgedragging'
+import Modelvalidation from '@/service/modelvalidation'
 let canvasIdSeed = 1
 export default {
   components: {
@@ -252,6 +253,8 @@ export default {
     this.edgeDraggingService = new EdgeDraggingFactory(this.store, {
       edgeAddCallback: this.edgeAddCallback
     })
+
+    Modelvalidation.validateModel(this.model)
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }

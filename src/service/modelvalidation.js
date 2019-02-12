@@ -1,5 +1,5 @@
 import flowchartConstants from '@/config/flowchart'
-// import Topsortservice from '@/service/topsort'
+import { checkGraph } from '@/service/topsort'
 function Modelvalidation () {
   function ModelvalidationError (message) {
     this.message = message
@@ -79,9 +79,9 @@ function Modelvalidation () {
       })
     })
 
-    // if (Topsortservice({nodes: nodes, edges: edges}) === null) {
-    //   throw new ModelvalidationError('Graph has a circle.')
-    // }
+    if (!checkGraph({nodes: nodes, edges: edges})) {
+      throw new ModelvalidationError('Graph has a circle.')
+    }
 
     return edges
   }

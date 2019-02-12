@@ -18,17 +18,6 @@ function NodeDraggingFactory (store, initialState = {}) {
     }
   }
 }
-// function getCoordinate (coordinate, max) {
-//   coordinate = Math.max(coordinate, 0)
-//   coordinate = Math.min(coordinate, max)
-//   return coordinate
-// }
-// function getXCoordinate (x) {
-//   return getCoordinate(x, store.state.canvasOffset.width)
-// }
-// function getYCoordinate (y) {
-//   return getCoordinate(y, store.state.canvasOffset.height)
-// }
 const resizeCanvas = function (node, automaticResize, store) {
   // 调整canvas画板，仅会不断变大
   if (automaticResize && !store.isDropSource()) {
@@ -38,7 +27,6 @@ const resizeCanvas = function (node, automaticResize, store) {
       height: canvasOffset.height
     }
     let hasChange = false
-    console.log(canvasOffset, node.x + flowchartConstants.canvasResizeThreshold)
     if (canvasOffset.width < node.x + flowchartConstants.canvasResizeThreshold) {
       hasChange = true
       newOffset.width = canvasOffset.width + flowchartConstants.canvasResizeStep

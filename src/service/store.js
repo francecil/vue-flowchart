@@ -115,7 +115,7 @@ CanvasStore.prototype.mutations = {
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
-  console.log(name, args)
+  // console.log(name, args)
   const mutations = this.mutations
   if (mutations[name]) {
     mutations[name].apply(this, [this.state].concat(args))

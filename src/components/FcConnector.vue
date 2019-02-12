@@ -51,6 +51,7 @@ export default {
       if (this.store.isEditable()) {
         return {
           dragstart: this.handleDragstart,
+          dragend: this.handleDragend,
           mouseenter: this.handleMouseenter,
           mouseleave: this.handleMouseleave
         }
@@ -95,10 +96,15 @@ export default {
   },
   methods: {
     handleDragstart (event) {
-      event.preventDefault()
+      // event.preventDefault()
       event.stopPropagation()
       console.log('connector Dragstart:', event)
-      this.edgeDraggingService.dragstart(event, this.connectors[0])
+      this.edgeDraggingService.dragstart(event, this.connector, this.type)
+    },
+    handleDragend (event) {
+      event.stopPropagation()
+      console.log('connector handleDragend:', event)
+      this.edgeDraggingService.dragend(event)
     },
     handleMouseenter () {
       this.underMouse = true

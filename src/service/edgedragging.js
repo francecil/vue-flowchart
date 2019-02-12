@@ -32,18 +32,20 @@ EdgeDraggingFactory.prototype.init = function () {
   }
   this.store.commit('UPDATE_EDGE_DRAGGING', edgeDragging)
 }
-EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
+EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
   let swapConnector = null
   let dragLabel = ''
   let prevEdge = null
   let edgeDragging = {}
   edgeDragging.isDragging = true
   // 拖拽点为左类型，则删去原来连线并记录
-  if (connector.type === flowchartConstants.leftConnectorType) {
+  if (type === flowchartConstants.leftConnectorType) {
     for (let edge of this.store.state.model.edges) {
+      // 选择第一个，当多个的话 拖拽结束会把前面的edge放到列表后面
       if (edge.destination === connector.id) {
-        swapConnector = this.store.getModelConnector(edge.source)
-        edgeDragging.dragPoint1 = this.store.getConnector(swapConnector.id)
+        swapConnector = {
+          id: edge.source
+        }
         dragLabel = edge.label
         prevEdge = edge
         this.store.updateEdge({
@@ -57,6 +59,7 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
 
   if (swapConnector) {
     this.draggedEdgeSource = swapConnector
+    edgeDragging.dragPoint1 = this.store.getConnector(swapConnector.id)
     edgeDragging.dragLabel = dragLabel
     edgeDragging.prevEdge = prevEdge
   } else {
@@ -81,6 +84,15 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector) {
 
 EdgeDraggingFactory.prototype.drop = function (event) {
   this.init()
+}
+EdgeDraggingFactory.prototype.dragend = function (event) {
+  let edgeDragging = this.store.state.edgeDragging
+  if (edgeDragging.isDragging) {
+    if (edgeDragging.prevEdge) {
+      this.store.commit('ADD_EDGE', edgeDragging.prevEdge)
+    }
+    this.init()
+  }
 }
 EdgeDraggingFactory.prototype.dragover = function (event) {
   let edgeDragging = this.store.state.edgeDragging

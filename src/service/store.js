@@ -2,6 +2,7 @@ const SET_MODEL = 'SET_MODEL'
 const UPDATE_NODE = 'UPDATE_NODE'
 const ADD_NODE = 'ADD_NODE'
 const UPDATE_EDGE = 'UPDATE_EDGE'
+const ADD_EDGE = 'ADD_EDGE'
 const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
 const DELETE_CONNECTOR = 'DELETE_CONNECTOR'
 const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
@@ -71,6 +72,9 @@ CanvasStore.prototype.mutations = {
     } else {
       state.model.edges.splice(index, 1)
     }
+  },
+  [ADD_EDGE] (state, edge) {
+    state.model.edges.push(edge)
   },
   [UPDATE_CONNECTOR] (state, {connectorId, x, y}) {
     if (state.connectors[connectorId]) {

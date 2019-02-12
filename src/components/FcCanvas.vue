@@ -102,17 +102,16 @@
         @node-edit="nodeEdit"
       />
 
-      <!-- <div
-      ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging"
-      ng-attr-class="{{'fc-noselect ' + flowchartConstants.edgeLabelClass}}"
-      ng-style="{ top: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).y)+'px',
-                left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}">
-      <div class="fc-edge-label-text">
-        <span
-          ng-attr-id="{{'fc-edge-label-dragging'}}"
-          ng-if="edgeDragging.dragLabel">{{ edgeDragging.dragLabel }}</span>
+      <div
+        v-if="edgeDragging.isDragging"
+        :class="'fc-noselect ' + flowchartConstants.edgeLabelClass"
+        :style="{ top: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).y)+'px',
+                  left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}">
+        <div class="fc-edge-label-text">
+          <span
+            v-if="edgeDragging.dragLabel">{{ edgeDragging.dragLabel }}</span>
+        </div>
       </div>
-    </div> -->
       <!-- 连线的label -->
       <fc-edge-label
         v-for="(edge,index) in currentModel.edges"
@@ -267,9 +266,7 @@ export default {
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event)
-      if (this.store.state.edgeDragging.isDragging) {
-        this.edgeDraggingService.drop(event)
-      } else {
+      if (!this.store.state.edgeDragging.isDragging) {
         this.nodeDraggingService.drop(event)
       }
     },

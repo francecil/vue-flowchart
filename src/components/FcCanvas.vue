@@ -8,9 +8,7 @@
       @click="canvasClick"
       @dragover.prevent.stop="canvasDragover"
       @drop.prevent.stop="canvasDrop"
-      @mousedown="canvasMousedown"
-      @mousemove="canvasMousemove"
-      @mouseup="canvasMouseup">
+      v-on="listenersComputed">
       <svg>
         <defs>
           <marker
@@ -73,16 +71,6 @@
             r="4"/>
 
         </g>
-      <!--
-      <g
-        ng-if="dragAnimation == flowchartConstants.dragAnimationShadow"
-        class="shadow-svg-class {{ flowchartConstants.edgeClass }} {{ flowchartConstants.draggingClass }}"
-        style="display:none">
-        <path d=""/>
-        <circle
-          class="edge-endpoint"
-          r="4"/>
-      </g> -->
       </svg>
       <!-- 连接节点 -->
       <fc-node
@@ -129,9 +117,10 @@
       />
       <!-- 矩形选择区域 -->
       <div
+        v-if="store.isEditable()"
         id="select-rectangle"
-        class="fc-select-rectangle"
-        hidden />
+        :style="rectangleSelect"
+        class="fc-select-rectangle" />
     </div>
   </div>
 </template>
@@ -147,6 +136,7 @@ import FcEdgeLabel from '@/components/FcEdgeLabel'
 import Store from '@/service/store'
 import NodeDraggingFactory from '@/service/nodedragging'
 import EdgeDraggingFactory from '@/service/edgedragging'
+import RectangleSelectFactory from '@/service/rectangleselect'
 import Modelvalidation from '@/service/modelvalidation'
 let canvasIdSeed = 1
 export default {
@@ -208,7 +198,8 @@ export default {
       arrowDefId: 'arrow-' + Math.random(),
       flowchartConstants,
       nodeDraggingService: null,
-      edgeDraggingService: null
+      edgeDraggingService: null,
+      rectangleSelectService: null
     }
   },
   computed: {
@@ -232,6 +223,20 @@ export default {
     },
     edgeDragging () {
       return this.store.state.edgeDragging
+    },
+    listenersComputed () {
+      if (this.store.isEditable()) {
+        return {
+          mousedown: this.canvasMousedown,
+          mousemove: this.canvasMousemove,
+          mouseup: this.canvasMouseup
+        }
+      } else {
+        return {}
+      }
+    },
+    rectangleSelect () {
+      return this.store.state.rectangleSelect
     }
   },
   watch: {
@@ -253,6 +258,7 @@ export default {
     this.edgeDraggingService = new EdgeDraggingFactory(this.store, {
       edgeAddCallback: this.edgeAddCallback
     })
+    this.rectangleSelectService = new RectangleSelectFactory(this.store)
     Modelvalidation.validateModel(this.model)
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
@@ -289,16 +295,17 @@ export default {
       }
     },
 
-    canvasMousedown () {
-      // this.rectangleselectservice.mousedown(event)
+    canvasMousedown (event) {
+      console.log('canvasMousedown', event)
+      this.rectangleSelectService.mousedown(event)
     },
 
-    canvasMousemove () {
-      // this.rectangleselectservice.mousemove(event)
+    canvasMousemove (event) {
+      this.rectangleSelectService.mousemove(event)
     },
 
-    canvasMouseup () {
-      // this.rectangleselectservice.mouseup(event)
+    canvasMouseup (event) {
+      this.rectangleSelectService.mouseup(event)
     },
 
     edgeMouseDown (event) {

@@ -12,6 +12,7 @@ const SELECT_OBJECT = 'SELECT_OBJECT'
 const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
 const UPDATE_EDGE_DRAGGING = 'UPDATE_EDGE_DRAGGING'
+const UPDATE_RECTANGLE_SELECT = 'UPDATE_RECTANGLE_SELECT'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -38,6 +39,14 @@ const CanvasStore = function (canvas, initialState = {}) {
       dragPoint1: null,
       dragPoint2: null,
       prevEdge: null
+    },
+    // 选择区域
+    rectangleSelect: {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+      visibility: 'hidden'
     }
   }
 
@@ -112,6 +121,9 @@ CanvasStore.prototype.mutations = {
   },
   [UPDATE_EDGE_DRAGGING] (state, edgeDragging) {
     Object.assign(state.edgeDragging, edgeDragging)
+  },
+  [UPDATE_RECTANGLE_SELECT] (state, rectangleSelect) {
+    Object.assign(state.rectangleSelect, rectangleSelect)
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {

@@ -4,7 +4,6 @@
     :draggable="!node.readonly"
     :style="styleComputed"
     :class="classComputed"
-    @dblclick="handleDoubleClick"
     v-on="listenersComputed">
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div class="innerNode">
@@ -106,7 +105,8 @@ export default {
           // dragend: this.handleDragend,
           click: this.handleClick,
           mouseover: this.handleMouseover,
-          mouseout: this.handleMouseout
+          mouseout: this.handleMouseout,
+          dblclick: this.handleDoubleClick
         }
       } else {
         return {}
@@ -158,6 +158,8 @@ export default {
       this.$emit('node-dragstart', this.node)
     },
     handleClick (event) {
+      event.stopPropagation()
+      event.preventDefault()
       if (!this.store.isEditable()) {
         return
       }
@@ -166,8 +168,6 @@ export default {
         object: this.node,
         ctrlKey: event.ctrlKey
       })
-      event.stopPropagation()
-      event.preventDefault()
     },
     handleMouseover () {
       this.underMouse = true

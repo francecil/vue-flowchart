@@ -160,15 +160,6 @@ export default {
       type: Object,
       default: () => {
         return {}
-      },
-      validator: (val) => {
-        try {
-          Modelvalidation.validateModel(val)
-          return true
-        } catch (error) {
-          console.error(error)
-          return false
-        }
       }
     },
     // 连线样式
@@ -262,6 +253,7 @@ export default {
     this.edgeDraggingService = new EdgeDraggingFactory(this.store, {
       edgeAddCallback: this.edgeAddCallback
     })
+    Modelvalidation.validateModel(this.model)
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }

@@ -10,6 +10,7 @@ function Modelvalidation () {
   this.ModelvalidationError = ModelvalidationError
 
   this.validateModel = function (model) {
+    console.log('validateModel')
     this.validateNodes(model.nodes)
     this._validateEdges(model.edges, model.nodes)
     return model
@@ -45,10 +46,10 @@ function Modelvalidation () {
     if (typeof node.name !== 'string') {
       throw new ModelvalidationError('Name not valid.')
     }
-    if (typeof node.x !== 'number' || node.x < 0 || Math.round(node.x) !== node.x) {
+    if (typeof node.x !== 'number' || node.x < 0) {
       throw new ModelvalidationError('Coordinates not valid.')
     }
-    if (typeof node.y !== 'number' || node.y < 0 || Math.round(node.y) !== node.y) {
+    if (typeof node.y !== 'number' || node.y < 0) {
       throw new ModelvalidationError('Coordinates not valid.')
     }
     if (typeof node.connectors !== 'object') {

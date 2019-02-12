@@ -49,6 +49,7 @@ export default {
   },
   methods: {
     handleDrop (event) {
+      event.preventDefault()
       event.stopPropagation()
       this.edgeDraggingService.drop(this.connector)
     }

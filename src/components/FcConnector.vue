@@ -102,6 +102,7 @@ export default {
       this.edgeDraggingService.dragstart(event, this.connector, this.type)
     },
     handleDragend (event) {
+      event.preventDefault()
       event.stopPropagation()
       console.log('connector handleDragend:', event)
       this.edgeDraggingService.dragend(event)

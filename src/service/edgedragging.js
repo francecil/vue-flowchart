@@ -1,5 +1,5 @@
 import flowchartConstants from '@/config/flowchart'
-
+import Modelvalidation from '@/service/modelvalidation'
 function EdgeDraggingFactory (store, initialState = {}) {
   this.isValidEdgeCallback = () => {
     return true
@@ -28,14 +28,12 @@ EdgeDraggingFactory.prototype.init = function () {
     isDragging: false,
     dragPoint1: null,
     dragPoint2: null,
-    dragLabel: '',
     prevEdge: null
   }
   this.store.commit('UPDATE_EDGE_DRAGGING', edgeDragging)
 }
 EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
   let swapConnector = null
-  let dragLabel = ''
   let prevEdge = null
   let edgeDragging = {}
   edgeDragging.isDragging = true
@@ -47,7 +45,6 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
         swapConnector = {
           id: edge.source
         }
-        dragLabel = edge.label
         prevEdge = edge
         this.store.updateEdge({
           edge,
@@ -61,7 +58,6 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
   if (swapConnector) {
     this.draggedEdgeSource = swapConnector
     edgeDragging.dragPoint1 = this.store.getConnector(swapConnector.id)
-    edgeDragging.dragLabel = dragLabel
     edgeDragging.prevEdge = prevEdge
   } else {
     this.draggedEdgeSource = connector
@@ -85,22 +81,35 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
 
 EdgeDraggingFactory.prototype.drop = async function (connector) {
   let edgeDragging = this.store.state.edgeDragging
-  if (edgeDragging.isDragging) {
-    if (edgeDragging.prevEdge) {
-      this.store.commit('ADD_EDGE', edgeDragging.prevEdge)
-    } else {
+  try {
+    if (edgeDragging.isDragging) {
+      // 验证起始连线是否合法
       try {
-        let label = await this.edgeAddCallback()
-        let edge = {
-          label,
+        Modelvalidation.validateEdges(this.store.state.model.edges.concat([{
           source: this.draggedEdgeSource.id,
           destination: connector.id
-        }
-        this.store.commit('ADD_EDGE', edge)
+        }]), this.store.state.model.nodes)
       } catch (error) {
-
+        throw error
       }
+      let edge = {
+        source: this.draggedEdgeSource.id,
+        destination: connector.id
+      }
+      if (edgeDragging.prevEdge) {
+        edge = Object.assign(edgeDragging.prevEdge, edge)
+      } else {
+        try {
+          edge.label = await this.edgeAddCallback()
+        } catch (error) {
+          throw error
+        }
+      }
+
+      this.store.commit('ADD_EDGE', edge)
     }
+  } catch (error) {
+
   }
 
   this.init()
@@ -117,14 +126,12 @@ EdgeDraggingFactory.prototype.dragend = function (event) {
 EdgeDraggingFactory.prototype.dragover = function (event) {
   let edgeDragging = this.store.state.edgeDragging
   if (edgeDragging.isDragging) {
-    if (!edgeDragging.magnetActive) {
-      this.store.commit('UPDATE_EDGE_DRAGGING', {
-        dragPoint2: {
-          x: event.clientX - this.store.getCanvasOffsetRelativeLeft(),
-          y: event.clientY - this.store.getCanvasOffsetRelativeTop()
-        }
-      })
-    }
+    this.store.commit('UPDATE_EDGE_DRAGGING', {
+      dragPoint2: {
+        x: event.clientX - this.store.getCanvasOffsetRelativeLeft(),
+        y: event.clientY - this.store.getCanvasOffsetRelativeTop()
+      }
+    })
   }
 }
 export default EdgeDraggingFactory

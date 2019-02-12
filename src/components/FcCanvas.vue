@@ -109,7 +109,7 @@
                   left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}">
         <div class="fc-edge-label-text">
           <span
-            v-if="edgeDragging.dragLabel">{{ edgeDragging.dragLabel }}</span>
+            v-if="edgeDragging.prevEdge&&edgeDragging.prevEdge.label">{{ edgeDragging.prevEdge.label }}</span>
         </div>
       </div>
       <!-- 连线的label -->

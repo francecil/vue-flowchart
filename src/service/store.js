@@ -37,7 +37,6 @@ const CanvasStore = function (canvas, initialState = {}) {
       isDragging: false,
       dragPoint1: null,
       dragPoint2: null,
-      dragLabel: '',
       prevEdge: null
     }
   }

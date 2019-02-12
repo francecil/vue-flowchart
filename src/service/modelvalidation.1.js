@@ -1,6 +1,6 @@
-// import flowchartConstants from '@/config/flowchart'
+import flowchartConstants from '@/config/flowchart'
 import Topsortservice from '@/service/topsort'
-function Modelvalidation () {
+function Modelvalidation (Topsortservice, flowchartConstants) {
   function ModelvalidationError (message) {
     this.message = message
   }
@@ -86,9 +86,8 @@ function Modelvalidation () {
   }
 
   this.validateEdges = function (edges, nodes) {
-    return true
-    // this.validateNodes(nodes)
-    // return this._validateEdges(edges, nodes)
+    this.validateNodes(nodes)
+    return this._validateEdges(edges, nodes)
   }
 
   this._validateEdge = function (edge, nodes) {
@@ -131,4 +130,4 @@ function Modelvalidation () {
     return connector
   }
 }
-export default new Modelvalidation()
+export default new Modelvalidation(Topsortservice, flowchartConstants)

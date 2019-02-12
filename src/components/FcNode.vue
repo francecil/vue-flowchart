@@ -27,6 +27,7 @@
             ref="fcRightConnector"
             :connectors="filterConnectorType(node,flowchartConstants.rightConnectorType)"
             :node="node"
+            :edge-dragging-service="edgeDraggingService"
             :store="store"/>
         </fc-magnet>
       </div>
@@ -71,6 +72,12 @@ export default {
       }
     },
     nodeDraggingService: {
+      type: Object,
+      default: () => {
+        return {}
+      }
+    },
+    edgeDraggingService: {
       type: Object,
       default: () => {
         return {}

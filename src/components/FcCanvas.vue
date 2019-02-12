@@ -61,18 +61,19 @@
           @edge-mouseleave="edgeMouseLeave"
           @edge-click="edgeClick"
         />
-      <!-- <g ng-if="dragAnimation == flowchartConstants.dragAnimationRepaint && edgeDragging.isDragging">
+        <g v-if="edgeDragging.isDragging">
 
-        <path
-          class="{{ flowchartConstants.edgeClass }} {{ flowchartConstants.draggingClass }}"
-          ng-attr-d="{{getEdgeDAttribute(edgeDragging.dragPoint1, edgeDragging.dragPoint2, edgeStyle)}}"/>
-        <circle
-          class="edge-endpoint"
-          r="4"
-          ng-attr-cx="{{edgeDragging.dragPoint2.x}}"
-          ng-attr-cy="{{edgeDragging.dragPoint2.y}}"/>
+          <path
+            :class="[flowchartConstants.edgeClass,flowchartConstants.draggingClass]"
+            :d="getEdgeDAttribute(edgeDragging.dragPoint1, edgeDragging.dragPoint2, edgeStyle)"/>
+          <circle
+            :cx="edgeDragging.dragPoint2.x"
+            :cy="edgeDragging.dragPoint2.y"
+            class="edge-endpoint"
+            r="4"/>
 
-      </g>
+        </g>
+      <!--
       <g
         ng-if="dragAnimation == flowchartConstants.dragAnimationShadow"
         class="shadow-svg-class {{ flowchartConstants.edgeClass }} {{ flowchartConstants.draggingClass }}"
@@ -90,6 +91,7 @@
         :key="node.id"
         :node="node"
         :store="store"
+        :edge-dragging-service="edgeDraggingService"
         :node-dragging-service="nodeDraggingService"
         @node-dragstart="nodeDragstart"
         @node-dragging="nodeDragging"
@@ -145,6 +147,7 @@ import FcEdge from '@/components/FcEdge'
 import FcEdgeLabel from '@/components/FcEdgeLabel'
 import Store from '@/service/store'
 import NodeDraggingFactory from '@/service/nodedragging'
+import EdgeDraggingFactory from '@/service/edgedragging'
 let canvasIdSeed = 1
 export default {
   components: {
@@ -198,7 +201,8 @@ export default {
       canvasId: 'fc-canvas_' + canvasIdSeed++,
       arrowDefId: 'arrow-' + Math.random(),
       flowchartConstants,
-      nodeDraggingService: null
+      nodeDraggingService: null,
+      edgeDraggingService: null
     }
   },
   computed: {
@@ -219,6 +223,9 @@ export default {
       } else {
         return ''
       }
+    },
+    edgeDragging () {
+      return this.store.state.edgeDragging
     }
   },
   watch: {
@@ -237,6 +244,7 @@ export default {
       dragThreshold: this.dragThreshold,
       nodeAddCallback: this.nodeAddCallback
     })
+    this.edgeDraggingService = new EdgeDraggingFactory(this.store)
     // if (!this.dropTargetId) {
     //   this.initModel(this.model)
     // }
@@ -263,7 +271,11 @@ export default {
     },
 
     canvasDragover (event) {
-      this.nodeDraggingService.dragover(event)
+      if (this.store.edgeDragging.isDragging) {
+        this.edgeDraggingService.dragover(event)
+      } else {
+        this.nodeDraggingService.dragover(event)
+      }
       // 在目标元素内拖动时触发
       // console.log('canvasDragover')
       // console.log(event.dataTransfer.getData('Text'))
@@ -468,6 +480,9 @@ export default {
   z-index: 2;
 }
 
+.edge-endpoint {
+  fill: gray;
+}
 @keyframes dash {
   from {
     stroke-dashoffset: 500;

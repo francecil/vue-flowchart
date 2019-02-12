@@ -10,6 +10,7 @@ const DESELECT_OBJECT = 'DESELECT_OBJECT'
 const SELECT_OBJECT = 'SELECT_OBJECT'
 const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
+const UPDATE_EDGE_DRAGGING = 'UPDATE_EDGE_DRAGGING'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -29,7 +30,15 @@ const CanvasStore = function (canvas, initialState = {}) {
     // 当前选中的元素，包括节点和连线
     selectedObjects: [],
     nodeElements: {},
-    canvasContainer: null
+    canvasContainer: null,
+    // 连线相关
+    edgeDragging: {
+      isDragging: false,
+      dragPoint1: null,
+      dragPoint2: null,
+      dragLabel: '',
+      prevEdge: null
+    }
   }
 
   for (let prop in initialState) {
@@ -97,6 +106,9 @@ CanvasStore.prototype.mutations = {
   },
   [SET_CANVAS_CONTAINER] (state, element) {
     state.canvasContainer = element
+  },
+  [UPDATE_EDGE_DRAGGING] (state, edgeDragging) {
+    Object.assign(state.edgeDragging, edgeDragging)
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
@@ -124,6 +136,15 @@ CanvasStore.prototype.isEditObject = function (object) {
 }
 CanvasStore.prototype.getConnector = function (id) {
   return this.state.connectors[id]
+}
+CanvasStore.prototype.getModelConnector = function (id) {
+  for (let node of this.state.model.nodes) {
+    for (let connector of node.connectors) {
+      if (connector.id === id) {
+        return connector
+      }
+    }
+  }
 }
 CanvasStore.prototype.getSelectedNodes = function () {
   return this.state.model.nodes ? this.state.model.nodes.filter((node) => this.isSelectedObject(node)) : []

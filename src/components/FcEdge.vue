@@ -130,8 +130,4 @@ export default {
 .fc-edge.fc-dragging {
   pointer-events: none;
 }
-
-.edge-endpoint {
-  fill: gray;
-}
 </style>

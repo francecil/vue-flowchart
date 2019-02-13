@@ -84,11 +84,15 @@ CanvasStore.prototype.mutations = {
   },
   [UPDATE_EDGE] (state, {edge, newEdge}) {
     let index = state.model.edges.indexOf(edge)
-    Object.assign(state.model.edges[index], newEdge)
+    if (index !== -1) {
+      Object.assign(state.model.edges[index], newEdge)
+    }
   },
   [DELETE_EDGE] (state, edge) {
     let index = state.model.edges.indexOf(edge)
-    state.model.edges.splice(index, 1)
+    if (index !== -1) {
+      state.model.edges.splice(index, 1)
+    }
   },
   [ADD_EDGE] (state, edge) {
     state.model.edges.push(edge)
@@ -141,22 +145,27 @@ CanvasStore.prototype.commit = function (name, ...args) {
   }
 }
 /** *************** getters *****************/
+// 预置节点画板
 CanvasStore.prototype.isDropSource = function () {
   return !!this.state.dropTargetId
 }
+// 当前画板为主画板
 CanvasStore.prototype.isEditable = function () {
   return !this.state.dropTargetId
 }
+// 当前元素是否被选中
 CanvasStore.prototype.isSelectedObject = function (object) {
   return this.state.selectedObjects.indexOf(object) !== -1
 }
+// 当前元素是否为可编辑状态
 CanvasStore.prototype.isEditObject = function (object) {
   return this.state.selectedObjects.length === 1 &&
-  this.state.selectedObjects.indexOf(object) !== -1
+  this.isSelectedObject(object)
 }
 CanvasStore.prototype.getConnector = function (id) {
   return this.state.connectors[id]
 }
+// 所有被选中的节点
 CanvasStore.prototype.getSelectedNodes = function () {
   return this.state.model.nodes ? this.state.model.nodes.filter((node) => this.isSelectedObject(node)) : []
 }
@@ -232,18 +241,27 @@ CanvasStore.prototype.updateEdge = function ({edge, newEdge, isPushState}) {
 }
 CanvasStore.prototype.deleteEdge = function ({edge, isPushState}) {
   this.commit(DELETE_EDGE, edge)
+  this.commit(DESELECT_OBJECT, edge)
   // if (isPushState) {
   //   this.commit(PUSH_STATE, state.model, { root: true })
   // }
 }
 // 删除选中元素
 CanvasStore.prototype.deleteSelected = function () {
-  for (let item of this.state.selectedObjects) {
+  while (this.state.selectedObjects.length > 0) {
+    let item = this.state.selectedObjects[0]
     if (item.id !== undefined) {
+      this.deleteNode({
+        node: item
+      })
+    } else {
+      this.deleteEdge({
+        edge: item
+      })
     }
   }
-  this.deselectAll()
 }
+// 更新选择元素列表
 CanvasStore.prototype.updateSelecctedObjects = function ({object, ctrlKey}) {
   if (ctrlKey) {
     this.toggleSelectedObject(object)
@@ -266,6 +284,7 @@ CanvasStore.prototype.selectAll = function () {
 CanvasStore.prototype.deselectAll = function () {
   this.commit(DESELECT_ALL)
 }
+// 更新当前所选元素状态
 CanvasStore.prototype.toggleSelectedObject = function (object) {
   if (this.isSelectedObject(object)) {
     this.commit(DESELECT_OBJECT, object)
@@ -273,6 +292,7 @@ CanvasStore.prototype.toggleSelectedObject = function (object) {
     this.commit(SELECT_OBJECT, object)
   }
 }
+// 选中选择框中元素
 CanvasStore.prototype.selectAllInRect = function () {
   this.commit(DESELECT_ALL)
   let rectBox = {

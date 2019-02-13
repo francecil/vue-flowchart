@@ -16,9 +16,9 @@
           title="Add a new node to then chart"
           @click="addNewNode()">Add Node</button>
         <button
-          ng-click="deleteSelected()"
           ng-disabled="modelservice.nodes.getSelectedNodes().length == 0 && modelservice.edges.getSelectedEdges().length == 0"
-          title="Delete selected nodes and connections">
+          title="Delete selected nodes and connections"
+          @click="deleteSelected">
           Delete Selected
         </button>
         <button @click="selectAll()">
@@ -202,6 +202,10 @@ export default {
       if (node.name !== null) {
         fcCanvas.store.addNode(node)
       }
+    },
+    deleteSelected () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.deleteSelected()
     }
   }
 }

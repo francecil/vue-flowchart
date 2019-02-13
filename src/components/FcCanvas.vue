@@ -125,9 +125,7 @@
   </div>
 </template>
 <script>
-// import EdgedraggingFactory from '@/service/edgedragging'
 // import MouseoverFactory from '@/service/mouseover'
-// import RectangleselectFactory from '@/service/rectangleselect'
 import EdgedrawingService from '@/service/edgedrawing'
 import flowchartConstants from '@/config/flowchart'
 import FcNode from '@/components/FcNode'
@@ -236,7 +234,14 @@ export default {
       }
     },
     rectangleSelect () {
-      return this.store.state.rectangleSelect
+      let rectangleSelect = this.store.state.rectangleSelect
+      return {
+        left: rectangleSelect.left + 'px',
+        top: rectangleSelect.top + 'px',
+        width: rectangleSelect.width + 'px',
+        height: rectangleSelect.height + 'px',
+        visibility: rectangleSelect.visibility
+      }
     }
   },
   watch: {
@@ -274,10 +279,7 @@ export default {
   },
   methods: {
     canvasClick (event) {
-      console.log(event)
-      this.store.updateSelecctedObjects({
-        object: null
-      })
+      console.log('canvasClick', event)
     },
     canvasDrop (event) {
       // 放置在目标元素时触发
@@ -305,6 +307,7 @@ export default {
     },
 
     canvasMouseup (event) {
+      console.log('canvasMouseup', event)
       this.rectangleSelectService.mouseup(event)
     },
 

@@ -120,9 +120,9 @@ canvas画板由一个 model 对象控制数据，其中包含两种元素，即�
 
 ### 其他坐标
 
-event.clientX： 基于浏览器窗口的x坐标
+event.clientX： 基于网页左上角的x坐标
 
-
+getBoundingClientRect: 相对视口的坐标（相对），而不是网页左上角（绝对），比如有滚动条且向下滚动，获得的top值偏小
 
 ## 拖拽
 

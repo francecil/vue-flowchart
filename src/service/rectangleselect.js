@@ -19,21 +19,14 @@ function updateSelectRect (selectRect, store) {
   var x4 = Math.max(selectRect.x1, selectRect.x2)
   var y3 = Math.min(selectRect.y1, selectRect.y2)
   var y4 = Math.max(selectRect.y1, selectRect.y2)
-  console.log(selectRect, x3, x4, y3, y4)
   store.commit('UPDATE_RECTANGLE_SELECT', {
-    left: x3 + 'px',
-    top: y3 + 'px',
-    width: x4 - x3 + 'px',
-    height: y4 - y3 + 'px',
+    left: x3,
+    top: y3,
+    width: x4 - x3,
+    height: y4 - y3,
     visibility: 'visible'
   })
 }
-
-// function selectObjects (rectBox) {
-// applyFunction(function () {
-//   modelservice.selectAllInRect(rectBox)
-// })
-// }
 RectangleSelectFactory.prototype.init = function () {
   this.selectRect = {
     x1: 0,
@@ -64,7 +57,7 @@ RectangleSelectFactory.prototype.mouseup = function (e) {
     this.store.commit('UPDATE_RECTANGLE_SELECT', {
       visibility: 'hidden'
     })
-    // selectObjects(rectBox)
+    this.store.selectAllInRect()
     this.init()
   }
 }

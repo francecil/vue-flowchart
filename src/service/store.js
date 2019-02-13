@@ -23,14 +23,13 @@ const CanvasStore = function (canvas, initialState = {}) {
     model: null,
     dropTargetId: null,
     canvasOffset: {
-      left: 0,
-      top: 0,
       width: 0,
       height: 0
     },
     connectors: {},
     // 当前选中的元素，包括节点和连线
     selectedObjects: [],
+    // node对应的dom节点
     nodeElements: {},
     canvasContainer: null,
     // 连线相关
@@ -162,7 +161,7 @@ CanvasStore.prototype.getCanvasOffsetLeft = function () {
 CanvasStore.prototype.getCanvasOffsetTop = function () {
   return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top + this.state.canvasContainer.parentElement.scrollTop : 0
 }
-// canvas的相对位置
+// canvas的相对位置，会偏小
 CanvasStore.prototype.getCanvasOffsetRelativeLeft = function () {
   return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().left : 0
 }
@@ -221,5 +220,38 @@ CanvasStore.prototype.toggleSelectedObject = function (object) {
   } else {
     this.commit(SELECT_OBJECT, object)
   }
+}
+CanvasStore.prototype.selectAllInRect = function () {
+  this.commit(DESELECT_ALL)
+  let rectBox = {
+    left: this.state.rectangleSelect.left,
+    right: this.state.rectangleSelect.left + this.state.rectangleSelect.width,
+    top: this.state.rectangleSelect.top,
+    bottom: this.state.rectangleSelect.top + this.state.rectangleSelect.height
+  }
+  if (rectBox.left === rectBox.right && rectBox.top === rectBox.bottom) {
+    // click handle
+    return
+  }
+  let canvasLeft = this.getCanvasOffsetRelativeLeft()
+  let canvasTop = this.getCanvasOffsetRelativeTop()
+  for (let node of this.state.model.nodes) {
+    let nodeElement = this.state.nodeElements[node.id]
+    let nodeElementBox = nodeElement.getBoundingClientRect()
+    if (!node.readonly) {
+      let x = nodeElementBox.left + nodeElementBox.width / 2 - canvasLeft
+      let y = nodeElementBox.top + nodeElementBox.height / 2 - canvasTop
+      if (inRectBox(x, y, rectBox)) {
+        console.log('inRectBox')
+        this.commit(SELECT_OBJECT, node)
+      }
+    }
+  }
+}
+/** ******** utils *********/
+function inRectBox (x, y, rectBox) {
+  console.log(x, y, rectBox)
+  return x >= rectBox.left && x <= rectBox.right &&
+            y >= rectBox.top && y <= rectBox.bottom
 }
 export default CanvasStore

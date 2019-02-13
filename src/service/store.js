@@ -49,6 +49,11 @@ const CanvasStore = function (canvas, initialState = {}) {
       width: 0,
       height: 0,
       visibility: 'hidden'
+    },
+    // 剪切板
+    clipboardBuffer: {
+      nodes: [],
+      edges: []
     }
   }
 
@@ -274,7 +279,9 @@ CanvasStore.prototype.updateSelecctedObjects = function ({object, ctrlKey}) {
 CanvasStore.prototype.selectAll = function () {
   this.deselectAll()
   for (let node of this.state.model.nodes) {
-    this.commit(SELECT_OBJECT, node)
+    if (!node.readonly) {
+      this.commit(SELECT_OBJECT, node)
+    }
   }
   for (let edge of this.state.model.edges) {
     this.commit(SELECT_OBJECT, edge)

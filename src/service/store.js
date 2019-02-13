@@ -242,9 +242,17 @@ CanvasStore.prototype.selectAllInRect = function () {
       let x = nodeElementBox.left + nodeElementBox.width / 2 - canvasLeft
       let y = nodeElementBox.top + nodeElementBox.height / 2 - canvasTop
       if (inRectBox(x, y, rectBox)) {
-        console.log('inRectBox')
         this.commit(SELECT_OBJECT, node)
       }
+    }
+  }
+  for (let edge of this.state.model.edges) {
+    let start = this.getConnector(edge.source)
+    let end = this.getConnector(edge.destination)
+    let x = (start.x + end.x) / 2
+    let y = (start.y + end.y) / 2
+    if (inRectBox(x, y, rectBox)) {
+      this.commit(SELECT_OBJECT, edge)
     }
   }
 }

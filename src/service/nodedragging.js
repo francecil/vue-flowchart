@@ -111,7 +111,7 @@ NodeDraggingFactory.prototype.drop = async function (event) {
       for (let type in newNode.connectors) {
         newNode.connectors[type].id = UUIDjs.create('connector')
       }
-      this.store.commit('ADD_NODE', newNode)
+      this.store.addNode(newNode)
     } else {
       // 节点属于目标画板节点，直接应用
       let offset = getDragOffset(event, this.dropNodeInfo, {

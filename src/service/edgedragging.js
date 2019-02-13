@@ -46,9 +46,8 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
           id: edge.source
         }
         prevEdge = edge
-        this.store.updateEdge({
-          edge,
-          newEdge: null
+        this.store.deleteEdge({
+          edge
         })
         break
       }
@@ -117,7 +116,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
         }
       }
 
-      this.store.commit('ADD_EDGE', edge)
+      this.store.addEdge(edge)
     }
   } catch (error) {
 
@@ -129,7 +128,7 @@ EdgeDraggingFactory.prototype.dragend = function (event) {
   let edgeDragging = this.store.state.edgeDragging
   if (edgeDragging.isDragging) {
     if (edgeDragging.prevEdge) {
-      this.store.commit('ADD_EDGE', edgeDragging.prevEdge)
+      this.store.addEdge(edgeDragging.prevEdge)
     }
     this.init()
   }

@@ -52,7 +52,7 @@ function Modelvalidation () {
     if (typeof node.y !== 'number' || node.y < 0) {
       throw new ModelvalidationError('Coordinates not valid.')
     }
-    if (typeof node.connectors !== 'object') {
+    if (typeof node.connectors !== 'object' && node.connectors !== undefined) {
       throw new ModelvalidationError('Connectors not valid.')
     }
     for (let type in node.connectors) {

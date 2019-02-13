@@ -12,7 +12,7 @@
 
       <div :class="flowchartConstants.leftConnectorClass">
         <fc-magnet
-          v-if="node.connectors[flowchartConstants.leftConnectorType]"
+          v-if="node.connectors&&node.connectors[flowchartConstants.leftConnectorType]"
           :connector="node.connectors[flowchartConstants.leftConnectorType]"
           :store="store"
           :edge-dragging-service="edgeDraggingService">
@@ -27,7 +27,7 @@
       <div :class="flowchartConstants.rightConnectorClass">
         <fc-magnet
 
-          v-if="node.connectors[flowchartConstants.rightConnectorType]"
+          v-if="node.connectors&&node.connectors[flowchartConstants.rightConnectorType]"
           :connector="node.connectors[flowchartConstants.rightConnectorType]"
           :store="store"
           :edge-dragging-service="edgeDraggingService">
@@ -43,13 +43,13 @@
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodeedit"
-      @click="handleEdit">
+      @click.stop.prevent="handleEdit">
       #
     </div>
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodedelete"
-      @click="handleDelete">
+      @click.stop.prevent="handleDelete">
       &times;
     </div>
   </div>
@@ -192,9 +192,8 @@ export default {
       this.$emit('node-edit', this.node)
     },
     handleDelete () {
-      this.store.updateNode({
+      this.store.deleteNode({
         node: this.node,
-        newNode: null,
         isPushState: true
       })
     }

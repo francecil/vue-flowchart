@@ -2,22 +2,22 @@
   <div
     :class="classComputed"
     :style="styleComputed"
-    @mousedown="handleMouseDown"
+    @mousedown.stop
     @dblclick="handleDoubleClick"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
-    @click="handleClick">
+    @click.stop.prevent="handleClick">
     <div class="fc-edge-label-text">
       <div
         v-if="isEditable()"
         class="fc-noselect fc-nodeedit"
-        @click="handleEdit">
+        @click.stop.prevent="handleEdit">
         #
       </div>
       <div
         v-if="isEditable()"
         class="fc-noselect fc-nodedelete"
-        @click="handleDelete">
+        @click.stop.prevent="handleDelete">
         &times;
       </div>
       <span
@@ -90,19 +90,12 @@ export default {
     isEditable () {
       return !this.dropTargetId
     },
-    handleMouseDown (event) {
-      event.stopPropagation()
-    },
-
     handleClick (event) {
       console.log('edgeClick')
       this.store.updateSelecctedObjects({
         object: this.edge,
         ctrlKey: event.ctrlKey
       })
-      // Don't let the chart handle the mouse down.
-      event.stopPropagation()
-      event.preventDefault()
     },
     handleMouseEnter () {
       this.underMouse = true
@@ -123,7 +116,7 @@ export default {
       let newEdge = Object.assign(this.edge, {
         label
       })
-      this.updateNode({
+      this.updateEdge({
         edge: this.edge,
         newEdge,
         isPushState: true
@@ -131,9 +124,8 @@ export default {
       this.$emit('edge-edit', this.edge)
     },
     handleDelete () {
-      this.store.updateEdge({
+      this.store.deleteEdge({
         edge: this.edge,
-        newEdge: null,
         isPushState: true
       })
     }

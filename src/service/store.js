@@ -1,8 +1,11 @@
+import UUIDjs from '@/utils/uuid'
 const SET_MODEL = 'SET_MODEL'
 const UPDATE_NODE = 'UPDATE_NODE'
 const ADD_NODE = 'ADD_NODE'
+const DELETE_NODE = 'DELETE_NODE'
 const UPDATE_EDGE = 'UPDATE_EDGE'
 const ADD_EDGE = 'ADD_EDGE'
+const DELETE_EDGE = 'DELETE_EDGE'
 const UPDATE_CONNECTOR = 'UPDATE_CONNECTOR'
 const DELETE_CONNECTOR = 'DELETE_CONNECTOR'
 const UPDATE_CANVAS_OFFSET = 'UPDATE_CANVAS_OFFSET'
@@ -63,22 +66,29 @@ CanvasStore.prototype.mutations = {
   [UPDATE_CANVAS_OFFSET] (state, offset) {
     Object.assign(state.canvasOffset, offset)
   },
+  [ADD_NODE] (state, node) {
+    state.model.nodes.push(node)
+  },
   [UPDATE_NODE] (state, {node, newNode}) {
     let index = state.model.nodes.indexOf(node)
-    if (newNode) {
+    if (index !== -1) {
       Object.assign(state.model.nodes[index], newNode)
-    } else {
+    }
+  },
+  [DELETE_NODE] (state, node) {
+    let index = state.model.nodes.indexOf(node)
+    if (index !== -1) {
       state.model.nodes.splice(index, 1)
       delete state.nodeElements[node.id]
     }
   },
   [UPDATE_EDGE] (state, {edge, newEdge}) {
     let index = state.model.edges.indexOf(edge)
-    if (newEdge) {
-      Object.assign(state.model.edges[index], newEdge)
-    } else {
-      state.model.edges.splice(index, 1)
-    }
+    Object.assign(state.model.edges[index], newEdge)
+  },
+  [DELETE_EDGE] (state, edge) {
+    let index = state.model.edges.indexOf(edge)
+    state.model.edges.splice(index, 1)
   },
   [ADD_EDGE] (state, edge) {
     state.model.edges.push(edge)
@@ -104,16 +114,12 @@ CanvasStore.prototype.mutations = {
   },
   [DESELECT_OBJECT] (state, object) {
     let index = state.selectedObjects.indexOf(object)
-    if (index === -1) {
-      throw new Error('Tried to deselect an unselected object')
+    if (index !== -1) {
+      state.selectedObjects.splice(index, 1)
     }
-    state.selectedObjects.splice(index, 1)
   },
   [SET_NODE_ELEMENT] (state, {nodeId, element}) {
     state.nodeElements[nodeId] = element
-  },
-  [ADD_NODE] (state, node) {
-    state.model.nodes.push(node)
   },
   [SET_CANVAS_CONTAINER] (state, element) {
     state.canvasContainer = element
@@ -126,7 +132,7 @@ CanvasStore.prototype.mutations = {
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
-  // console.log(name, args)
+  console.log(name, args)
   const mutations = this.mutations
   if (mutations[name]) {
     mutations[name].apply(this, [this.state].concat(args))
@@ -169,10 +175,29 @@ CanvasStore.prototype.getCanvasOffsetRelativeTop = function () {
   return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top : 0
 }
 /** *************** actions *****************/
-// 删除节点 同时删除连接点和相关连线
+CanvasStore.prototype.addNode = function (node) {
+  if (node.id === undefined) {
+    node.id = UUIDjs.create('node')
+  }
+  if (node.x === undefined) {
+    node.x = 400
+  }
+  if (node.y === undefined) {
+    node.y = 400
+  }
+  this.commit(ADD_NODE, node)
+}
 CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
   this.commit(UPDATE_NODE, {node, newNode})
-  if (!newNode && node.connectors) {
+  // if (isPushState) {
+  //   commit(PUSH_STATE, state.model, { root: true })
+  // }
+}
+CanvasStore.prototype.deleteNode = function ({node, isPushState}) {
+  this.commit(DELETE_NODE, node)
+  this.commit(DESELECT_OBJECT, node)
+  // 删除节点 同时删除连接点和相关连线
+  if (node.connectors) {
     let connectorIds = []
     for (let type in node.connectors) {
       let connector = node.connectors[type]
@@ -182,9 +207,8 @@ CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
     for (let i = 0; i < this.state.model.edges.length;) {
       let edge = this.state.model.edges[i]
       if (connectorIds.indexOf(edge.source) !== -1 || connectorIds.indexOf(edge.destination) !== -1) {
-        this.updateEdge({
+        this.deleteEdge({
           edge,
-          newEdge: null,
           isPushState: false
         })
       } else {
@@ -192,17 +216,9 @@ CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
       }
     }
   }
-  // if (isPushState) {
-  //   commit(PUSH_STATE, state.model, { root: true })
-  // }
 }
-CanvasStore.prototype.updateSelecctedObjects = function ({object, ctrlKey}) {
-  if (ctrlKey) {
-    this.toggleSelectedObject(object)
-  } else {
-    this.commit(DESELECT_ALL)
-    this.commit(SELECT_OBJECT, object)
-  }
+CanvasStore.prototype.addEdge = function (edge) {
+  this.commit(ADD_EDGE, edge)
 }
 CanvasStore.prototype.updateEdge = function ({edge, newEdge, isPushState}) {
   this.commit(UPDATE_EDGE, {edge, newEdge})
@@ -213,6 +229,42 @@ CanvasStore.prototype.updateEdge = function ({edge, newEdge, isPushState}) {
   // if (isPushState) {
   //   this.commit(PUSH_STATE, state.model, { root: true })
   // }
+}
+CanvasStore.prototype.deleteEdge = function ({edge, isPushState}) {
+  this.commit(DELETE_EDGE, edge)
+  // if (isPushState) {
+  //   this.commit(PUSH_STATE, state.model, { root: true })
+  // }
+}
+// 删除选中元素
+CanvasStore.prototype.deleteSelected = function () {
+  for (let item of this.state.selectedObjects) {
+    if (item.id !== undefined) {
+    }
+  }
+  this.deselectAll()
+}
+CanvasStore.prototype.updateSelecctedObjects = function ({object, ctrlKey}) {
+  if (ctrlKey) {
+    this.toggleSelectedObject(object)
+  } else {
+    this.deselectAll()
+    this.commit(SELECT_OBJECT, object)
+  }
+}
+// 全选
+CanvasStore.prototype.selectAll = function () {
+  this.deselectAll()
+  for (let node of this.state.model.nodes) {
+    this.commit(SELECT_OBJECT, node)
+  }
+  for (let edge of this.state.model.edges) {
+    this.commit(SELECT_OBJECT, edge)
+  }
+}
+// 反选全部数据
+CanvasStore.prototype.deselectAll = function () {
+  this.commit(DESELECT_ALL)
 }
 CanvasStore.prototype.toggleSelectedObject = function (object) {
   if (this.isSelectedObject(object)) {

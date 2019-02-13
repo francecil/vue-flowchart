@@ -5,7 +5,6 @@
       :id="canvasId"
       :style="styleComputed"
       class="fc-canvas"
-      @click="canvasClick"
       @dragover.prevent.stop="canvasDragover"
       @drop.prevent.stop="canvasDrop"
       v-on="listenersComputed">
@@ -53,7 +52,6 @@
           :edgeStyle="edgeStyle"
           :arrow-def-id="arrowDefId"
           :store="store"
-          @mousedown="edgeMouseDown"
           @edge-dblclick="edgeDoubleClick"
           @edge-mouseenter="edgeMouseEnter"
           @edge-mouseleave="edgeMouseLeave"
@@ -108,7 +106,6 @@
         :key="'fc-edge-label-'+index"
         :index="index"
         :store="store"
-        @mousedown="edgeMouseDown"
         @edge-dblclick="edgeDoubleClick"
         @edge-mouseenter="edgeMouseEnter"
         @edge-mouseleave="edgeMouseLeave"
@@ -265,9 +262,9 @@ export default {
     })
     this.rectangleSelectService = new RectangleSelectFactory(this.store)
     Modelvalidation.validateModel(this.model)
-    // if (!this.dropTargetId) {
-    //   this.initModel(this.model)
-    // }
+    if (!this.dropTargetId) {
+      window.store = this.store
+    }
   },
   mounted () {
     let canvas = this.$refs['fc-canvas'].getBoundingClientRect()
@@ -278,9 +275,6 @@ export default {
     this.store.commit('SET_CANVAS_CONTAINER', this.$refs['fc-canvas'])
   },
   methods: {
-    canvasClick (event) {
-      console.log('canvasClick', event)
-    },
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event)
@@ -309,10 +303,6 @@ export default {
     canvasMouseup (event) {
       console.log('canvasMouseup', event)
       this.rectangleSelectService.mouseup(event)
-    },
-
-    edgeMouseDown (event) {
-      event.stopPropagation()
     },
 
     edgeClick (event) {

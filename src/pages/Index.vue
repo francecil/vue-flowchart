@@ -13,19 +13,20 @@
     <div class="fc-right-pane">
       <div class="button-overlay">
         <button
-          ng-click="addNewNode()"
-          title="Add a new node to then chart">Add Node</button>
+          title="Add a new node to then chart"
+          @click="addNewNode()">Add Node</button>
         <button
           ng-click="deleteSelected()"
           ng-disabled="modelservice.nodes.getSelectedNodes().length == 0 && modelservice.edges.getSelectedEdges().length == 0"
           title="Delete selected nodes and connections">
           Delete Selected
         </button>
-        <button ng-click="activateWorkflow()">
-          Activate Workflow
+        <button @click="selectAll()">
+          Select All
         </button>
       </div>
       <fc-canvas
+        ref="fcCanvas"
         :model="model"
         :node-add-callback="nodeAddCallback"
         :edge-add-callback="edgeAddCallback"
@@ -189,6 +190,18 @@ export default {
           resolve(newName)
         }
       })
+    },
+    selectAll () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.selectAll()
+    },
+    addNewNode () {
+      let fcCanvas = this.$refs.fcCanvas
+      let node = {}
+      node.name = prompt('新增节点')
+      if (node.name !== null) {
+        fcCanvas.store.addNode(node)
+      }
     }
   }
 }

@@ -5,11 +5,11 @@
       :class="classComputed"
       :d="dComputed"
       :marker-end="'url(#'+(selected ? arrowDefId+'-selected' : arrowDefId)+')'"
-      @mousedown="handleMouseDown"
+      @mousedown.stop
       @dblclick="handleDoubleClick"
       @mouseenter="handleMouseEnter"
       @mouseleave="handleMouseLeave"
-      @click="handleClick" />
+      @click.stop.prevent="handleClick" />
   </g>
 </template>
 <script>
@@ -72,9 +72,6 @@ export default {
   mounted () {
   },
   methods: {
-    handleMouseDown (event) {
-      event.stopPropagation()
-    },
 
     handleClick (event) {
       console.log('edgeClick')
@@ -82,9 +79,6 @@ export default {
         object: this.edge,
         ctrlKey: event.ctrlKey
       })
-      // Don't let the chart handle the mouse down.
-      event.stopPropagation()
-      event.preventDefault()
     },
     handleMouseEnter () {
       this.underMouse = true

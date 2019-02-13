@@ -4,6 +4,7 @@
     :draggable="!node.readonly"
     :style="styleComputed"
     :class="classComputed"
+    @mousedown="handleMouseDown"
     v-on="listenersComputed">
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div class="innerNode">
@@ -144,6 +145,9 @@ export default {
     })
   },
   methods: {
+    handleMouseDown (event) {
+      event.stopPropagation()
+    },
     handleDoubleClick () {
 
     },

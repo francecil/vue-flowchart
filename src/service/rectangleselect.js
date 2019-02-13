@@ -28,6 +28,13 @@ function updateSelectRect (selectRect, store) {
   })
 }
 RectangleSelectFactory.prototype.init = function () {
+  this.store.commit('UPDATE_RECTANGLE_SELECT', {
+    left: 0,
+    top: 0,
+    width: 0,
+    height: 0,
+    visibility: 'hidden'
+  })
   this.selectRect = {
     x1: 0,
     x2: 0,
@@ -54,9 +61,6 @@ RectangleSelectFactory.prototype.mouseup = function (e) {
   if (this.store.isEditable() && !e.ctrlKey && !e.metaKey && e.button === 0 && this.startSelect) {
     // var rectBox = rectangleSelectService.selectElement.getBoundingClientRect()
     // rectBox.parentOffset = jquery(modelservice.getCanvasHtmlElement()).offset()
-    this.store.commit('UPDATE_RECTANGLE_SELECT', {
-      visibility: 'hidden'
-    })
     this.store.selectAllInRect()
     this.init()
   }

@@ -16,6 +16,7 @@ const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
 const UPDATE_EDGE_DRAGGING = 'UPDATE_EDGE_DRAGGING'
 const UPDATE_RECTANGLE_SELECT = 'UPDATE_RECTANGLE_SELECT'
+const UPDATE_CLIPBOARD = 'UPDATE_CLIPBOARD'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -51,10 +52,7 @@ const CanvasStore = function (canvas, initialState = {}) {
       visibility: 'hidden'
     },
     // 剪切板
-    clipboardBuffer: {
-      nodes: [],
-      edges: []
-    }
+    clipboard: 'null'
   }
 
   for (let prop in initialState) {
@@ -138,6 +136,9 @@ CanvasStore.prototype.mutations = {
   },
   [UPDATE_RECTANGLE_SELECT] (state, rectangleSelect) {
     Object.assign(state.rectangleSelect, rectangleSelect)
+  },
+  [UPDATE_CLIPBOARD] (state, str) {
+    state.clipboard = str
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
@@ -332,6 +333,54 @@ CanvasStore.prototype.selectAllInRect = function () {
     let y = (start.y + end.y) / 2
     if (inRectBox(x, y, rectBox)) {
       this.commit(SELECT_OBJECT, edge)
+    }
+  }
+}
+// 复制选中元素
+CanvasStore.prototype.copyData = function () {
+  this.commit(UPDATE_CLIPBOARD, 'null')
+  // 无选择节点 直接返回
+  if (this.getSelectedNodes().length === 0) {
+    return
+  }
+  let model = {
+    nodes: [],
+    edges: []
+  }
+  for (let item of this.state.selectedObjects) {
+    if (item.id !== undefined) {
+      model.nodes.push(item)
+    } else {
+      model.edges.push(item)
+    }
+  }
+  this.commit(UPDATE_CLIPBOARD, JSON.stringify(model))
+}
+// 粘贴选中元素
+CanvasStore.prototype.pasteData = function () {
+  let model = JSON.parse(this.state.clipboard)
+  if (model) {
+  // 修改元素
+    for (let node of model.nodes) {
+      node.x = node.x + 50
+      node.y = node.y + 50
+      node.id = UUIDjs.create('node')
+      for (let type in node.connectors) {
+        let tempId = node.connectors[type].id
+        node.connectors[type].id = UUIDjs.create('connector')
+        for (let edge of model.edges) {
+          if (edge.source === tempId) {
+            edge.source = node.connectors[type].id
+          }
+          if (edge.destination === tempId) {
+            edge.destination = node.connectors[type].id
+          }
+        }
+      }
+      this.addNode(node)
+    }
+    for (let edge of model.edges) {
+      this.addEdge(edge)
     }
   }
 }

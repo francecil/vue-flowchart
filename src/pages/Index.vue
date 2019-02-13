@@ -24,6 +24,12 @@
         <button @click="selectAll()">
           Select All
         </button>
+        <button @click="handleCopy()">
+          Copy
+        </button>
+        <button @click="handlePaste()">
+          Paste
+        </button>
       </div>
       <fc-canvas
         ref="fcCanvas"
@@ -206,6 +212,14 @@ export default {
     deleteSelected () {
       let fcCanvas = this.$refs.fcCanvas
       fcCanvas.store.deleteSelected()
+    },
+    handleCopy () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.copyData()
+    },
+    handlePaste () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.pasteData()
     }
   }
 }

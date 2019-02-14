@@ -17,6 +17,10 @@ const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
 const UPDATE_EDGE_DRAGGING = 'UPDATE_EDGE_DRAGGING'
 const UPDATE_RECTANGLE_SELECT = 'UPDATE_RECTANGLE_SELECT'
 const UPDATE_CLIPBOARD = 'UPDATE_CLIPBOARD'
+const INIT_SNAPSHOTS = 'INIT_SNAPSHOTS'
+const EXECUTE_SNAPSHOT = 'EXECUTE_SNAPSHOT'
+const UPDATE_SNAPSHOT_MODEL = 'UPDATE_SNAPSHOT_MODEL'
+const INIT_STORE = 'INIT_STORE'
 const CanvasStore = function (canvas, initialState = {}) {
   if (!canvas) {
     throw new Error('Canvas is required.')
@@ -52,7 +56,12 @@ const CanvasStore = function (canvas, initialState = {}) {
       visibility: 'hidden'
     },
     // 剪切板
-    clipboard: 'null'
+    clipboard: 'null',
+    // 撤回重做历史栈
+    snapshots: [],
+    // 所处历史栈下标
+    cursor: -1,
+    MAX_HISTORY: 100
   }
 
   for (let prop in initialState) {
@@ -139,6 +148,49 @@ CanvasStore.prototype.mutations = {
   },
   [UPDATE_CLIPBOARD] (state, str) {
     state.clipboard = str
+  },
+  [EXECUTE_SNAPSHOT] (state) {
+    let snapshot = JSON.stringify(state.model)
+    // 比如当前索引为3 进行新操作后 就需要把 snapshots 数组中索引>3的数据删掉
+    state.snapshots.splice(state.cursor + 1, state.snapshots.length)
+    state.cursor++
+    state.snapshots.push(snapshot)
+    while (state.snapshots.length > state.MAX_HISTORY) {
+      state.snapshots.shift()
+      state.cursor--
+    }
+  },
+  [INIT_SNAPSHOTS] (state) {
+    state.snapshots = []
+    state.cursor = -1
+  },
+  [UPDATE_SNAPSHOT_MODEL] (state, newCursor) {
+    state.cursor = newCursor
+    this.state.model = JSON.parse(state.snapshots[newCursor])
+  },
+  [INIT_STORE] (state) {
+    state.connectors = {}
+    // 当前选中的元素，包括节点和连线
+    state.selectedObjects = []
+    // node对应的dom节点
+    state.nodeElements = {}
+    // 连线相关
+    state.edgeDragging = {
+      isDragging: false,
+      dragPoint1: null,
+      dragPoint2: null,
+      prevEdge: null
+    }
+    // 选择区域
+    state.rectangleSelect = {
+      left: 0,
+      top: 0,
+      width: 0,
+      height: 0,
+      visibility: 'hidden'
+    }
+    // 剪切板
+    state.clipboard = 'null'
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
@@ -190,7 +242,13 @@ CanvasStore.prototype.getCanvasOffsetRelativeTop = function () {
   return this.state.canvasContainer ? this.state.canvasContainer.getBoundingClientRect().top : 0
 }
 /** *************** actions *****************/
-CanvasStore.prototype.addNode = function (node) {
+CanvasStore.prototype.initModel = function (model) {
+  this.commit(INIT_STORE)
+  this.commit(INIT_SNAPSHOTS)
+  this.commit(SET_MODEL, model)
+  this.commit(EXECUTE_SNAPSHOT)
+}
+CanvasStore.prototype.addNode = function ({node, isPushState}) {
   if (node.id === undefined) {
     node.id = UUIDjs.create('node')
   }
@@ -201,12 +259,15 @@ CanvasStore.prototype.addNode = function (node) {
     node.y = 400
   }
   this.commit(ADD_NODE, node)
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
 CanvasStore.prototype.updateNode = function ({node, newNode, isPushState}) {
   this.commit(UPDATE_NODE, {node, newNode})
-  // if (isPushState) {
-  //   commit(PUSH_STATE, state.model, { root: true })
-  // }
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
 CanvasStore.prototype.deleteNode = function ({node, isPushState}) {
   this.commit(DELETE_NODE, node)
@@ -231,29 +292,31 @@ CanvasStore.prototype.deleteNode = function ({node, isPushState}) {
       }
     }
   }
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
-CanvasStore.prototype.addEdge = function (edge) {
+CanvasStore.prototype.addEdge = function ({edge, isPushState}) {
   this.commit(ADD_EDGE, edge)
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
 CanvasStore.prototype.updateEdge = function ({edge, newEdge, isPushState}) {
   this.commit(UPDATE_EDGE, {edge, newEdge})
-  // if (!newEdge) {
-  //   this.commit(DELETE_CONNECTOR, edge.source)
-  //   this.commit(DELETE_CONNECTOR, edge.destination)
-  // }
-  // if (isPushState) {
-  //   this.commit(PUSH_STATE, state.model, { root: true })
-  // }
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
 CanvasStore.prototype.deleteEdge = function ({edge, isPushState}) {
   this.commit(DELETE_EDGE, edge)
   this.commit(DESELECT_OBJECT, edge)
-  // if (isPushState) {
-  //   this.commit(PUSH_STATE, state.model, { root: true })
-  // }
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
+  }
 }
 // 删除选中元素
-CanvasStore.prototype.deleteSelected = function () {
+CanvasStore.prototype.deleteSelected = function (isPushState) {
   while (this.state.selectedObjects.length > 0) {
     let item = this.state.selectedObjects[0]
     if (item.id !== undefined) {
@@ -265,6 +328,9 @@ CanvasStore.prototype.deleteSelected = function () {
         edge: item
       })
     }
+  }
+  if (isPushState) {
+    this.commit(EXECUTE_SNAPSHOT)
   }
 }
 // 更新选择元素列表
@@ -377,12 +443,34 @@ CanvasStore.prototype.pasteData = function () {
           }
         }
       }
-      this.addNode(node)
+      this.addNode({node})
     }
     for (let edge of model.edges) {
-      this.addEdge(edge)
+      this.addEdge({edge})
     }
   }
+}
+// 撤回
+CanvasStore.prototype.undo = function () {
+  if (this.state.cursor === 0) {
+    return false
+  }
+  this.commit(INIT_STORE)
+  this.commit(UPDATE_SNAPSHOT_MODEL, this.state.cursor - 1)
+}
+// 重做
+CanvasStore.prototype.redo = function () {
+  if (this.state.cursor === this.state.snapshots.length - 1) {
+    return false
+  }
+  this.commit(INIT_STORE)
+  this.commit(UPDATE_SNAPSHOT_MODEL, this.state.cursor + 1)
+}
+CanvasStore.prototype.hasUndo = function () {
+  return this.state.cursor > 0
+}
+CanvasStore.prototype.hasRedo = function () {
+  return this.state.cursor < this.state.snapshots.length - 1
 }
 /** ******** utils *********/
 function inRectBox (x, y, rectBox) {

@@ -245,7 +245,11 @@ export default {
     model: {
       immediate: true,
       handler (val) {
-        this.store.commit('SET_MODEL', val)
+        this.store.initModel(val)
+
+        if (!this.dropTargetId) {
+          window.store = this.store
+        }
       }
     }
   },
@@ -262,9 +266,6 @@ export default {
     })
     this.rectangleSelectService = new RectangleSelectFactory(this.store)
     Modelvalidation.validateModel(this.model)
-    if (!this.dropTargetId) {
-      window.store = this.store
-    }
   },
   mounted () {
     let canvas = this.$refs['fc-canvas'].getBoundingClientRect()

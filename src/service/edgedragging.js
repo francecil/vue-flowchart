@@ -97,6 +97,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
           throw error
         }
       }
+      let isPushState = true
       let edge = {
         source: this.draggedEdgeSource.id,
         destination: connector.id
@@ -108,6 +109,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
         } else {
           edge = Object.assign(edgeDragging.prevEdge, edge)
         }
+        isPushState = false
       } else {
         try {
           edge.label = await this.edgeAddCallback()
@@ -116,7 +118,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
         }
       }
 
-      this.store.addEdge(edge)
+      this.store.addEdge({edge, isPushState: isPushState})
     }
   } catch (error) {
 
@@ -128,7 +130,7 @@ EdgeDraggingFactory.prototype.dragend = function (event) {
   let edgeDragging = this.store.state.edgeDragging
   if (edgeDragging.isDragging) {
     if (edgeDragging.prevEdge) {
-      this.store.addEdge(edgeDragging.prevEdge)
+      this.store.addEdge({edge: edgeDragging.prevEdge})
     }
     this.init()
   }

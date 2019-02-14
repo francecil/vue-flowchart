@@ -30,6 +30,14 @@
         <button @click="handlePaste()">
           Paste
         </button>
+        <button
+          @click="handleUndo()">
+          Undo
+        </button>
+        <button
+          @click="handleRedo()">
+          Redo
+        </button>
       </div>
       <fc-canvas
         ref="fcCanvas"
@@ -76,7 +84,23 @@ export default {
     }
     return {
       dropSourceModel: dropSourceModel,
-      model: {
+      model: null
+    }
+  },
+  computed: {
+    hasUndo () {
+      let fcCanvas = this.$refs.fcCanvas
+      return fcCanvas && fcCanvas.store.hasUndo()
+    },
+    hasRedo () {
+      let fcCanvas = this.$refs.fcCanvas
+      return fcCanvas && fcCanvas.store.hasRedo()
+    }
+  },
+  mounted () {
+    // 模拟数据获取
+    setTimeout(() => {
+      this.model = {
         nodes: [{
           id: 1,
           name: 'root',
@@ -124,57 +148,7 @@ export default {
           label: 'label1'
         }]
       }
-    }
-  },
-  mounted () {
-    // 模拟数据获取
-    // setTimeout(() => {
-    //   this.model = {
-    //     nodes: [{
-    //       id: 1,
-    //       name: 'root',
-    //       x: 120, // x-coordinate of the node relative to the canvas.
-    //       y: 400,
-    //       readonly: true,
-    //       connectors: [{
-    //         id: 11,
-    //         type: flowchartConstants.rightConnectorType
-    //       }]
-    //     }, {
-    //       id: 2,
-    //       name: 'node1',
-    //       x: 411, // x-coordinate of the node relative to the canvas.
-    //       y: 200,
-    //       connectors: [{
-    //         id: 12,
-    //         type: flowchartConstants.leftConnectorType
-    //       }, {
-    //         id: 13,
-    //         type: flowchartConstants.rightConnectorType
-    //       }]
-    //     }, {
-    //       id: 3,
-    //       name: 'node2',
-    //       x: 800, // x-coordinate of the node relative to the canvas.
-    //       y: 500,
-    //       connectors: [{
-    //         id: 14,
-    //         type: flowchartConstants.leftConnectorType
-    //       }]
-    //     }],
-    //     edges: [{
-    //       source: 11,
-    //       destination: 12,
-    //       active: false,
-    //       label: 'label0'
-    //     }, {
-    //       source: 13,
-    //       destination: 14,
-    //       active: true,
-    //       label: 'label1'
-    //     }]
-    //   }
-    // }, 2000)
+    }, 2000)
   },
   methods: {
     nodeAddCallback (name) {
@@ -206,12 +180,12 @@ export default {
       let node = {}
       node.name = prompt('新增节点')
       if (node.name !== null) {
-        fcCanvas.store.addNode(node)
+        fcCanvas.store.addNode({node, isPushState: true})
       }
     },
     deleteSelected () {
       let fcCanvas = this.$refs.fcCanvas
-      fcCanvas.store.deleteSelected()
+      fcCanvas.store.deleteSelected(true)
     },
     handleCopy () {
       let fcCanvas = this.$refs.fcCanvas
@@ -220,6 +194,14 @@ export default {
     handlePaste () {
       let fcCanvas = this.$refs.fcCanvas
       fcCanvas.store.pasteData()
+    },
+    handleUndo () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.undo()
+    },
+    handleRedo () {
+      let fcCanvas = this.$refs.fcCanvas
+      fcCanvas.store.redo()
     }
   }
 }

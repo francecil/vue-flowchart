@@ -60,10 +60,10 @@
       ref="popover"
       v-model="underMouse"
       :title="node.name"
+      :content="node.addition&&node.addition.desc"
       placement="right"
       width="200"
-      trigger="manual"
-      content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"/>
+      trigger="manual"/>
   </div>
 
 </template>

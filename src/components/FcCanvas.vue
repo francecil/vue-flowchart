@@ -246,7 +246,7 @@ export default {
       immediate: true,
       handler (val) {
         this.store.initModel(val)
-
+        this.adjustCanvasSize(val)
         if (!this.dropTargetId) {
           window.store = this.store
         }
@@ -269,13 +269,36 @@ export default {
   },
   mounted () {
     let canvas = this.$refs['fc-canvas'].getBoundingClientRect()
+    let container = this.$el.getBoundingClientRect()
     this.store.commit('UPDATE_CANVAS_OFFSET', {
-      width: canvas.width,
-      height: canvas.height
+      width: Math.max(canvas.width, container.width),
+      height: Math.max(canvas.height, container.height)
     })
     this.store.commit('SET_CANVAS_CONTAINER', this.$refs['fc-canvas'])
   },
   methods: {
+    adjustCanvasSize () {
+      if (this.model) {
+        let maxX = 0
+        let maxY = 0
+        for (let node of this.model.nodes) {
+          maxX = Math.max(node.x + 200, maxX)
+          maxY = Math.max(node.y + 100, maxY)
+        }
+        let width = maxX
+        let height = maxY
+        let canvas = this.$refs['fc-canvas']
+        if (canvas) {
+          let offset = canvas.getBoundingClientRect()
+          width = Math.max(maxX, offset.width)
+          height = Math.max(maxY, offset.height)
+        }
+        this.store.commit('UPDATE_CANVAS_OFFSET', {
+          width: width,
+          height: height
+        })
+      }
+    },
     canvasDrop (event) {
       // 放置在目标元素时触发
       console.log('canvasDrop', event)

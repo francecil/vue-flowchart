@@ -111,6 +111,9 @@ export default {
             [flowchartConstants.rightConnectorType]: {
               id: 11
             }
+          },
+          addition: {
+            desc: '这是根节点'
           }
         }, {
           id: 2,
@@ -128,7 +131,7 @@ export default {
         }, {
           id: 3,
           name: 'node2',
-          x: 800, // x-coordinate of the node relative to the canvas.
+          x: 1800, // x-coordinate of the node relative to the canvas.
           y: 500,
           connectors: {
             [flowchartConstants.leftConnectorType]: {
@@ -148,7 +151,7 @@ export default {
           label: 'label1'
         }]
       }
-    }, 2000)
+    }, 1000)
   },
   methods: {
     nodeAddCallback (name) {

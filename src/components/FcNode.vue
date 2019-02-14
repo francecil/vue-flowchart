@@ -5,9 +5,13 @@
     :style="styleComputed"
     :class="classComputed"
     @mousedown.stop
+    @mouseover="handleMouseover"
+    @mouseout="handleMouseout"
     v-on="listenersComputed">
     <div :class="flowchartConstants.nodeOverlayClass" />
-    <div class="innerNode">
+    <div
+      v-popover:popover
+      class="innerNode">
       <p>{{ node.name }}</p>
 
       <div :class="flowchartConstants.leftConnectorClass">
@@ -52,6 +56,14 @@
       @click.stop.prevent="handleDelete">
       &times;
     </div>
+    <el-popover
+      ref="popover"
+      v-model="underMouse"
+      :title="node.name"
+      placement="right"
+      width="200"
+      trigger="manual"
+      content="这是一段内容,这是一段内容,这是一段内容,这是一段内容。"/>
   </div>
 
 </template>
@@ -105,8 +117,6 @@ export default {
           dragstart: this.handleDragstart,
           // dragend: this.handleDragend,
           click: this.handleClick,
-          mouseover: this.handleMouseover,
-          mouseout: this.handleMouseout,
           dblclick: this.handleDoubleClick
         }
       } else {
@@ -130,7 +140,7 @@ export default {
       let classObj = {}
       classObj[flowchartConstants.selectedClass] = this.selected
       classObj[flowchartConstants.editClass] = this.edit
-      classObj[flowchartConstants.hoverClass] = this.underMouse
+      classObj[flowchartConstants.hoverClass] = this.underMouse && !this.node.readonly
       classObj[flowchartConstants.draggingClass] = this.draggedNode
       classObj[flowchartConstants.nodeClass] = true
       return classObj
@@ -150,6 +160,7 @@ export default {
     },
     handleDragstart (event) {
       console.log('node Dragstart:', event)
+      this.underMouse = false
       let elementBox = this.$el.getBoundingClientRect()
       let eventPointOffset = {
         x: event.clientX - elementBox.left,

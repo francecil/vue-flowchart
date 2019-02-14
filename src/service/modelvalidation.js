@@ -11,6 +11,7 @@ function Modelvalidation () {
 
   this.validateModel = function (model) {
     console.log('validateModel')
+    if (model === null) return
     this.validateNodes(model.nodes)
     this._validateEdges(model.edges, model.nodes)
     return model

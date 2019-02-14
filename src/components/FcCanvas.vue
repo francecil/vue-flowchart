@@ -239,6 +239,9 @@ export default {
         height: rectangleSelect.height + 'px',
         visibility: rectangleSelect.visibility
       }
+    },
+    historyCursor () {
+      return this.store.state.cursor
     }
   },
   watch: {
@@ -250,6 +253,13 @@ export default {
         if (!this.dropTargetId) {
           window.store = this.store
         }
+      }
+    },
+    historyCursor: {
+      immediate: true,
+      handler (val) {
+        this.$emit('has-undo', this.store.hasUndo())
+        this.$emit('has-redo', this.store.hasRedo())
       }
     }
   },

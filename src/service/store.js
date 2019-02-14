@@ -153,8 +153,8 @@ CanvasStore.prototype.mutations = {
     let snapshot = JSON.stringify(state.model)
     // 比如当前索引为3 进行新操作后 就需要把 snapshots 数组中索引>3的数据删掉
     state.snapshots.splice(state.cursor + 1, state.snapshots.length)
-    state.cursor++
     state.snapshots.push(snapshot)
+    state.cursor++
     while (state.snapshots.length > state.MAX_HISTORY) {
       state.snapshots.shift()
       state.cursor--

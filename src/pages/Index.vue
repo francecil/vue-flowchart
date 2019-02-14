@@ -12,32 +12,45 @@
       style="background-color: gray;"/>
     <div class="fc-right-pane">
       <div class="button-overlay">
-        <button
+        <el-button
+          type="primary"
           title="Add a new node to then chart"
-          @click="addNewNode()">Add Node</button>
-        <button
-          ng-disabled="modelservice.nodes.getSelectedNodes().length == 0 && modelservice.edges.getSelectedEdges().length == 0"
+          @click="addNewNode()">Add Node
+        </el-button>
+        <el-button
+          type="danger"
           title="Delete selected nodes and connections"
           @click="deleteSelected">
           Delete Selected
-        </button>
-        <button @click="selectAll()">
+        </el-button>
+        <el-button
+          type="info"
+          @click="selectAll()">
           Select All
-        </button>
-        <button @click="handleCopy()">
+        </el-button>
+        <el-button
+          type="primary"
+          @click="handleCopy()">
           Copy
-        </button>
-        <button @click="handlePaste()">
+        </el-button>
+
+        <el-button
+          type="primary"
+          @click="handlePaste()">
           Paste
-        </button>
-        <button
+        </el-button>
+        <el-button
+          :disabled="!hasUndo"
+          type="warning"
           @click="handleUndo()">
           Undo
-        </button>
-        <button
+        </el-button>
+        <el-button
+          :disabled="!hasRedo"
+          type="warning"
           @click="handleRedo()">
           Redo
-        </button>
+        </el-button>
       </div>
       <fc-canvas
         ref="fcCanvas"
@@ -45,6 +58,8 @@
         :node-add-callback="nodeAddCallback"
         :edge-add-callback="edgeAddCallback"
         edge-style="curved"
+        @has-undo="handleHasUndo"
+        @has-redo="handleHasRedo"
       />
     </div>
   </div>
@@ -84,18 +99,13 @@ export default {
     }
     return {
       dropSourceModel: dropSourceModel,
-      model: null
+      model: null,
+      hasUndo: false,
+      hasRedo: false
     }
   },
   computed: {
-    hasUndo () {
-      let fcCanvas = this.$refs.fcCanvas
-      return fcCanvas && fcCanvas.store.hasUndo()
-    },
-    hasRedo () {
-      let fcCanvas = this.$refs.fcCanvas
-      return fcCanvas && fcCanvas.store.hasRedo()
-    }
+
   },
   mounted () {
     // 模拟数据获取
@@ -131,7 +141,7 @@ export default {
         }, {
           id: 3,
           name: 'node2',
-          x: 1800, // x-coordinate of the node relative to the canvas.
+          x: 800, // x-coordinate of the node relative to the canvas.
           y: 500,
           connectors: {
             [flowchartConstants.leftConnectorType]: {
@@ -205,6 +215,12 @@ export default {
     handleRedo () {
       let fcCanvas = this.$refs.fcCanvas
       fcCanvas.store.redo()
+    },
+    handleHasUndo (val) {
+      this.hasUndo = val
+    },
+    handleHasRedo (val) {
+      this.hasRedo = val
     }
   }
 }
@@ -229,6 +245,11 @@ body {
 
 .fc-left-pane {
   flex: 0.25;
+}
+.button-overlay {
+  position: absolute;
+  top: 20px;
+  z-index: 10;
 }
 
 </style>

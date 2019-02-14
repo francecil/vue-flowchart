@@ -209,36 +209,6 @@ export default {
 }
 </script>
 <style>
-.button-overlay {
-  position: absolute;
-  top: 40px;
-  z-index: 10;
-}
-
-.button-overlay button {
-  display: block;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  border: none;
-  box-shadow: none;
-  color: #fff;
-  font-size: 20px;
-  background-color: #f15b26;
-}
-
-.button-overlay button:hover:not(:disabled) {
-  border: 4px solid #b03911;
-  border-radius: 5px;
-
-  margin: -4px;
-  margin-bottom: 11px;
-}
-
-.button-overlay button:disabled {
-  -webkit-filter: brightness(70%);
-  filter: brightness(70%);
-}
 
 .fc-node {
   z-index: 1;

@@ -253,10 +253,10 @@ CanvasStore.prototype.addNode = function ({node, isPushState}) {
     node.id = UUIDjs.create('node')
   }
   if (node.x === undefined) {
-    node.x = 400
+    node.x = Math.round(Math.random() * 200 + 300)
   }
   if (node.y === undefined) {
-    node.y = 400
+    node.y = Math.round(Math.random() * 200 + 300)
   }
   this.commit(ADD_NODE, node)
   if (isPushState) {

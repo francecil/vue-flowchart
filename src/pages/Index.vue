@@ -244,7 +244,7 @@ body {
 }
 
 .fc-left-pane {
-  flex: 0.25;
+  flex: 0.15;
 }
 .button-overlay {
   position: absolute;

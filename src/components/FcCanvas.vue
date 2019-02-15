@@ -402,7 +402,7 @@ export default {
 
 .main-container {
   width: 100%;
-  height: 100vh;
+  height: 100%;
   z-index: 0;
   overflow: auto;
 }
@@ -432,11 +432,11 @@ export default {
   height: 100%;
 }
 .fc-divider {
-  flex: 0.01;
+  width:1px;
 }
 
 .fc-right-pane {
-  flex: 0.74;
+  flex: 0.85;
   overflow: auto;
 }
 

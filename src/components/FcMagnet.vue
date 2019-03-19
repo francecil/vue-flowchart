@@ -40,7 +40,7 @@ export default {
     listenersComputed () {
       if (this.store.isEditable()) {
         return {
-          drop: this.handleDrop
+          mouseup: this.handleDrop
         }
       } else {
         return {}

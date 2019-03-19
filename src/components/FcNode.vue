@@ -1,17 +1,15 @@
 <template>
   <div
     :id="node.id"
-    :draggable="!node.readonly"
     :style="styleComputed"
     :class="classComputed"
-    @mousedown.stop
-    @mouseover="handleMouseover"
-    @mouseout="handleMouseout"
-    v-on="listenersComputed">
+    v-on="listenersComputed"
+  >
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div
       v-popover:popover
-      class="innerNode">
+      class="innerNode"
+    >
       <p>{{ node.name }}</p>
 
       <div :class="flowchartConstants.leftConnectorClass">
@@ -19,41 +17,46 @@
           v-if="node.connectors&&node.connectors[flowchartConstants.leftConnectorType]"
           :connector="node.connectors[flowchartConstants.leftConnectorType]"
           :store="store"
-          :edge-dragging-service="edgeDraggingService">
+          :edge-dragging-service="edgeDraggingService"
+        >
           <fc-connector
             :connector="node.connectors[flowchartConstants.leftConnectorType]"
             :type="flowchartConstants.leftConnectorType"
             :node="node"
             :edge-dragging-service="edgeDraggingService"
-            :store="store"/>
+            :store="store"
+          />
         </fc-magnet>
       </div>
       <div :class="flowchartConstants.rightConnectorClass">
         <fc-magnet
-
           v-if="node.connectors&&node.connectors[flowchartConstants.rightConnectorType]"
           :connector="node.connectors[flowchartConstants.rightConnectorType]"
           :store="store"
-          :edge-dragging-service="edgeDraggingService">
+          :edge-dragging-service="edgeDraggingService"
+        >
           <fc-connector
             :type="flowchartConstants.leftConnectorType"
             :connector="node.connectors[flowchartConstants.rightConnectorType]"
             :node="node"
             :edge-dragging-service="edgeDraggingService"
-            :store="store"/>
+            :store="store"
+          />
         </fc-magnet>
       </div>
     </div>
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodeedit"
-      @click.stop.prevent="handleEdit">
+      @click.stop.prevent="handleEdit"
+    >
       #
     </div>
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodedelete"
-      @click.stop.prevent="handleDelete">
+      @click.stop.prevent="handleDelete"
+    >
       &times;
     </div>
     <el-popover
@@ -63,7 +66,8 @@
       :content="node.addition&&node.addition.desc"
       placement="right"
       width="200"
-      trigger="manual"/>
+      trigger="manual"
+    />
   </div>
 
 </template>
@@ -107,15 +111,17 @@ export default {
   data () {
     return {
       underMouse: false,
-      flowchartConstants: flowchartConstants
+      flowchartConstants: flowchartConstants,
+      dragging: false,
+      eventPointOffset: {}
     }
   },
   computed: {
     listenersComputed () {
       if (!this.node.readonly) {
         return {
-          dragstart: this.handleDragstart,
-          // dragend: this.handleDragend,
+          // dragstart: this.handleDragstart,
+          mousedown: this.handleMousedown,
           click: this.handleClick,
           dblclick: this.handleDoubleClick
         }
@@ -158,8 +164,9 @@ export default {
     handleDoubleClick () {
 
     },
-    handleDragstart (event) {
-      console.log('node Dragstart:', event)
+    handleMousedown (event) {
+      console.log('node mousedown')
+      event.stopPropagation()
       this.underMouse = false
       let elementBox = this.$el.getBoundingClientRect()
       let eventPointOffset = {
@@ -169,6 +176,18 @@ export default {
       this.nodeDraggingService.dragstart(event, this.node, eventPointOffset)
       this.$emit('node-dragstart', this.node)
     },
+    // handleDragstart (event) {
+    //   console.log('node Dragstart:', event)
+    //   this.dragging = true
+    //   this.underMouse = false
+    //   let elementBox = this.$el.getBoundingClientRect()
+    //   let eventPointOffset = {
+    //     x: event.clientX - elementBox.left,
+    //     y: event.clientY - elementBox.top
+    //   }
+    //   this.nodeDraggingService.dragstart(event, this.node, eventPointOffset)
+    //   this.$emit('node-dragstart', this.node)
+    // },
     handleClick (event) {
       event.stopPropagation()
       event.preventDefault()
@@ -209,7 +228,6 @@ export default {
 }
 </script>
 <style>
-
 .fc-node {
   z-index: 1;
 }
@@ -310,5 +328,4 @@ export default {
 .fc-connector.fc-hover {
   background-color: #000;
 }
-
 </style>

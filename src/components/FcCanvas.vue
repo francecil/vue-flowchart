@@ -5,9 +5,8 @@
       :id="canvasId"
       :style="styleComputed"
       class="fc-canvas"
-      @dragover.prevent.stop="canvasDragover"
-      @drop.prevent.stop="canvasDrop"
-      v-on="listenersComputed">
+      v-on="listenersComputed"
+    >
       <svg>
         <defs>
           <marker
@@ -19,12 +18,14 @@
             refX="10"
             refY="0"
             markerUnits="strokeWidth"
-            orient="auto">
+            orient="auto"
+          >
             <polygon
               points="-2,0 -5,5 5,0 -5,-5"
               stroke="gray"
               fill="gray"
-              stroke-width="1px" />
+              stroke-width="1px"
+            />
           </marker>
           <marker
             :id="arrowDefId+'-selected'"
@@ -35,12 +36,14 @@
             refX="10"
             refY="0"
             markerUnits="strokeWidth"
-            orient="auto">
+            orient="auto"
+          >
             <polygon
               points="-2,0 -5,5 5,0 -5,-5"
               stroke="red"
               fill="red"
-              stroke-width="1px" />
+              stroke-width="1px"
+            />
           </marker>
         </defs>
         <fc-edge
@@ -61,12 +64,14 @@
 
           <path
             :class="[flowchartConstants.edgeClass,flowchartConstants.draggingClass]"
-            :d="getEdgeDAttribute(edgeDragging.dragPoint1, edgeDragging.dragPoint2, edgeStyle)"/>
+            :d="getEdgeDAttribute(edgeDragging.dragPoint1, edgeDragging.dragPoint2, edgeStyle)"
+          />
           <circle
             :cx="edgeDragging.dragPoint2.x"
             :cy="edgeDragging.dragPoint2.y"
             class="edge-endpoint"
-            r="4"/>
+            r="4"
+          />
 
         </g>
       </svg>
@@ -92,10 +97,10 @@
         v-if="edgeDragging.isDragging"
         :class="'fc-noselect ' + flowchartConstants.edgeLabelClass"
         :style="{ top: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).y)+'px',
-                  left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}">
+                  left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}"
+      >
         <div class="fc-edge-label-text">
-          <span
-            v-if="edgeDragging.prevEdge&&edgeDragging.prevEdge.label">{{ edgeDragging.prevEdge.label }}</span>
+          <span v-if="edgeDragging.prevEdge&&edgeDragging.prevEdge.label">{{ edgeDragging.prevEdge.label }}</span>
         </div>
       </div>
       <!-- 连线的label -->
@@ -117,7 +122,8 @@
         v-if="store.isEditable()"
         id="select-rectangle"
         :style="rectangleSelect"
-        class="fc-select-rectangle" />
+        class="fc-select-rectangle"
+      />
     </div>
   </div>
 </template>
@@ -173,13 +179,13 @@ export default {
     nodeAddCallback: {
       type: Function,
       default: () => {
-        return () => {}
+        return () => { }
       }
     },
     edgeAddCallback: {
       type: Function,
       default: () => {
-        return () => {}
+        return () => { }
       }
     }
   },
@@ -309,21 +315,21 @@ export default {
         })
       }
     },
-    canvasDrop (event) {
-      // 放置在目标元素时触发
-      console.log('canvasDrop', event)
-      if (!this.store.state.edgeDragging.isDragging) {
-        this.nodeDraggingService.drop(event)
-      }
-    },
+    // canvasDrop (event) {
+    //   // 放置在目标元素时触发
+    //   console.log('canvasDrop', event)
+    //   if (!this.store.state.edgeDragging.isDragging) {
+    //     this.nodeDraggingService.drop(event)
+    //   }
+    // },
 
-    canvasDragover (event) {
-      if (this.store.state.edgeDragging.isDragging) {
-        this.edgeDraggingService.dragover(event)
-      } else {
-        this.nodeDraggingService.dragover(event)
-      }
-    },
+    // canvasDragover (event) {
+    //   if (this.store.state.edgeDragging.isDragging) {
+    //     this.edgeDraggingService.dragover(event)
+    //   } else {
+    //     this.nodeDraggingService.dragover(event)
+    //   }
+    // },
 
     canvasMousedown (event) {
       console.log('canvasMousedown', event)
@@ -331,12 +337,25 @@ export default {
     },
 
     canvasMousemove (event) {
-      this.rectangleSelectService.mousemove(event)
+      event.stopPropagation()
+      if (this.store.state.edgeDragging.isDragging) {
+        this.edgeDraggingService.dragover(event)
+      } else if (this.store.state.nodeDragging.isDragging) {
+        this.nodeDraggingService.dragover(event)
+      } else {
+        this.rectangleSelectService.mousemove(event)
+      }
     },
 
     canvasMouseup (event) {
       console.log('canvasMouseup', event)
-      this.rectangleSelectService.mouseup(event)
+      if (this.store.state.edgeDragging.isDragging) {
+        this.edgeDraggingService.dragend(event)
+      } else if (this.store.state.nodeDragging.isDragging) {
+        this.nodeDraggingService.drop(event)
+      } else {
+        this.rectangleSelectService.mouseup(event)
+      }
     },
 
     edgeClick (event) {
@@ -399,7 +418,6 @@ export default {
 }
 </script>
 <style>
-
 .main-container {
   width: 100%;
   height: 100%;
@@ -432,7 +450,7 @@ export default {
   height: 100%;
 }
 .fc-divider {
-  width:1px;
+  width: 1px;
 }
 
 .fc-right-pane {

@@ -14,6 +14,7 @@ const DESELECT_OBJECT = 'DESELECT_OBJECT'
 const SELECT_OBJECT = 'SELECT_OBJECT'
 const SET_NODE_ELEMENT = 'SET_NODE_ELEMENT'
 const SET_CANVAS_CONTAINER = 'SET_CANVAS_CONTAINER'
+const UPDATE_NODE_DRAGGING = 'UPDATE_NODE_DRAGGING'
 const UPDATE_EDGE_DRAGGING = 'UPDATE_EDGE_DRAGGING'
 const UPDATE_RECTANGLE_SELECT = 'UPDATE_RECTANGLE_SELECT'
 const UPDATE_CLIPBOARD = 'UPDATE_CLIPBOARD'
@@ -46,6 +47,9 @@ const CanvasStore = function (canvas, initialState = {}) {
       dragPoint1: null,
       dragPoint2: null,
       prevEdge: null
+    },
+    nodeDragging: {
+      isDragging: false
     },
     // 选择区域
     rectangleSelect: {
@@ -140,6 +144,9 @@ CanvasStore.prototype.mutations = {
   [SET_CANVAS_CONTAINER] (state, element) {
     state.canvasContainer = element
   },
+  [UPDATE_NODE_DRAGGING] (state, nodeDragging) {
+    Object.assign(state.nodeDragging, nodeDragging)
+  },
   [UPDATE_EDGE_DRAGGING] (state, edgeDragging) {
     Object.assign(state.edgeDragging, edgeDragging)
   },
@@ -174,6 +181,9 @@ CanvasStore.prototype.mutations = {
     state.selectedObjects = []
     // node对应的dom节点
     state.nodeElements = {}
+    state.nodeDragging = {
+      isDragging: false
+    }
     // 连线相关
     state.edgeDragging = {
       isDragging: false,
@@ -194,7 +204,7 @@ CanvasStore.prototype.mutations = {
   }
 }
 CanvasStore.prototype.commit = function (name, ...args) {
-  console.log(name, args)
+  // console.log(name, args)
   const mutations = this.mutations
   if (mutations[name]) {
     mutations[name].apply(this, [this.state].concat(args))

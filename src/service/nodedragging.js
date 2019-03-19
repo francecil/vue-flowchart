@@ -5,12 +5,11 @@ import UUIDjs from '@/utils/uuid'
 function NodeDraggingFactory (store, initialState = {}) {
   // 待拖拽点相关信息,dragover时使用
   this.dropNodeInfo = null
-  this.nodeAddCallback = () => {}
+  this.nodeAddCallback = () => { }
   // 所有待拖拽点
   this.draggedNodes = []
   this.store = store
   this.automaticResize = true
-  this.dragThreshold = 0
   this.dragAnimation = flowchartConstants.dragAnimationRepaint
   for (let prop in initialState) {
     if (initialState.hasOwnProperty(prop) && this.hasOwnProperty(prop)) {
@@ -40,16 +39,16 @@ const resizeCanvas = function (node, automaticResize, store) {
     }
   }
 }
-let dragImage = null
-// 一个透明图像
-const getDragImage = function () {
-  if (!dragImage) {
-    dragImage = new Image()
-    dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    dragImage.style.visibility = 'hidden'
-  }
-  return dragImage
-}
+// let dragImage = null
+// // 一个透明图像
+// const getDragImage = function () {
+//   if (!dragImage) {
+//     dragImage = new Image()
+//     dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+//     dragImage.style.visibility = 'hidden'
+//   }
+//   return dragImage
+// }
 const getDragOffset = function (event, dropNodeInfo, canvasOffset) {
   return {
     x: event.clientX - dropNodeInfo.eventPointOffset.x - canvasOffset.left - dropNodeInfo.node.x,
@@ -59,11 +58,17 @@ const getDragOffset = function (event, dropNodeInfo, canvasOffset) {
 NodeDraggingFactory.prototype.init = function () {
   this.dropNodeInfo = null
   this.draggedNodes.length = 0
+  let nodeDragging = {
+    isDragging: false
+  }
+  this.store.commit('UPDATE_NODE_DRAGGING', nodeDragging)
 }
 NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffset) {
   if (node.readonly) {
     return
   }
+  let nodeDragging = {}
+  nodeDragging.isDragging = true
   this.dropNodeInfo = {
     node,
     eventPointOffset
@@ -77,28 +82,31 @@ NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffse
   }
   if (this.store.isDropSource()) {
     this.dropNodeInfo.isDropSource = true
-    event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
-    return
+    // event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
+    // return
   }
-  try {
-    event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
-  } catch (error) {
-    console.warn('ie will report error:', error)
-  }
-  if (event.dataTransfer.setDragImage) {
-    event.dataTransfer.setDragImage(getDragImage(), 0, 0)
-  }
+  // try {
+  //   event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
+  // } catch (error) {
+  //   console.warn('ie will report error:', error)
+  // }
+  // if (event.dataTransfer.setDragImage) {
+  //   event.dataTransfer.setDragImage(getDragImage(), 0, 0)
+  // }
+  this.store.commit('UPDATE_NODE_DRAGGING', nodeDragging)
 }
 
 NodeDraggingFactory.prototype.drop = async function (event) {
-  let dropNodeInfoStr = event.dataTransfer.getData('text')
-  console.log('dropNodeInfoStr:', dropNodeInfoStr)
+  // let dropNodeInfoStr = event.dataTransfer.getData('text')
+  // console.log('dropNodeInfoStr:', dropNodeInfoStr)
   // 画板属于dropsource 或 dropNodeInfo信息不存在
-  if (this.store.isDropSource() || !dropNodeInfoStr) {
+  if (this.store.isDropSource()
+  // || !dropNodeInfoStr
+  ) {
     return
   }
   try {
-    let dropNodeInfo = JSON.parse(dropNodeInfoStr)
+    let dropNodeInfo = this.dropNodeInfo
     // 原节点属于类型节点
     if (dropNodeInfo.isDropSource) {
       let name = await this.nodeAddCallback(dropNodeInfo.node.name)
@@ -111,7 +119,7 @@ NodeDraggingFactory.prototype.drop = async function (event) {
       for (let type in newNode.connectors) {
         newNode.connectors[type].id = UUIDjs.create('connector')
       }
-      this.store.addNode({node: newNode, isPushState: true})
+      this.store.addNode({ node: newNode, isPushState: true })
     } else {
       // 节点属于目标画板节点，直接应用
       let offset = getDragOffset(event, this.dropNodeInfo, {
@@ -145,9 +153,6 @@ NodeDraggingFactory.prototype.dragover = function (event) {
     left: this.store.getCanvasOffsetRelativeLeft(),
     top: this.store.getCanvasOffsetRelativeTop()
   })
-  if (offset.x < this.dragThreshold && offset.y < this.dragThreshold) {
-    return
-  }
   for (let node of this.draggedNodes) {
     let newNode = Object.assign(node, {
       x: node.x + offset.x,

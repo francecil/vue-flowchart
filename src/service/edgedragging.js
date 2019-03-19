@@ -13,16 +13,16 @@ function EdgeDraggingFactory (store, initialState = {}) {
     }
   }
 }
-let dragImage = null
-// 一个透明图像
-const getDragImage = function () {
-  if (!dragImage) {
-    dragImage = new Image()
-    dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
-    dragImage.style.visibility = 'hidden'
-  }
-  return dragImage
-}
+// let dragImage = null
+// // 一个透明图像
+// const getDragImage = function () {
+//   if (!dragImage) {
+//     dragImage = new Image()
+//     dragImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'
+//     dragImage.style.visibility = 'hidden'
+//   }
+//   return dragImage
+// }
 EdgeDraggingFactory.prototype.init = function () {
   let edgeDragging = {
     isDragging: false,
@@ -67,14 +67,14 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
     x: event.clientX - this.store.getCanvasOffsetRelativeLeft(),
     y: event.clientY - this.store.getCanvasOffsetRelativeTop()
   }
-  try {
-    event.dataTransfer.setData('text', 'Just to support firefox')
-  } catch (error) {
-    console.warn('ie will report error:', error)
-  }
-  if (event.dataTransfer.setDragImage) {
-    event.dataTransfer.setDragImage(getDragImage(), 0, 0)
-  }
+  // try {
+  //   event.dataTransfer.setData('text', 'Just to support firefox')
+  // } catch (error) {
+  //   console.warn('ie will report error:', error)
+  // }
+  // if (event.dataTransfer.setDragImage) {
+  //   event.dataTransfer.setDragImage(getDragImage(), 0, 0)
+  // }
   this.store.commit('UPDATE_EDGE_DRAGGING', edgeDragging)
 }
 

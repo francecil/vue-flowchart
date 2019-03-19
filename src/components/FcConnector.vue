@@ -1,6 +1,5 @@
 <template>
   <div
-    :draggable="store.isEditable()"
     :class="[{[flowchartConstants.hoverClass]:underMouse},flowchartConstants.connectorClass]"
     v-on="listenersComputed"
   />
@@ -50,8 +49,7 @@ export default {
     listenersComputed () {
       if (this.store.isEditable()) {
         return {
-          dragstart: this.handleDragstart,
-          dragend: this.handleDragend,
+          mousedown: this.handleDragstart,
           mouseenter: this.handleMouseenter,
           mouseleave: this.handleMouseleave
         }
@@ -100,12 +98,6 @@ export default {
       event.stopPropagation()
       console.log('connector Dragstart:', event)
       this.edgeDraggingService.dragstart(event, this.connector, this.type)
-    },
-    handleDragend (event) {
-      event.preventDefault()
-      event.stopPropagation()
-      console.log('connector handleDragend:', event)
-      this.edgeDraggingService.dragend(event)
     },
     handleMouseenter () {
       this.underMouse = true

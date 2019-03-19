@@ -60,7 +60,7 @@
           @edge-mouseleave="edgeMouseLeave"
           @edge-click="edgeClick"
         />
-        <g v-if="edgeDragging.isDragging">
+        <g v-if="edgeDragging.dragging">
 
           <path
             :class="[flowchartConstants.edgeClass,flowchartConstants.draggingClass]"
@@ -94,7 +94,7 @@
       />
 
       <div
-        v-if="edgeDragging.isDragging"
+        v-if="edgeDragging.dragging"
         :class="'fc-noselect ' + flowchartConstants.edgeLabelClass"
         :style="{ top: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).y)+'px',
                   left: (getEdgeCenter(edgeDragging.dragPoint1, edgeDragging.dragPoint2).x)+'px'}"
@@ -320,13 +320,13 @@ export default {
     // canvasDrop (event) {
     //   // 放置在目标元素时触发
     //   console.log('canvasDrop', event)
-    //   if (!this.store.state.edgeDragging.isDragging) {
+    //   if (!this.store.state.edgeDragging.dragging) {
     //     this.nodeDraggingService.drop(event)
     //   }
     // },
 
     // canvasDragover (event) {
-    //   if (this.store.state.edgeDragging.isDragging) {
+    //   if (this.store.state.edgeDragging.dragging) {
     //     this.edgeDraggingService.dragover(event)
     //   } else {
     //     this.nodeDraggingService.dragover(event)
@@ -340,9 +340,9 @@ export default {
 
     canvasMousemove (event) {
       event.stopPropagation()
-      if (this.store.state.edgeDragging.isDragging) {
+      if (this.store.state.edgeDragging.dragging) {
         this.edgeDraggingService.dragover(event)
-      } else if (this.store.state.nodeDragging.isDragging) {
+      } else if (this.store.state.nodeDragging.dragging) {
         this.nodeDraggingService.dragover(event)
       } else {
         this.rectangleSelectService.mousemove(event)
@@ -351,9 +351,9 @@ export default {
 
     canvasMouseup (event) {
       console.log('canvasMouseup', event)
-      if (this.store.state.edgeDragging.isDragging) {
+      if (this.store.state.edgeDragging.dragging) {
         this.edgeDraggingService.dragend(event)
-      } else if (this.store.state.nodeDragging.isDragging) {
+      } else if (this.store.state.nodeDragging.dragging) {
         this.nodeDraggingService.drop(event)
       } else {
         this.rectangleSelectService.mouseup(event)

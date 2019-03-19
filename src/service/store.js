@@ -43,13 +43,14 @@ const CanvasStore = function (canvas, initialState = {}) {
     canvasContainer: null,
     // 连线相关
     edgeDragging: {
-      isDragging: false,
+      dragging: false,
       dragPoint1: null,
       dragPoint2: null,
       prevEdge: null
     },
     nodeDragging: {
-      isDragging: false
+      dragging: false,
+      downOffset: null
     },
     // 选择区域
     rectangleSelect: {
@@ -182,11 +183,12 @@ CanvasStore.prototype.mutations = {
     // node对应的dom节点
     state.nodeElements = {}
     state.nodeDragging = {
-      isDragging: false
+      dragging: false,
+      downOffset: null
     }
     // 连线相关
     state.edgeDragging = {
-      isDragging: false,
+      dragging: false,
       dragPoint1: null,
       dragPoint2: null,
       prevEdge: null

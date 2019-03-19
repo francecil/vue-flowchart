@@ -59,7 +59,8 @@ NodeDraggingFactory.prototype.init = function () {
   this.dropNodeInfo = null
   this.draggedNodes.length = 0
   let nodeDragging = {
-    isDragging: false
+    dragging: false,
+    downOffset: null
   }
   this.store.commit('UPDATE_NODE_DRAGGING', nodeDragging)
 }
@@ -68,7 +69,11 @@ NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffse
     return
   }
   let nodeDragging = {}
-  nodeDragging.isDragging = true
+  nodeDragging.dragging = true
+  nodeDragging.downOffset = {
+    x: event.clientX,
+    y: event.clientY
+  }
   this.dropNodeInfo = {
     node,
     eventPointOffset
@@ -121,21 +126,27 @@ NodeDraggingFactory.prototype.drop = async function (event) {
       }
       this.store.addNode({ node: newNode, isPushState: true })
     } else {
-      // 节点属于目标画板节点，直接应用
-      let offset = getDragOffset(event, this.dropNodeInfo, {
-        left: this.store.getCanvasOffsetRelativeLeft(),
-        top: this.store.getCanvasOffsetRelativeTop()
-      })
-      for (let node of this.draggedNodes) {
-        let newNode = Object.assign(node, {
-          x: node.x + offset.x,
-          y: node.y + offset.y
+      let downOffset = this.store.state.nodeDragging.downOffset
+      console.log(downOffset.x, event.clientX, downOffset.y, event.clientY)
+      if (downOffset.x === event.clientX && downOffset.y === event.clientY) {
+        // handle click
+      } else {
+        // 节点属于目标画板节点，直接应用
+        let offset = getDragOffset(event, this.dropNodeInfo, {
+          left: this.store.getCanvasOffsetRelativeLeft(),
+          top: this.store.getCanvasOffsetRelativeTop()
         })
-        this.store.updateNode({
-          node: node,
-          newNode,
-          isPushState: true
-        })
+        for (let node of this.draggedNodes) {
+          let newNode = Object.assign(node, {
+            x: node.x + offset.x,
+            y: node.y + offset.y
+          })
+          this.store.updateNode({
+            node: node,
+            newNode,
+            isPushState: true
+          })
+        }
       }
     }
   } catch (error) {
@@ -149,6 +160,9 @@ NodeDraggingFactory.prototype.dragover = function (event) {
   // if (this.store.isDropSource() || !this.dropNodeInfo) {
   //   return
   // }
+  if (!this.store.state.nodeDragging.dragging) {
+    return
+  }
   let offset = getDragOffset(event, this.dropNodeInfo, {
     left: this.store.getCanvasOffsetRelativeLeft(),
     top: this.store.getCanvasOffsetRelativeTop()

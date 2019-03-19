@@ -25,7 +25,7 @@ function EdgeDraggingFactory (store, initialState = {}) {
 // }
 EdgeDraggingFactory.prototype.init = function () {
   let edgeDragging = {
-    isDragging: false,
+    dragging: false,
     dragPoint1: null,
     dragPoint2: null,
     prevEdge: null
@@ -36,7 +36,7 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
   let swapConnector = null
   let prevEdge = null
   let edgeDragging = {}
-  edgeDragging.isDragging = true
+  edgeDragging.dragging = true
   // 拖拽点为左类型，则删去原来连线并记录
   if (type === flowchartConstants.leftConnectorType) {
     for (let edge of this.store.state.model.edges) {
@@ -81,7 +81,7 @@ EdgeDraggingFactory.prototype.dragstart = function (event, connector, type) {
 EdgeDraggingFactory.prototype.drop = async function (connector) {
   let edgeDragging = this.store.state.edgeDragging
   try {
-    if (edgeDragging.isDragging) {
+    if (edgeDragging.dragging) {
       let invalid = false
       // 验证起始连线是否合法
       try {
@@ -128,7 +128,7 @@ EdgeDraggingFactory.prototype.drop = async function (connector) {
 }
 EdgeDraggingFactory.prototype.dragend = function (event) {
   let edgeDragging = this.store.state.edgeDragging
-  if (edgeDragging.isDragging) {
+  if (edgeDragging.dragging) {
     if (edgeDragging.prevEdge) {
       this.store.addEdge({edge: edgeDragging.prevEdge})
     }
@@ -137,7 +137,7 @@ EdgeDraggingFactory.prototype.dragend = function (event) {
 }
 EdgeDraggingFactory.prototype.dragover = function (event) {
   let edgeDragging = this.store.state.edgeDragging
-  if (edgeDragging.isDragging) {
+  if (edgeDragging.dragging) {
     this.store.commit('UPDATE_EDGE_DRAGGING', {
       dragPoint2: {
         x: event.clientX - this.store.getCanvasOffsetRelativeLeft(),

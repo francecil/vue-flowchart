@@ -203,7 +203,7 @@ export default {
       })
     },
     handleMouseover () {
-      if (!this.store.state.edgeDragging.isDragging && !this.store.state.nodeDragging.isDragging) {
+      if (!this.store.state.edgeDragging.dragging && !this.store.state.nodeDragging.dragging) {
         this.underMouse = true
       }
     },

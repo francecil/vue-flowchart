@@ -202,7 +202,8 @@ export default {
     handleClick (event) {
       event.stopPropagation()
       event.preventDefault()
-      if (!this.store.isEditable()) {
+      // 由于点击操作 延迟重置dragging，取到的值为true 非true表示拖拽
+      if (!this.store.isEditable() || !this.store.state.nodeDragging.dragging) {
         return
       }
       // Don't let the chart handle the mouse down.

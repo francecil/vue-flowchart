@@ -62,6 +62,7 @@ NodeDraggingFactory.prototype.init = function () {
     dragging: false,
     downOffset: null
   }
+  console.log('nodedragging init')
   this.store.commit('UPDATE_NODE_DRAGGING', nodeDragging)
 }
 NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffset) {
@@ -130,6 +131,10 @@ NodeDraggingFactory.prototype.drop = async function (event) {
       console.log(downOffset.x, event.clientX, downOffset.y, event.clientY)
       if (downOffset.x === event.clientX && downOffset.y === event.clientY) {
         // handle click
+        setTimeout(() => {
+          this.init()
+        }, 0)
+        return
       } else {
         // 节点属于目标画板节点，直接应用
         let offset = getDragOffset(event, this.dropNodeInfo, {

@@ -140,7 +140,7 @@ CanvasStore.prototype.mutations = {
     }
   },
   [SET_NODE_ELEMENT] (state, {nodeId, element}) {
-    console.log('SET_NODE_ELEMENT', nodeId)
+    // console.log('SET_NODE_ELEMENT', nodeId)
     state.nodeElements[nodeId] = element
   },
   [SET_CANVAS_CONTAINER] (state, element) {

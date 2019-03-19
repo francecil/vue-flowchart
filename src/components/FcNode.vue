@@ -226,15 +226,6 @@ export default {
       this.underMouse = false
     },
     handleEdit () {
-      let name = prompt('编辑节点名称', this.node.name)
-      let newNode = Object.assign(this.node, {
-        name
-      })
-      this.store.updateNode({
-        node: this.node,
-        newNode,
-        isPushState: true
-      })
       this.$emit('node-edit', this.node)
     },
     handleDelete () {

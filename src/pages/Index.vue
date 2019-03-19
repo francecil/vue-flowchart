@@ -57,6 +57,8 @@
         :model="model"
         :node-add-callback="nodeAddCallback"
         :edge-add-callback="edgeAddCallback"
+        :node-edit-callback="nodeEditCallback"
+        :edge-edit-callback="edgeEditCallback"
         edge-style="curved"
         @has-undo="handleHasUndo"
         @has-redo="handleHasRedo"
@@ -177,6 +179,26 @@ export default {
     edgeAddCallback () {
       return new Promise((resolve, reject) => {
         let newName = prompt('新增连线', '')
+        if (newName === null) {
+          reject(new Error('cancel'))
+        } else {
+          resolve(newName)
+        }
+      })
+    },
+    nodeEditCallback (name) {
+      return new Promise((resolve, reject) => {
+        let newName = prompt('编辑节点名称', name)
+        if (newName === null) {
+          reject(new Error('cancel'))
+        } else {
+          resolve(newName)
+        }
+      })
+    },
+    edgeEditCallback (name) {
+      return new Promise((resolve, reject) => {
+        let newName = prompt('编辑连线名称', name)
         if (newName === null) {
           reject(new Error('cancel'))
         } else {

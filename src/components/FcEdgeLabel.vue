@@ -112,15 +112,6 @@ export default {
       this.$emit('edge-dblclick', this.edge)
     },
     handleEdit () {
-      let label = prompt('编辑连线label', this.edge.label)
-      let newEdge = Object.assign(this.edge, {
-        label
-      })
-      this.updateEdge({
-        edge: this.edge,
-        newEdge,
-        isPushState: true
-      })
       this.$emit('edge-edit', this.edge)
     },
     handleDelete () {

@@ -189,6 +189,18 @@ export default {
       default: () => {
         return () => { }
       }
+    },
+    nodeEditCallback: {
+      type: Function,
+      default: () => {
+        return () => { }
+      }
+    },
+    edgeEditCallback: {
+      type: Function,
+      default: () => {
+        return () => { }
+      }
     }
   },
   data () {
@@ -384,8 +396,21 @@ export default {
       console.log('edgeDoubleClick')
       this.$emit('edge-dblclick', edge)
     },
-    edgeEdit (edge) {
-      this.$emit('edge-edit', edge)
+    async edgeEdit (edge) {
+      try {
+        let label = await this.edgeEditCallback(edge.label)
+        let newEdge = Object.assign(edge, {
+          label
+        })
+        this.store.updateEdge({
+          edge: edge,
+          newEdge,
+          isPushState: true
+        })
+        // this.$emit('edge-edit', edge)
+      } catch (error) {
+
+      }
     },
     nodeDragstart (node) {
       this.$emit('node-dragstart', this.node)
@@ -405,8 +430,21 @@ export default {
     nodeMouseOut (node) {
 
     },
-    nodeEdit (node) {
-      this.$emit('node-edit', node)
+    async nodeEdit (node) {
+      try {
+        let name = await this.nodeEditCallback(node.name)
+        let newNode = Object.assign(node, {
+          name
+        })
+        this.store.updateNode({
+          node: node,
+          newNode,
+          isPushState: true
+        })
+      } catch (error) {
+
+      }
+      // this.$emit('node-edit', node)
     },
     isValidEdge (edge) {
 

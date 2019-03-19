@@ -205,6 +205,7 @@ export default {
   },
   computed: {
     currentModel () {
+      console.log('currentModel change')
       return this.store.state.model
     },
     canvasOffset () {

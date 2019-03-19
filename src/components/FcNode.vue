@@ -154,6 +154,15 @@ export default {
       return classObj
     }
   },
+  watch: {
+    node (val) {
+      // 撤销重做时，整个node对象改变，需要重新上传$el
+      this.$el && this.store.commit('SET_NODE_ELEMENT', {
+        nodeId: this.node.id,
+        element: this.$el
+      })
+    }
+  },
   created () {
   },
   mounted () {

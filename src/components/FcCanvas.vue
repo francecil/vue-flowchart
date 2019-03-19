@@ -6,6 +6,8 @@
       :style="styleComputed"
       class="fc-canvas"
       v-on="listenersComputed"
+      @dragover.prevent.stop="canvasDragover"
+      @drop.prevent.stop="canvasDrop"
     >
       <svg>
         <defs>
@@ -318,21 +320,15 @@ export default {
         })
       }
     },
-    // canvasDrop (event) {
-    //   // 放置在目标元素时触发
-    //   console.log('canvasDrop', event)
-    //   if (!this.store.state.edgeDragging.dragging) {
-    //     this.nodeDraggingService.drop(event)
-    //   }
-    // },
+    canvasDrop (event) {
+      // 放置在目标元素时触发
+      console.log('canvasDrop', event)
+      this.nodeDraggingService.drop(event)
+    },
 
-    // canvasDragover (event) {
-    //   if (this.store.state.edgeDragging.dragging) {
-    //     this.edgeDraggingService.dragover(event)
-    //   } else {
-    //     this.nodeDraggingService.dragover(event)
-    //   }
-    // },
+    canvasDragover (event) {
+      this.nodeDraggingService.dragover(event)
+    },
 
     canvasMousedown (event) {
       console.log('canvasMousedown', event)

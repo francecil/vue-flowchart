@@ -3,6 +3,7 @@
     :id="node.id"
     :style="styleComputed"
     :class="classComputed"
+    :draggable="store.isDropSource()"
     v-on="listenersComputed"
     @mouseover="handleMouseover"
     @mouseout="handleMouseout"
@@ -114,18 +115,22 @@ export default {
     return {
       underMouse: false,
       flowchartConstants: flowchartConstants,
-      dragging: false,
       eventPointOffset: {}
     }
   },
   computed: {
     listenersComputed () {
       if (!this.node.readonly) {
-        return {
-          // dragstart: this.handleDragstart,
-          mousedown: this.handleMousedown,
-          click: this.handleClick,
-          dblclick: this.handleDoubleClick
+        if (this.store.isEditable()) {
+          return {
+            mousedown: this.handleMousedown,
+            click: this.handleClick,
+            dblclick: this.handleDoubleClick
+          }
+        } else {
+          return {
+            dragstart: this.handleMousedown
+          }
         }
       } else {
         return {}

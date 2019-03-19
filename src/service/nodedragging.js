@@ -88,31 +88,28 @@ NodeDraggingFactory.prototype.dragstart = function (event, node, eventPointOffse
   }
   if (this.store.isDropSource()) {
     this.dropNodeInfo.isDropSource = true
-    // event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
-    // return
+    event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
+    // if (event.dataTransfer.setDragImage) {
+    //   event.dataTransfer.setDragImage(getDragImage(), 0, 0)
+    // }
   }
-  // try {
-  //   event.dataTransfer.setData('text', JSON.stringify(this.dropNodeInfo))
-  // } catch (error) {
-  //   console.warn('ie will report error:', error)
-  // }
-  // if (event.dataTransfer.setDragImage) {
-  //   event.dataTransfer.setDragImage(getDragImage(), 0, 0)
-  // }
   this.store.commit('UPDATE_NODE_DRAGGING', nodeDragging)
 }
 
 NodeDraggingFactory.prototype.drop = async function (event) {
-  // let dropNodeInfoStr = event.dataTransfer.getData('text')
-  // console.log('dropNodeInfoStr:', dropNodeInfoStr)
-  // 画板属于dropsource 或 dropNodeInfo信息不存在
-  // if (this.store.isDropSource()
-  // // || !dropNodeInfoStr
-  // ) {
-  //   return
-  // }
+  if (this.store.isDropSource()) {
+    return
+  }
   try {
     let dropNodeInfo = this.dropNodeInfo
+    if (event.dataTransfer) {
+      let dropNodeInfoStr = event.dataTransfer.getData('text')
+      // 画板属于dropsource 或 dropNodeInfo信息不存在
+      if (!dropNodeInfoStr) {
+        return
+      }
+      dropNodeInfo = JSON.parse(dropNodeInfoStr)
+    }
     // 原节点属于类型节点
     if (dropNodeInfo.isDropSource) {
       let name = await this.nodeAddCallback(dropNodeInfo.node.name)
@@ -128,7 +125,7 @@ NodeDraggingFactory.prototype.drop = async function (event) {
       this.store.addNode({ node: newNode, isPushState: true })
     } else {
       let downOffset = this.store.state.nodeDragging.downOffset
-      console.log(downOffset.x, event.clientX, downOffset.y, event.clientY)
+      // console.log(downOffset.x, event.clientX, downOffset.y, event.clientY)
       if (downOffset.x === event.clientX && downOffset.y === event.clientY) {
         // handle click
         setTimeout(() => {
@@ -162,9 +159,9 @@ NodeDraggingFactory.prototype.drop = async function (event) {
 }
 NodeDraggingFactory.prototype.dragover = function (event) {
   // 画板属于dropsource 或 拖拽节点不在目标画板
-  // if (this.store.isDropSource() || !this.dropNodeInfo) {
-  //   return
-  // }
+  if (this.store.isDropSource() || !this.dropNodeInfo) {
+    return
+  }
   if (!this.store.state.nodeDragging.dragging) {
     return
   }

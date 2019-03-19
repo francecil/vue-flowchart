@@ -100,11 +100,11 @@ NodeDraggingFactory.prototype.drop = async function (event) {
   // let dropNodeInfoStr = event.dataTransfer.getData('text')
   // console.log('dropNodeInfoStr:', dropNodeInfoStr)
   // 画板属于dropsource 或 dropNodeInfo信息不存在
-  if (this.store.isDropSource()
-  // || !dropNodeInfoStr
-  ) {
-    return
-  }
+  // if (this.store.isDropSource()
+  // // || !dropNodeInfoStr
+  // ) {
+  //   return
+  // }
   try {
     let dropNodeInfo = this.dropNodeInfo
     // 原节点属于类型节点
@@ -146,9 +146,9 @@ NodeDraggingFactory.prototype.drop = async function (event) {
 }
 NodeDraggingFactory.prototype.dragover = function (event) {
   // 画板属于dropsource 或 拖拽节点不在目标画板
-  if (this.store.isDropSource() || !this.dropNodeInfo) {
-    return
-  }
+  // if (this.store.isDropSource() || !this.dropNodeInfo) {
+  //   return
+  // }
   let offset = getDragOffset(event, this.dropNodeInfo, {
     left: this.store.getCanvasOffsetRelativeLeft(),
     top: this.store.getCanvasOffsetRelativeTop()

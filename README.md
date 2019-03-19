@@ -192,6 +192,9 @@ dragover时拿不到`dataTransfer.getData`
 
 chrome 中 dragover 不能拿到`event.dataTransfer.getData('Text')`
 
+### 采用mouse代替drag 
+
+从测试上来看，mouse兼容性好，且性能更好一点
 ### 批量拖拽
 
 ## 鼠标悬浮mouseOver

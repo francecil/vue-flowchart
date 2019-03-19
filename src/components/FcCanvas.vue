@@ -233,7 +233,9 @@ export default {
           mouseup: this.canvasMouseup
         }
       } else {
-        return {}
+        return {
+          mousemove: this.canvasMousemove
+        }
       }
     },
     rectangleSelect () {

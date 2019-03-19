@@ -484,7 +484,7 @@ CanvasStore.prototype.hasRedo = function () {
 }
 /** ******** utils *********/
 function inRectBox (x, y, rectBox) {
-  console.log(x, y, rectBox)
+  // console.log(x, y, rectBox)
   return x >= rectBox.left && x <= rectBox.right &&
             y >= rectBox.top && y <= rectBox.bottom
 }

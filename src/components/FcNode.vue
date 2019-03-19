@@ -4,6 +4,8 @@
     :style="styleComputed"
     :class="classComputed"
     v-on="listenersComputed"
+    @mouseover="handleMouseover"
+    @mouseout="handleMouseout"
   >
     <div :class="flowchartConstants.nodeOverlayClass" />
     <div
@@ -201,7 +203,9 @@ export default {
       })
     },
     handleMouseover () {
-      this.underMouse = true
+      if (!this.store.state.edgeDragging.isDragging && !this.store.state.nodeDragging.isDragging) {
+        this.underMouse = true
+      }
     },
     handleMouseout () {
       this.underMouse = false

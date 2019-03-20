@@ -51,6 +51,7 @@
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodeedit"
+      @mousedown.stop
       @click.stop.prevent="handleEdit"
     >
       #
@@ -58,6 +59,7 @@
     <div
       v-if="store.isEditable() && !node.readonly"
       class="fc-nodedelete"
+      @mousedown.stop
       @click.stop.prevent="handleDelete"
     >
       &times;
